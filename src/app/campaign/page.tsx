@@ -20,6 +20,15 @@ import {EmailProfile, getEmailProfile} from '@/services/email';
 import {useToast} from "@/hooks/use-toast"
 import Link from 'next/link';
 import { GenerateOutreachSequenceOutput } from '@/ai/flows/generate-outreach-sequence';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email';
@@ -284,13 +293,24 @@ export default function CampaignPage() {
           {generatedSequence && (
             <div className="mt-4">
               <Label>Generated Sequence:</Label>
-              <ul>
-                {generatedSequence.sequence.map((step, index) => (
-                  <li key={index} className="py-2">
-                    {index + 1}. {step}
-                  </li>
-                ))}
-              </ul>
+              <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">Step</TableHead>
+                    <TableHead>Message</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {generatedSequence.sequence.map((step, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell>{step}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              </div>
             </div>
           )}
 
