@@ -5,7 +5,9 @@
 
 @layer base {
   body {
-    @apply bg-[#F5F7FA] text-[#2D3436] font-inter;
+    @apply bg-background text-foreground font-inter;
+    --background: 230 60% 98%; /* #F5F7FA */
+    --foreground: 214 20% 21%; /* #2D3436 */
   }
   @font-face {
     font-family: 'Inter';
@@ -25,11 +27,30 @@
     font-weight: 700;
     font-style: normal;
   }
+  :root {
+    --primary: 180 40% 30%; /* Teal */
+    --primary-foreground: 50 90% 98%;
+    --secondary: 220 3% 17%; /* Dark Gray */
+    --secondary-foreground: 220 50% 98%;
+    --muted: 220 3% 17%;
+    --muted-foreground: 220 50% 98%;
+    --accent: 180 40% 30%; /* Teal */
+    --accent-foreground: 50 90% 98%;
+    --popover: 230 60% 98%; /* #F5F7FA */
+    --popover-foreground: 214 20% 21%; /* #2D3436 */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 214 20% 21%; /* #2D3436 */
+    --destructive: 0 84% 60%; /* Red */
+    --destructive-foreground: 0 0% 98%; /* White */
+    --border: 240 5% 59%; /* Soft Gray */
+    --input: 240 5% 59%;
+    --ring: 180 40% 30%; /* Teal */
+  }
 }
 
 @layer components {
   .card {
-    @apply bg-white bg-opacity-80 rounded-lg p-4 shadow-sm border border-[#4A5D6D];
+    @apply bg-card bg-opacity-80 rounded-lg p-4 shadow-sm border border-border;
   }
   .fab {
     @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
@@ -38,6 +59,6 @@
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
   }
   .modal-content {
-    @apply bg-white bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
+    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }
