@@ -1,138 +1,33 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
-import {Mail, MessageSquare, Shield, User, Workflow, PhoneCall, Link} from 'lucide-react';
-import {Button} from "@/components/ui/button";
-import NextLink from 'next/link';
+'use client';
 
-export default function Home() {
+import React from 'react';
+import Image from 'next/image';
+import {useRouter, usePathname} from 'next/navigation';
+
+export default function Dashboard() {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
-    <div className="container mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold">OutreachAI - Streamline Your Outreach</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* AI Script Generation */}
-        <Card>
-          <CardHeader>
-            <CardTitle>AI Script Generation</CardTitle>
-            <CardDescription>
-              Generate personalized outreach scripts for LinkedIn, Twitter/X, and email using Gemini 2.0.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center space-x-4">
-            <MessageSquare className="h-8 w-8 text-primary"/>
-            <div>
-              <p className="text-sm">Craft engaging and tailored messages effortlessly.</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Risk & Lead Visualization */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Risk & Lead Visualization</CardTitle>
-            <CardDescription>
-              Displays campaign risk scores and lead prioritization rankings.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center space-x-4">
-            <User className="h-8 w-8 text-primary"/>
-            <div>
-              <p className="text-sm">Quickly assess and focus on high-potential leads.</p>
-            </div>
-          </CardContent>
-          <CardContent>
-              <NextLink href="/risk-lead-visualization" className="text-sm text-blue-500 hover:underline">Risk &amp; Lead Visualization</NextLink>
-          </CardContent>
-        </Card>
-
-        {/* Script Approval Workflow */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Script Approval Workflow</CardTitle>
-            <CardDescription>
-              Review and approve AI-generated scripts before initiating calls via Twilio.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center space-x-4">
-            <Workflow className="h-8 w-8 text-primary"/>
-            <div>
-              <p className="text-sm">Ensure quality and relevance with a streamlined approval process.</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Real-Time Compliance Check */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Real-Time Compliance Check</CardTitle>
-            <CardDescription>
-              Performs real-time checks against LinkedIn ToS, GDPR, and other regulations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center space-x-4">
-            <Shield className="h-8 w-8 text-primary"/>
-            <div>
-              <p className="text-sm">Adhere to regulations before outreach.</p>
-            </div>
-          </CardContent>
-          <CardContent>
-               <NextLink href="/compliance/check" className="text-sm text-blue-500 hover:underline">Compliance Check</NextLink>
-          </CardContent>
-        </Card>
-
-          {/* AI Calling Agent */}
-          <Card>
-              <CardHeader>
-                  <CardTitle>AI Calling Agent</CardTitle>
-                  <CardDescription>
-                      AI generates and initiates calls, with user review and approval, powered by Dialogflow and Twilio.
-                  </CardDescription>
-              </CardHeader>
-              <CardContent className="flex items-center space-x-4">
-                  <PhoneCall className="h-8 w-8 text-primary"/>
-                  <div>
-                      <p className="text-sm">Automate voice follow-ups with user-reviewed scripts.</p>
-                  </div>
-              </CardContent>
-              <CardContent>
-                  <NextLink href="/call/approve" className="text-sm text-blue-500 hover:underline">Approve Call Script</NextLink>
-              </CardContent>
-          </Card>
-
-        {/* Multi-Platform API Integration */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Multi-Platform API Integration</CardTitle>
-            <CardDescription>
-              Integrates LinkedIn, Twitter/X and Email APIs for fetching profile data and automating outreach sequences.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center space-x-4">
-            <Mail className="h-8 w-8 text-primary"/>
-            <div>
-              <p className="text-sm">Personalize interactions across multiple platforms.</p>
-            </div>
-          </CardContent>
-           <CardContent>
-               <NextLink href="/auth/linkedin" className="text-sm text-blue-500 hover:underline">LinkedIn OAuth</NextLink>
-               <NextLink href="/auth/twitter" className="text-sm text-blue-500 hover:underline">Twitter OAuth</NextLink>
-               <NextLink href="/auth/email" className="text-sm text-blue-500 hover:underline">Email OAuth</NextLink>
-          </CardContent>
-        </Card>
-
-        {/* Placeholders for other features or future cards */}
-        <Card>
-          <CardHeader>
-            <CardTitle>More features coming soon</CardTitle>
-            <CardDescription>
-              Placeholder card for additional features.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm">Stay tuned for updates and new functionalities!</p>
-            <Button>Learn More</Button>
-          </CardContent>
-        </Card>
+    <div
+      className="min-h-screen bg-background text-foreground flex items-center justify-center py-24"
+    >
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 className="text-4xl font-bold text-center mb-8">ConvoSpan.ai Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="rounded-lg border shadow-md p-6 bg-card">
+            <h2 className="text-xl font-semibold text-primary mb-2">Active Campaigns</h2>
+            <p className="text-base mb-4">3 Running | 5 Scheduled</p>
+            <button
+              className="bg-accent text-accent-foreground px-6 py-2 rounded-full shadow-lg hover:bg-opacity-90 transition duration-300 ease-in-out"
+              onClick={() => router.push('/campaign/create')}
+            >
+              Start Campaign
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
