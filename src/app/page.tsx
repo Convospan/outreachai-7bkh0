@@ -89,6 +89,9 @@ export default function Home() {
                       <p className="text-sm">Automate voice follow-ups with user-reviewed scripts.</p>
                   </div>
               </CardContent>
+              <CardContent>
+                  <a href="/call/approve" className="text-sm text-blue-500 hover:underline">Approve Call Script</a>
+              </CardContent>
           </Card>
 
         {/* Multi-Platform API Integration */}
@@ -129,3 +132,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
