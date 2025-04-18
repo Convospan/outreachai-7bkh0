@@ -38,6 +38,9 @@ export default function Home() {
               <p className="text-sm">Quickly assess and focus on high-potential leads.</p>
             </div>
           </CardContent>
+          <CardContent>
+              <a href="/risk-lead-visualization" className="text-sm text-blue-500 hover:underline">Risk &amp; Lead Visualization</a>
+          </CardContent>
         </Card>
 
         {/* Script Approval Workflow */}
@@ -132,5 +135,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
