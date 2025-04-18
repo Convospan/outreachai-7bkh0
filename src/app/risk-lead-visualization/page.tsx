@@ -15,18 +15,31 @@ import {generateCallScript, GenerateCallScriptOutput} from '@/ai/flows/generate-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
+// Define data types for chart data
+interface CampaignRiskData {
+    campaign: string;
+    riskScore: number;
+}
+
+interface LeadRankingData {
+    lead: string;
+    ranking: number;
+}
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']; // Example theme colors
 
 export default function RiskLeadVisualizationPage() {
     // Placeholder data for campaign risk scores and lead prioritization
-    const campaignRiskScores = [
+    const campaignRiskScoresData: CampaignRiskData[] = [
         { campaign: "Campaign A", riskScore: 75 },
         { campaign: "Campaign B", riskScore: 30 },
         { campaign: "Campaign C", riskScore: 50 },
         { campaign: "Campaign D", riskScore: 90 },
     ];
 
-    const leadPrioritizationRankings = [
+    const leadPrioritizationRankingsData: LeadRankingData[] = [
         { lead: "Lead 1", ranking: 1 },
         { lead: "Lead 2", ranking: 2 },
         { lead: "Lead 3", ranking: 3 },
@@ -106,15 +119,27 @@ export default function RiskLeadVisualizationPage() {
                         <CardDescription>Displays risk scores for each campaign.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ul>
-                            {campaignRiskScores.map((item, index) => (
-                                <li key={index} className="flex justify-between py-2">
-                                    <span>{item.campaign}</span>
-                                    <span>{item.riskScore}</span>
-                                </li>
-                            ))}
-                        </ul>
-                         <div className="grid gap-2">
+                        {/* Pie Chart */}
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    dataKey="riskScore"
+                                    isAnimationActive={false}
+                                    data={campaignRiskScoresData}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    label
+                                >
+                                    {campaignRiskScoresData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div className="grid gap-2">
                             <Label htmlFor="tier">Tier</Label>
                             <Select onValueChange={(value) => setTier(value as 'basic' | 'pro' | 'enterprise')}>
                                 <SelectTrigger id="tier">
@@ -172,14 +197,17 @@ export default function RiskLeadVisualizationPage() {
                         <CardDescription>Ranks leads based on their potential.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ul>
-                            {leadPrioritizationRankings.map((item, index) => (
-                                <li key={index} className="flex justify-between py-2">
-                                    <span>{item.lead}</span>
-                                    <span>{item.ranking}</span>
-                                </li>
-                            ))}
-                        </ul>
+                         {/* Bar Chart */}
+                         <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={leadPrioritizationRankingsData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="lead" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="ranking" fill="#82ca9d" />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             </div>
