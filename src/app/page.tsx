@@ -41,7 +41,7 @@ export default function Home() {
       </section>
 
       {/* Multi-Channel Magic Section */}
-      <section className="py-12 px-4 max-w-4xl mx-auto text-center bg-muted rounded-lg shadow-sm">
+      <section className="py-12 px-4 max-w-4xl mx-auto text-center bg-white rounded-lg shadow-sm">
         <h2 className="text-3xl font-semibold mb-4">Double Your Chances with My Multi-Channel Magic</h2>
         <p className="text-lg mb-6">
           Why stick to one platform when I can help you shine everywhere? I mix LinkedIn, Twitter/X, email, and AI calls to reach more people. It’s like having a friendly assistant chatting with your prospects while you do what you love!
@@ -58,4 +58,3 @@ export default function Home() {
     </div>
   );
 }
-
