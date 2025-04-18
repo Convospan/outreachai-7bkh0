@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import {useRouter, usePathname} from 'next/navigation';
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -18,16 +18,12 @@ export default function Dashboard() {
           <div className="rounded-lg border shadow-md p-6 bg-card">
             <h2 className="text-xl font-semibold text-primary mb-2">Active Campaigns</h2>
             <p className="text-base mb-4">3 Running | 5 Scheduled</p>
-            <button
-              className="bg-accent text-accent-foreground px-6 py-2 rounded-full shadow-lg hover:bg-opacity-90 transition duration-300 ease-in-out"
-              onClick={() => router.push('/campaign/create')}
-            >
-              Start Campaign
-            </button>
+              <Button onClick={() => router.push('/campaign/create')}>
+                Start Campaign
+              </Button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
