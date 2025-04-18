@@ -20,7 +20,7 @@ const GenerateCallScriptInputSchema = z.object({
   preferredTone: z.enum(['formal', 'informal', 'professional']).default('professional').describe('The desired tone of the call script.'),
   industry: z.string().describe('The industry of the target professional.'),
   connections: z.number().describe('The number of connections the target professional has.'),
-  subscriptionTier: z.enum(['basic', 'premium', 'enterprise']).default('basic').describe('The subscription tier of the user.'),
+  subscriptionTier: z.enum(['basic', 'pro', 'enterprise']).default('basic').describe('The subscription tier of the user.'),
   usedCallCount: z.number().default(0).describe('The number of calls used by the user in the current period.'),
 });
 export type GenerateCallScriptInput = z.infer<typeof GenerateCallScriptInputSchema>;
@@ -40,7 +40,7 @@ const checkCallQuota = ai.defineTool({
   name: 'checkCallQuota',
   description: 'Checks if the user has exceeded their call quota based on their subscription tier.',
   inputSchema: z.object({
-    subscriptionTier: z.enum(['basic', 'premium', 'enterprise']).describe('The subscription tier of the user.'),
+    subscriptionTier: z.enum(['basic', 'pro', 'enterprise']).describe('The subscription tier of the user.'),
     usedCallCount: z.number().default(0).describe('The number of calls used by the user in the current period.'),
   }),
   outputSchema: z.boolean().describe('True if the quota is exceeded, false otherwise.'),
@@ -50,13 +50,13 @@ const checkCallQuota = ai.defineTool({
 
   switch (subscriptionTier) {
     case 'basic':
-      callLimit = 10;
+      callLimit = 100;
       break;
-    case 'premium':
-      callLimit = 50;
+    case 'pro':
+      callLimit = 500;
       break;
     case 'enterprise':
-      callLimit = 100;
+      callLimit = Number.MAX_SAFE_INTEGER; // Unlimited calls
       break;
     default:
       callLimit = 0; // No calls allowed
@@ -77,7 +77,7 @@ const prompt = ai.definePrompt({
       preferredTone: z.string().describe('The desired tone of the call script (formal, informal, or professional).'),
       industry: z.string().describe('The industry of the target professional.'),
       connections: z.number().describe('The number of connections the target professional has.'),
-      subscriptionTier: z.string().describe('The subscription tier of the user (basic, premium, or enterprise).'),
+      subscriptionTier: z.string().describe('The subscription tier of the user (basic, pro, or enterprise).'),
     }),
   },
   output: {

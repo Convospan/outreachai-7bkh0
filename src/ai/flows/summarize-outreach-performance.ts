@@ -3,7 +3,7 @@
  * @fileOverview Summarizes outreach campaign performance metrics using XGBoost for lead prioritization.
  *
  * - summarizeOutreachPerformance - A function that summarizes outreach performance metrics and incorporates XGBoost predictions.
- * - SummarizeOutreachPerformanceInput - The input type for the summarizeOutreachPerformance function.
+ * - SummarizeOutreachPerformanceInput - The input type for the SummarizeOutreachPerformance function.
  * - SummarizeOutreachPerformanceOutput - The return type for the SummarizeOutreachPerformance function.
  */
 

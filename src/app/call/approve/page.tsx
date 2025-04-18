@@ -26,7 +26,7 @@ export default function CallScriptApprovalPage() {
   const [additionalContext, setAdditionalContext] = useState('');
   const [industry, setIndustry] = useState('');
   const [connections, setConnections] = useState(0);
-  const [subscriptionTier, setSubscriptionTier] = useState<'basic' | 'premium' | 'enterprise'>('basic');
+  const [subscriptionTier, setSubscriptionTier] = useState<'basic' | 'pro' | 'enterprise'>('basic');
   const [usedCallCount, setUsedCallCount] = useState(0); // Calls used in the current period
   const [quotaExceeded, setQuotaExceeded] = useState(false);
 
@@ -142,11 +142,11 @@ export default function CallScriptApprovalPage() {
             <select
               id="subscriptionTier"
               value={subscriptionTier}
-              onChange={e => setSubscriptionTier(e.target.value as 'basic' | 'premium' | 'enterprise')}
+              onChange={e => setSubscriptionTier(e.target.value as 'basic' | 'pro' | 'enterprise')}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="basic">Basic</option>
-              <option value="premium">Premium</option>
+              <option value="pro">Pro</option>
               <option value="enterprise">Enterprise</option>
             </select>
           </div>

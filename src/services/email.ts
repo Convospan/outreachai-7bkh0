@@ -55,4 +55,3 @@ export async function integrateEmailAPI(): Promise<void> {
     // Implementation requires backend logic and secure handling of credentials.
     console.log("Email API integration logic would be implemented here.");
 }
-

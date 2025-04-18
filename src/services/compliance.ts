@@ -32,20 +32,29 @@ export async function checkCompliance(data: any): Promise<ComplianceStatus> {
   }
 
   if (!script) {
-        return {
-            status: 'error',
-            message: 'Script cannot be empty',
-        };
+    return {
+      status: 'error',
+      message: 'Script cannot be empty',
+    };
+  }
+
+  // In a real implementation, we would call a subscription service to check this
+  const isActiveSubscription = tier === 'pro' || tier === 'enterprise';
+
+  if (!isActiveSubscription) {
+    return {
+      status: 'error',
+      message: 'Pro or Enterprise subscription is required for compliance checks.',
+    };
   }
 
   if (tier === 'basic') {
     return {
-      status: 'error',
-      message: 'Pro or Enterprise tier required for compliance checks.',
+      status: 'ok',
+      message: 'Basic tier compliance checks are not available. Please upgrade to Pro or Enterprise for advanced compliance features.',
     };
   }
 
-  // Basic check for potentially violating terms
   if (script.includes('buy now') || script.includes('limited time offer')) {
     return {
       status: 'warning',

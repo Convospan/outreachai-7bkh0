@@ -6,18 +6,23 @@ import { Button } from "@/components/ui/button";
 import GoogleSignInButton from "@/app/GoogleSignInButton";
 import { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { firebaseApp } from '@/app/GoogleSignInButton';
+import { firebaseApp } from '@/lib/firebase';
 
 export default function Dashboard() {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState(null);
+    const [isOnPaidTier, setIsOnPaidTier] = useState(false); // Example, replace with your actual check
 
     useEffect(() => {
         const auth = getAuth(firebaseApp);
         const unsubscribe = onAuthStateChanged(auth, (authUser) => {
             setUser(authUser);
         });
+
+        // Check user's subscription status (replace with your actual logic)
+        // Example: fetchSubscriptionStatus(authUser).then(status => setIsOnPaidTier(status === 'active'));
+        setIsOnPaidTier(true);
 
         return () => unsubscribe();
     }, [router]);
@@ -30,6 +35,26 @@ export default function Dashboard() {
                 <div>
                     <h1 className="text-4xl font-bold text-center mb-8">ConvoSpan.ai</h1>
                     <GoogleSignInButton />
+                </div>
+            </div>
+        );
+    }
+
+    // Redirect to pricing if not on a paid tier
+    if (!isOnPaidTier) {
+        return (
+            <div
+                className="min-h-screen bg-background text-foreground flex items-center justify-center py-24"
+            >
+                <div className="container mx-auto px-4 py-8 max-w-4xl">
+                    <h1 className="text-4xl font-bold text-center mb-8">ConvoSpan.ai Dashboard</h1>
+                    <p className="text-center text-lg mb-4">
+                        It looks like you're not on a paid plan yet. Choose a plan to unlock all
+                        features!
+                    </p>
+                    <Button onClick={() => router.push('/pricing')}>
+                        View Pricing Plans
+                    </Button>
                 </div>
             </div>
         );

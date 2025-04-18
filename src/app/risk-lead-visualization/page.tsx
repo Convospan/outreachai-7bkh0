@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { useState } from 'react';
 import {summarizeOutreachPerformance, SummarizeOutreachPerformanceOutput} from '@/ai/flows/summarize-outreach-performance';
-import {generateCallScript} from '@/ai/flows/generate-call-script';
+import {generateCallScript, GenerateCallScriptOutput} from '@/ai/flows/generate-call-script';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
