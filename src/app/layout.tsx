@@ -1,9 +1,9 @@
-import type { Metadata} from 'next/metadata';
+import type { Metadata } from 'next/metadata';
 import './globals.css';
 import {Toaster} from '@/components/ui/toaster';
-import {metadata} from './metadata';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import {metadata} from './metadata';
 
 export default function RootLayout({
   children,
