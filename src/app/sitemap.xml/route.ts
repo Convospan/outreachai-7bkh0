@@ -30,6 +30,9 @@ export async function GET(): Promise<Response> {
          <url>
            <loc>https://convospan.ai/risk-lead-visualization</loc>
          </url>
+                  <url>
+           <loc>https://convospan.ai/contact</loc>
+         </url>
        </urlset>`,
     {
       headers: {
@@ -38,3 +41,4 @@ export async function GET(): Promise<Response> {
     }
   );
 }
+
