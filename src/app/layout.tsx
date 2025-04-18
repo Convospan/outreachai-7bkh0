@@ -1,7 +1,11 @@
+'use client';
+
 import type {Metadata} from 'next/metadata';
 import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import {Toaster} from '@/components/ui/toaster';
+// import { initializeFirebase } from '@/lib/firebase'; - Removed Firebase
+import { useEffect, useState } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -23,6 +27,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const [isInitialized, setIsInitialized] = useState(false); - Removed Firebase
+
+  // useEffect(() => { - Removed Firebase
+  //   if (!isInitialized) {
+  //     initializeFirebase();
+  //     setIsInitialized(true);
+  //   }
+  // }, [isInitialized]);
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -32,4 +45,3 @@ export default function RootLayout({
     </html>
   );
 }
-
