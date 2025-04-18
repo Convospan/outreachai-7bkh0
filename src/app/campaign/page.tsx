@@ -34,6 +34,9 @@ export default function CampaignPage() {
   const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email'>('linkedin');
   const [message, setMessage] = useState('');
   const [templates, setTemplates] = useState<MessageTemplate[]>(defaultTemplates);
+  const [linkedinUsername, setLinkedInUsername] = useState('');
+  const [twitterUsername, setTwitterUsername] = useState('');
+  const [emailAddress, setEmailAddress] = useState('');
   const [linkedinProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
   const [twitterProfile, setTwitterProfile] = useState<TwitterProfile | null>(null);
   const [emailProfile, setEmailProfile] = useState<EmailProfile | null>(null);
@@ -44,7 +47,7 @@ export default function CampaignPage() {
     const fetchLinkedInProfile = async () => {
       if (platform === 'linkedin') {
         try {
-          const profile = await getLinkedInProfile('johndoe'); // Replace with actual username
+          const profile = await getLinkedInProfile(linkedinUsername); // Use the state variable
           setLinkedInProfile(profile);
         } catch (error) {
           console.error('Failed to fetch LinkedIn profile:', error);
@@ -54,13 +57,15 @@ export default function CampaignPage() {
                   variant: "destructive",
               })
         }
+      } else {
+          setLinkedInProfile(null); // Clear the profile when platform changes
       }
     };
 
     const fetchTwitterProfile = async () => {
       if (platform === 'twitter') {
         try {
-          const profile = await getTwitterProfile('johndoe'); // Replace with actual username
+          const profile = await getTwitterProfile(twitterUsername); // Use the state variable
           setTwitterProfile(profile);
         } catch (error) {
           console.error('Failed to fetch Twitter profile:', error);
@@ -70,13 +75,15 @@ export default function CampaignPage() {
                   variant: "destructive",
               })
         }
+      } else {
+          setTwitterProfile(null); // Clear the profile when platform changes
       }
     };
 
     const fetchEmailProfile = async () => {
       if (platform === 'email') {
         try {
-          const profile = await getEmailProfile('john.doe@example.com'); // Replace with actual email
+          const profile = await getEmailProfile(emailAddress); // Use the state variable
           setEmailProfile(profile);
         } catch (error) {
           console.error('Failed to fetch Email profile:', error);
@@ -86,13 +93,15 @@ export default function CampaignPage() {
                   variant: "destructive",
               })
         }
+      } else {
+          setEmailProfile(null); // Clear the profile when platform changes
       }
     };
 
-    fetchLinkedInProfile();
-    fetchTwitterProfile();
-    fetchEmailProfile();
-  }, [platform]);
+    if (platform === 'linkedin') fetchLinkedInProfile();
+    if (platform === 'twitter') fetchTwitterProfile();
+    if (platform === 'email') fetchEmailProfile();
+  }, [platform, linkedinUsername, twitterUsername, emailAddress]);
 
   const handleGenerateTemplate = async () => {
     const input: GenerateOutreachScriptInput = {
@@ -153,6 +162,42 @@ export default function CampaignPage() {
               </SelectContent>
             </Select>
           </div>
+
+            {platform === 'linkedin' && (
+                <div className="grid gap-2">
+                    <Label htmlFor="linkedinUsername">LinkedIn Username</Label>
+                    <Textarea
+                        id="linkedinUsername"
+                        value={linkedinUsername}
+                        onChange={(e) => setLinkedInUsername(e.target.value)}
+                        placeholder="Enter LinkedIn username"
+                    />
+                </div>
+            )}
+
+            {platform === 'twitter' && (
+                <div className="grid gap-2">
+                    <Label htmlFor="twitterUsername">Twitter Username</Label>
+                    <Textarea
+                        id="twitterUsername"
+                        value={twitterUsername}
+                        onChange={(e) => setTwitterUsername(e.target.value)}
+                        placeholder="Enter Twitter username"
+                    />
+                </div>
+            )}
+
+            {platform === 'email' && (
+                <div className="grid gap-2">
+                    <Label htmlFor="emailAddress">Email Address</Label>
+                    <Textarea
+                        id="emailAddress"
+                        value={emailAddress}
+                        onChange={(e) => setEmailAddress(e.target.value)}
+                        placeholder="Enter Email Address"
+                    />
+                </div>
+            )}
 
           <div className="grid gap-2">
             <Label htmlFor="additionalContext">Additional Context</Label>
