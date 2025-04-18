@@ -6,7 +6,9 @@
 import { ai } from '@/ai/ai-instance';
 import { z } from 'genkit';
 
-const ForecastTrendsInputSchema = z.string().describe('Campaign History');
+const ForecastTrendsInputSchema = z.object({
+  campaignHistory: z.string().describe('The campaign history data.'),
+});
 
 const ForecastTrendsOutputSchema = z.string().describe('The 3-5 year trend forecast.');
 
@@ -14,10 +16,8 @@ export const forecastTrends = ai.defineTool(
   {
     name: 'forecastTrends',
     description: 'Forecasts campaign trends based on historical data using Prophet.',
-    inputSchema: z.object({
-      campaignHistory: z.string().describe('The campaign history data.'),
-    }),
-    outputSchema: z.string().describe('The 3-5 year trend forecast.'),
+    inputSchema: ForecastTrendsInputSchema,
+    outputSchema: ForecastTrendsOutputSchema,
   },
   async input => {
     // Placeholder for predictive forecasting logic

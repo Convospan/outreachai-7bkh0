@@ -67,3 +67,31 @@ print(f"Campaign Score: {campaign_score}, Script: {script}")
 ```
 
 ```
+
+```
+ </content>
+ </change>
+  <change>
+    <file>components.json</file>
+    <description>The request is not clear on where the logos need to be placed and how the app needs to be changed.</description>
+   <content><![CDATA[{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide"
+}
