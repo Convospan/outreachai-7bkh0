@@ -1,10 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-[#F5F7FA] text-[#2D3436] font-inter;
   }
   @font-face {
     font-family: 'Inter';
@@ -28,15 +29,15 @@
 
 @layer components {
   .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    @apply bg-white bg-opacity-80 rounded-lg p-4 shadow-sm border border-[#4A5D6D];
   }
   .fab {
-    @apply bg-gradient-to-r from-amber-500 to-emerald-500 text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
+    @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
   }
   .modal {
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
   }
   .modal-content {
-    @apply bg-popover text-popover-foreground rounded-lg p-6 border border-border w-3/4 max-w-md;
+    @apply bg-white bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }
