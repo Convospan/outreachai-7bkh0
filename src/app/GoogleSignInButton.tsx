@@ -14,31 +14,6 @@ import {useToast} from '@/hooks/use-toast';
 
 let firebaseApp: FirebaseApp;
 
-// Initialize Firebase only once
-if (!getApps().length) {
-  
-  const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-  };
-
-  // Check for missing environment variables
-  const missingKeys = Object.keys(firebaseConfig).filter(key => !firebaseConfig[key]);
-  if (missingKeys.length > 0) {
-    console.error('Missing Firebase environment variables:', missingKeys.join(', '));
-    throw new Error(`Missing Firebase environment variables: ${missingKeys.join(', ')}`);
-  }
-    
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApps()[0]; // Use existing app if already initialized
-}
-
 export default function GoogleSignInButton() {
   const [user, setUser] = useState(null);
   const {toast} = useToast();
@@ -46,16 +21,48 @@ export default function GoogleSignInButton() {
   const auth = getAuth(firebaseApp);
   const googleAuthProvider = new GoogleAuthProvider();
 
+  // Initialize Firebase only once
+  if (!getApps().length) {
+  
+    const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+    };
+  
+    // Check for missing environment variables
+    const missingKeys = Object.keys(firebaseConfig).filter(key => !firebaseConfig[key]);
+    if (missingKeys.length > 0) {
+      console.error('Missing Firebase environment variables:', missingKeys.join(', '));
+      // Only throw an error in the client-side, after the component has mounted:
+      if (typeof window !== 'undefined') {
+          throw new Error(`Missing Firebase environment variables: ${missingKeys.join(', ')}`);
+      } else {
+          console.warn("Firebase environment variables missing on server, but will not throw error as this can prevent server side rendering.")
+      }
+    }
+      
+    firebaseApp = initializeApp(firebaseConfig);
+  } else {
+    firebaseApp = getApps()[0]; // Use existing app if already initialized
+  }
+
   useEffect(() => {
+    const auth = getAuth(firebaseApp); // Get auth within the useEffect
     const unsubscribe = onAuthStateChanged(auth, authUser => {
       setUser(authUser);
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   const signInWithGoogle = async () => {
     try {
+      const auth = getAuth(firebaseApp); // Get auth within the signInWithGoogle function
       await signInWithPopup(auth, googleAuthProvider);
     } catch (error: any) {
       console.error('Error signing in with Google', error.message);
@@ -69,6 +76,7 @@ export default function GoogleSignInButton() {
 
   const signOutGoogle = async () => {
     try {
+      const auth = getAuth(firebaseApp); // Get auth within the signOutGoogle function
       await signOut(auth);
       toast({
         title: 'Signed Out',

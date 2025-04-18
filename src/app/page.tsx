@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import GoogleSignInButton from "@/app/GoogleSignInButton";
 import { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { firebaseApp } from '@/firebase';
+import { firebaseApp } from '@/app/GoogleSignInButton';
 
 export default function Dashboard() {
     const router = useRouter();

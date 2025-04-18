@@ -1,3 +1,5 @@
+'use server';
+
 /**
  * Represents the compliance status.
  */
@@ -20,7 +22,7 @@ export interface ComplianceStatus {
  */
 export async function checkCompliance(data: any): Promise<ComplianceStatus> {
   // Simulate compliance check
-  const { script, consent } = data;
+  const { script, consent, tier } = data;
 
   if (!consent) {
     return {
@@ -34,6 +36,13 @@ export async function checkCompliance(data: any): Promise<ComplianceStatus> {
             status: 'error',
             message: 'Script cannot be empty',
         };
+  }
+
+  if (tier === 'basic') {
+    return {
+      status: 'error',
+      message: 'Pro or Enterprise tier required for compliance checks.',
+    };
   }
 
   // Basic check for potentially violating terms

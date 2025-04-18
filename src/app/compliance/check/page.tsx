@@ -13,14 +13,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { ComplianceStatus, checkCompliance } from '@/services/compliance';
 import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ComplianceCheckPage() {
     const [script, setScript] = useState('');
     const [consent, setConsent] = useState(false);
     const [complianceStatus, setComplianceStatus] = useState<ComplianceStatus | null>(null);
+    const [tier, setTier] = useState<'basic' | 'pro' | 'enterprise'>('basic');
 
     const handleCheckCompliance = async () => {
-        const data = { script: script, consent: consent };
+        const data = { script: script, consent: consent, tier: tier };
         const status = await checkCompliance(data);
         setComplianceStatus(status);
     };
@@ -51,6 +53,19 @@ export default function ComplianceCheckPage() {
                             className="h-4 w-4"
                         />
                         <Label htmlFor="consent">Consent Given</Label>
+                    </div>
+                     <div className="grid gap-2">
+                        <Label htmlFor="tier">Tier</Label>
+                        <Select onValueChange={(value) => setTier(value as 'basic' | 'pro' | 'enterprise')}>
+                            <SelectTrigger id="tier">
+                                <SelectValue placeholder="Select Tier"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="basic">Basic</SelectItem>
+                                <SelectItem value="pro">Pro</SelectItem>
+                                <SelectItem value="enterprise">Enterprise</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <Button onClick={handleCheckCompliance}>Check Compliance</Button>
                     {complianceStatus && (

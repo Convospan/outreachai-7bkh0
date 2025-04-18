@@ -11,10 +11,7 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { useState } from 'react';
 import {summarizeOutreachPerformance, SummarizeOutreachPerformanceOutput} from '@/ai/flows/summarize-outreach-performance';
-import {generateCallScript} from '@/ai/flows/generate-call-script';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {generateCallScript, GenerateCallScriptOutput} from '@/ai/flows/generate-call-script';
 
 
 export default function RiskLeadVisualizationPage() {
@@ -38,11 +35,7 @@ export default function RiskLeadVisualizationPage() {
     const [industry, setIndustry] = useState<string>('Software'); //Default values
     const [connections, setConnections] = useState<number>(500); //Default values
     const [reportContent, setReportContent] = useState<string | null>(null);
-    const [tier, setTier] = useState<'basic' | 'pro' | 'enterprise'>('basic');
-    const [messageResponses, setMessageResponses] = useState<string>('');
-    const [campaignHistory, setCampaignHistory] = useState<string>('');
-    const [sentimentScore, setSentimentScore] = useState<number | undefined>(undefined);
-    const [trendForecast, setTrendForecast] = useState<string | undefined>(undefined);
+    const [tier, setTier] = useState<string>('Tier 1');
 
 
     // Placeholder function to simulate score generation (0-100)
@@ -50,26 +43,21 @@ export default function RiskLeadVisualizationPage() {
         try {
             const input = {
                 responseRates: Math.random(), // Example value
+                sentimentScores: Math.random(), // Example value
                 complianceFlags: Math.random() > 0.5 ? 0 : 1, // Example value
                 campaignName: "Campaign A", // Example value
                 connections: connections,
                 script: callScript, // Example value
                 tier: tier, // Example value
-                messageResponses: messageResponses,
-                campaignHistory: campaignHistory,
             };
 
             const result: SummarizeOutreachPerformanceOutput = await summarizeOutreachPerformance(input);
             setCampaignScore(result.modelScore);
             setReportContent(result.reportContent);
-            setSentimentScore(result.sentimentScore);
-            setTrendForecast(result.trendForecast);
         } catch (error: any) {
             console.error('Failed to generate campaign score:', error);
             setCampaignScore(null);
             setReportContent(null);
-            setSentimentScore(undefined);
-            setTrendForecast(undefined);
         }
     };
 
@@ -114,39 +102,6 @@ export default function RiskLeadVisualizationPage() {
                                 </li>
                             ))}
                         </ul>
-                         <div className="grid gap-2">
-                            <Label htmlFor="tier">Tier</Label>
-                            <Select onValueChange={(value) => setTier(value as 'basic' | 'pro' | 'enterprise')}>
-                                <SelectTrigger id="tier">
-                                    <SelectValue placeholder="Select Tier"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="basic">Basic</SelectItem>
-                                    <SelectItem value="pro">Pro</SelectItem>
-                                    <SelectItem value="enterprise">Enterprise</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="grid gap-2">
-                            <Label htmlFor="messageResponses">Message Responses</Label>
-                            <Input
-                                id="messageResponses"
-                                type="text"
-                                value={messageResponses}
-                                onChange={(e) => setMessageResponses(e.target.value)}
-                                placeholder="Enter message responses"
-                            />
-                        </div>
-                         <div className="grid gap-2">
-                            <Label htmlFor="campaignHistory">Campaign History</Label>
-                            <Input
-                                id="campaignHistory"
-                                type="text"
-                                value={campaignHistory}
-                                onChange={(e) => setCampaignHistory(e.target.value)}
-                                placeholder="Enter campaign history"
-                            />
-                        </div>
                         <Button onClick={generateCampaignScore} className="mt-4">
                             Generate Campaign Score
                         </Button>
@@ -155,12 +110,6 @@ export default function RiskLeadVisualizationPage() {
                         )}
                          {reportContent !== null && (
                             <p className="mt-2">Report Content: {reportContent}</p>
-                        )}
-                        {sentimentScore !== undefined && (
-                            <p className="mt-2">Sentiment Score: {sentimentScore}</p>
-                        )}
-                        {trendForecast !== undefined && (
-                            <p className="mt-2">Trend Forecast: {trendForecast}</p>
                         )}
                     </CardContent>
                 </Card>
