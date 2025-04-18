@@ -7,11 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import Link from "next/link";
 
-// export const metadata: Metadata = {
-//   title: 'ConvoSpan: AI Conversations That Convert to Real-World Impact',
-//   description: 'Join me on ConvoSpan.ai to streamline LinkedIn, Twitter/X, and email outreach with AI-powered calls and easy management!',
-// };
-
 export default function Home() {
   const router = useRouter();
 
@@ -139,6 +134,14 @@ export default function Home() {
           leads, and keeps everything in one spot. Let’s make your outreach a success together!
         </p>
       </section>
+       <section className="py-16 text-center">
+            <Button onClick={() => router.push('/pricing')}
+              className="inline-block rounded-full bg-accent px-6 py-3 shadow-md transition duration-300 hover:bg-opacity-90"
+            >
+              Start for Free Today!
+            </Button>
+            <p className="mt-2 text-sm">No credit card needed—try me for 7 days!</p>
+          </section>
     </div>
   );
 }
