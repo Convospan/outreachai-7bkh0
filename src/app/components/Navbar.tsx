@@ -28,8 +28,11 @@ const Navbar = () => {
         </Link>
         <div className="flex items-center space-x-4">
           <Link href="/" >Home</Link>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
           <Link href="/about" >About Us</Link>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
           <Link href="/pricing">Pricing</Link>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
@@ -45,6 +48,7 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
              <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
@@ -57,6 +61,7 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
              <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
@@ -69,6 +74,7 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
                    <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
