@@ -19,6 +19,7 @@ import {TwitterProfile, getTwitterProfile} from '@/services/twitter';
 import {EmailProfile, getEmailProfile} from '@/services/email';
 import {useToast} from "@/hooks/use-toast"
 import Link from 'next/link';
+import { GenerateOutreachSequenceOutput } from '@/ai/flows/generate-outreach-sequence';
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email';
@@ -43,6 +44,9 @@ export default function CampaignPage() {
   const [emailProfile, setEmailProfile] = useState<EmailProfile | null>(null);
   const [additionalContext, setAdditionalContext] = useState('');
     const {toast} = useToast()
+  const [numSteps, setNumSteps] = useState<number>(3);
+  const [generatedSequence, setGeneratedSequence] = useState<GenerateOutreachSequenceOutput | null>(null);
+  const [sequencePrompt, setSequencePrompt] = useState<string>('');
 
   useEffect(() => {
     const fetchLinkedInProfile = async () => {
@@ -142,6 +146,40 @@ export default function CampaignPage() {
     }
   };
 
+  const handleGenerateSequence = async () => {
+    try {
+      const response = await fetch('/api/sequence/select', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          platform: platform,
+          prompt: sequencePrompt,
+          numSteps: numSteps,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: GenerateOutreachSequenceOutput = await response.json();
+      setGeneratedSequence(data);
+      toast({
+        title: "Success",
+        description: "Successfully generated outreach sequence.",
+      });
+    } catch (error: any) {
+      console.error('Failed to generate outreach sequence:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate outreach sequence.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Card>
@@ -221,6 +259,40 @@ export default function CampaignPage() {
               placeholder="Your message will appear here"
             />
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="sequencePrompt">Sequence Prompt</Label>
+            <Textarea
+              id="sequencePrompt"
+              value={sequencePrompt}
+              onChange={(e) => setSequencePrompt(e.target.value)}
+              placeholder="Enter a prompt to guide the sequence generation"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="numSteps">Number of Steps</Label>
+            <input
+              type="number"
+              id="numSteps"
+              value={numSteps}
+              onChange={(e) => setNumSteps(Number(e.target.value))}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+
+          <Button onClick={handleGenerateSequence}>Generate Outreach Sequence</Button>
+
+          {generatedSequence && (
+            <div className="mt-4">
+              <Label>Generated Sequence:</Label>
+              <ul>
+                {generatedSequence.sequence.map((step, index) => (
+                  <li key={index} className="py-2">
+                    {index + 1}. {step}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <Accordion type="single" collapsible>
             <AccordionItem value="templates">
