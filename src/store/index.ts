@@ -1,6 +1,11 @@
 'use server';
-import { createStore, applyMiddleware } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import thunk from 'redux-thunk';
-import rootReducer from './reducers';
+import rootReducer from '../reducers';
 
-export const store = createStore(rootReducer, applyMiddleware(thunk));
+export const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
+});
+
+export default store;
