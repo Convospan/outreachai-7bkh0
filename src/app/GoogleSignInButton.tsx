@@ -8,30 +8,49 @@ import {
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth';
-import {initializeApp, getApps, FirebaseApp} from 'firebase/app';
+import { initializeFirebase } from '@/lib/firebase';
 import {Button} from '@/components/ui/button';
 import {useToast} from '@/hooks/use-toast';
-import {firebaseApp} from '@/lib/firebase';
 
 export default function GoogleSignInButton() {
   const [user, setUser] = useState(null);
   const {toast} = useToast();
-
-  const auth = getAuth(firebaseApp);
-  const googleAuthProvider = new GoogleAuthProvider();
+  const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth(firebaseApp);
+    const app = initializeFirebase();
+    if (app) {
+      setFirebaseInitialized(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!firebaseInitialized) return;
+
+    const app = initializeFirebase();
+    if (!app) return;
+
+    const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, authUser => {
       setUser(authUser);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [firebaseInitialized]);
 
   const signInWithGoogle = async () => {
     try {
-      const auth = getAuth(firebaseApp); // Get auth within the signInWithGoogle function
+      const app = initializeFirebase();
+      if (!app) {
+        toast({
+          title: 'Error',
+          description: 'Firebase not initialized',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const auth = getAuth(app); // Get auth within the signInWithGoogle function
+      const googleAuthProvider = new GoogleAuthProvider();
       await signInWithPopup(auth, googleAuthProvider);
     } catch (error: any) {
       console.error('Error signing in with Google', error.message);
@@ -45,7 +64,16 @@ export default function GoogleSignInButton() {
 
   const signOutGoogle = async () => {
     try {
-      const auth = getAuth(firebaseApp); // Get auth within the signOutGoogle function
+      const app = initializeFirebase();
+      if (!app) {
+        toast({
+          title: 'Error',
+          description: 'Firebase not initialized',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const auth = getAuth(app); // Get auth within the signOutGoogle function
       await signOut(auth);
       toast({
         title: 'Signed Out',
@@ -68,7 +96,9 @@ export default function GoogleSignInButton() {
           Sign Out
         </Button>
       ) : (
-        <Button onClick={signInWithGoogle}>Sign In with Google</Button>
+        <Button onClick={signInWithGoogle} disabled={!firebaseInitialized}>
+          Sign In with Google
+        </Button>
       )}
     </div>
   );

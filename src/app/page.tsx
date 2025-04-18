@@ -6,16 +6,29 @@ import { Button } from "@/components/ui/button";
 import GoogleSignInButton from "@/app/GoogleSignInButton";
 import { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { firebaseApp } from '@/lib/firebase';
+import { initializeFirebase } from '@/lib/firebase';
 
 export default function Dashboard() {
     const router = useRouter();
     const pathname = usePathname();
     const [user, setUser] = useState(null);
     const [isOnPaidTier, setIsOnPaidTier] = useState(false); // Example, replace with your actual check
+    const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
     useEffect(() => {
-        const auth = getAuth(firebaseApp);
+      const app = initializeFirebase();
+      if (app) {
+        setFirebaseInitialized(true);
+      }
+    }, []);
+
+    useEffect(() => {
+        if (!firebaseInitialized) return;
+
+        const app = initializeFirebase();
+        if (!app) return;
+
+        const auth = getAuth(app);
         const unsubscribe = onAuthStateChanged(auth, (authUser) => {
             setUser(authUser);
         });
@@ -25,7 +38,18 @@ export default function Dashboard() {
         setIsOnPaidTier(true);
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, firebaseInitialized]);
+
+    if (!firebaseInitialized) {
+      return (
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center py-24">
+          <div>
+            <h1 className="text-4xl font-bold text-center mb-8">ConvoSpan.ai</h1>
+            <p>Loading...</p>
+          </div>
+        </div>
+      );
+    }
 
     if (!user) {
         return (
