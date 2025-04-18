@@ -1,6 +1,7 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Mail, MessageSquare, Shield, User, Workflow, PhoneCall, Link} from 'lucide-react';
 import {Button} from "@/components/ui/button";
+import NextLink from 'next/link';
 
 export default function Home() {
   return (
@@ -39,7 +40,7 @@ export default function Home() {
             </div>
           </CardContent>
           <CardContent>
-              <a href="/risk-lead-visualization" className="text-sm text-blue-500 hover:underline">Risk &amp; Lead Visualization</a>
+              <NextLink href="/risk-lead-visualization" className="text-sm text-blue-500 hover:underline">Risk &amp; Lead Visualization</NextLink>
           </CardContent>
         </Card>
 
@@ -74,7 +75,7 @@ export default function Home() {
             </div>
           </CardContent>
           <CardContent>
-               <a href="/compliance/check" className="text-sm text-blue-500 hover:underline">Compliance Check</a>
+               <NextLink href="/compliance/check" className="text-sm text-blue-500 hover:underline">Compliance Check</NextLink>
           </CardContent>
         </Card>
 
@@ -93,7 +94,7 @@ export default function Home() {
                   </div>
               </CardContent>
               <CardContent>
-                  <a href="/call/approve" className="text-sm text-blue-500 hover:underline">Approve Call Script</a>
+                  <NextLink href="/call/approve" className="text-sm text-blue-500 hover:underline">Approve Call Script</NextLink>
               </CardContent>
           </Card>
 
@@ -112,9 +113,9 @@ export default function Home() {
             </div>
           </CardContent>
            <CardContent>
-               <a href="/auth/linkedin" className="text-sm text-blue-500 hover:underline">LinkedIn OAuth</a>
-               <a href="/auth/twitter" className="text-sm text-blue-500 hover:underline">Twitter OAuth</a>
-               <a href="/auth/email" className="text-sm text-blue-500 hover:underline">Email OAuth</a>
+               <NextLink href="/auth/linkedin" className="text-sm text-blue-500 hover:underline">LinkedIn OAuth</NextLink>
+               <NextLink href="/auth/twitter" className="text-sm text-blue-500 hover:underline">Twitter OAuth</NextLink>
+               <NextLink href="/auth/email" className="text-sm text-blue-500 hover:underline">Email OAuth</NextLink>
           </CardContent>
         </Card>
 
@@ -135,3 +136,4 @@ export default function Home() {
     </div>
   );
 }
+
