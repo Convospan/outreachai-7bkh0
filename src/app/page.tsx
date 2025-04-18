@@ -1,3 +1,108 @@
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import {Mail, MessageSquare, Shield, User, Workflow} from 'lucide-react';
+import {Button} from "@/components/ui/button";
+
 export default function Home() {
-  return <></>;
+  return (
+    <div className="container mx-auto p-4 space-y-4">
+      <h1 className="text-2xl font-bold">OutreachAI - Streamline Your Outreach</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* AI Script Generation */}
+        <Card>
+          <CardHeader>
+            <CardTitle>AI Script Generation</CardTitle>
+            <CardDescription>
+              Generate personalized outreach scripts for LinkedIn, Twitter/X, and email using Gemini 2.0.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center space-x-4">
+            <MessageSquare className="h-8 w-8 text-primary"/>
+            <div>
+              <p className="text-sm">Craft engaging and tailored messages effortlessly.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Risk & Lead Visualization */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Risk & Lead Visualization</CardTitle>
+            <CardDescription>
+              Displays campaign risk scores and lead prioritization rankings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center space-x-4">
+            <User className="h-8 w-8 text-primary"/>
+            <div>
+              <p className="text-sm">Quickly assess and focus on high-potential leads.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Script Approval Workflow */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Script Approval Workflow</CardTitle>
+            <CardDescription>
+              Review and approve AI-generated scripts before initiating calls.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center space-x-4">
+            <Workflow className="h-8 w-8 text-primary"/>
+            <div>
+              <p className="text-sm">Ensure quality and relevance with a streamlined approval process.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Real-Time Compliance Check */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Real-Time Compliance Check</CardTitle>
+            <CardDescription>
+              Performs real-time checks against LinkedIn ToS and GDPR.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center space-x-4">
+            <Shield className="h-8 w-8 text-primary"/>
+            <div>
+              <p className="text-sm">Adhere to regulations before outreach.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Multi-Platform API Integration */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Multi-Platform API Integration</CardTitle>
+            <CardDescription>
+              Integrates LinkedIn, Twitter/X and Email APIs for fetching profile data.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center space-x-4">
+            <Mail className="h-8 w-8 text-primary"/>
+            <div>
+              <p className="text-sm">Automate outreach sequences and personalize interactions.</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Placeholders for other features or future cards */}
+        <Card>
+          <CardHeader>
+            <CardTitle>More features coming soon</CardTitle>
+            <CardDescription>
+              Placeholder card for additional features.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm">Stay tuned for updates and new functionalities!</p>
+            <Button>Learn More</Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }
+
