@@ -12,27 +12,106 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
+import { generateCallScript, GenerateCallScriptInput } from '@/ai/flows/generate-call-script'; // Import the Genkit flow
+import { Input } from "@/components/ui/input"
 
 export default function CallScriptApprovalPage() {
-    const [script, setScript] = useState('This is a placeholder for the AI-generated call script.');
+    const [script, setScript] = useState('');
     const [approved, setApproved] = useState(false);
+    const [campaignName, setCampaignName] = useState('');
+    const [productName, setProductName] = useState('');
+    const [targetAudience, setTargetAudience] = useState('');
+    const [callObjective, setCallObjective] = useState('');
+    const [additionalContext, setAdditionalContext] = useState('');
+
+    const handleGenerateScript = async () => {
+        const input: GenerateCallScriptInput = {
+            campaignName: campaignName,
+            productName: productName,
+            targetAudience: targetAudience,
+            callObjective: callObjective,
+            additionalContext: additionalContext,
+        };
+
+        try {
+            const result = await generateCallScript(input);
+            setScript(result.script);
+        } catch (error) {
+            console.error('Failed to generate call script:', error);
+            toast({
+                title: "Error",
+                description: "Failed to generate call script.",
+                variant: "destructive",
+            });
+        }
+    };
 
     const handleApproveScript = () => {
         setApproved(true);
         toast({
             title: "Script Approved",
-            description: "The call script has been approved and is ready to be used.",
+            description: "The call script has been approved and is ready to be used. (Placeholder - Twilio integration needed)",
         });
+        // TODO: Add Twilio integration here to initiate the call.
     };
 
     return (
         <div className="container mx-auto p-4">
             <Card>
                 <CardHeader>
-                    <CardTitle>Call Script Approval</CardTitle>
-                    <CardDescription>Review and approve the AI-generated call script before initiating the call.</CardDescription>
+                    <CardTitle>AI Call Script Generation and Approval</CardTitle>
+                    <CardDescription>Generate and approve the AI-generated call script before initiating the call.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4">
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="campaignName">Campaign Name</Label>
+                        <Input
+                            id="campaignName"
+                            value={campaignName}
+                            onChange={(e) => setCampaignName(e.target.value)}
+                            placeholder="Enter campaign name"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="productName">Product Name</Label>
+                        <Input
+                            id="productName"
+                            value={productName}
+                            onChange={(e) => setProductName(e.target.value)}
+                            placeholder="Enter product name"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="targetAudience">Target Audience</Label>
+                        <Input
+                            id="targetAudience"
+                            value={targetAudience}
+                            onChange={(e) => setTargetAudience(e.target.value)}
+                            placeholder="Describe the target audience"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="callObjective">Call Objective</Label>
+                        <Input
+                            id="callObjective"
+                            value={callObjective}
+                            onChange={(e) => setCallObjective(e.target.value)}
+                            placeholder="Enter the call objective"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="additionalContext">Additional Context</Label>
+                        <Textarea
+                            id="additionalContext"
+                            value={additionalContext}
+                            onChange={(e) => setAdditionalContext(e.target.value)}
+                            placeholder="Enter additional context (optional)"
+                        />
+                    </div>
+
+                    <Button onClick={handleGenerateScript}>Generate Call Script</Button>
+
                     <div className="grid gap-2">
                         <Label htmlFor="script">Call Script</Label>
                         <Textarea
@@ -43,7 +122,7 @@ export default function CallScriptApprovalPage() {
                             readOnly={approved}
                         />
                     </div>
-                    <Button onClick={handleApproveScript} disabled={approved}>
+                    <Button onClick={handleApproveScript} disabled={approved || !script}>
                         {approved ? 'Approved' : 'Approve Script'}
                     </Button>
                 </CardContent>

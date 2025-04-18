@@ -16,7 +16,8 @@ const GenerateCallScriptInputSchema = z.object({
     productName: z.string().describe('The name of the product being promoted.'),
     targetAudience: z.string().describe('Description of the target audience.'),
     callObjective: z.string().describe('The objective of the phone call.'),
-    additionalContext: z.string().optional().describe('Additional context for the call script.'),
+    additionalContext: z.string().optional().describe('Additional context for the call script, such as specific points to cover or questions to ask.'),
+    preferredTone: z.enum(['formal', 'informal', 'professional']).default('professional').describe('The desired tone of the call script.'),
 });
 export type GenerateCallScriptInput = z.infer<typeof GenerateCallScriptInputSchema>;
 
@@ -37,7 +38,8 @@ const prompt = ai.definePrompt({
             productName: z.string().describe('The name of the product being promoted.'),
             targetAudience: z.string().describe('Description of the target audience.'),
             callObjective: z.string().describe('The objective of the phone call.'),
-            additionalContext: z.string().optional().describe('Additional context for the call script.'),
+            additionalContext: z.string().optional().describe('Additional context for the call script, such as specific points to cover or questions to ask.'),
+            preferredTone: z.string().describe('The desired tone of the call script (formal, informal, or professional).'),
         }),
     },
     output: {
@@ -45,9 +47,8 @@ const prompt = ai.definePrompt({
             script: z.string().describe('The generated call script.'),
         }),
     },
-    prompt: `You are an AI assistant specializing in generating personalized and effective call scripts for outbound sales calls.
-
-Based on the information provided, create a concise and engaging call script that aligns with the campaign goals.
+    prompt: `You are an AI assistant specializing in generating personalized and effective call scripts for outbound sales calls. You should generate a script that is concise, engaging, and aligns with the campaign goals.
+The tone should be {{{preferredTone}}}.
 
 Campaign Name: {{{campaignName}}}
 Product Name: {{{productName}}}
