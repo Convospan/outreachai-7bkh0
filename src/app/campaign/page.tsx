@@ -18,6 +18,7 @@ import {LinkedInProfile, getLinkedInProfile} from '@/services/linkedin';
 import {TwitterProfile, getTwitterProfile} from '@/services/twitter';
 import {EmailProfile, getEmailProfile} from '@/services/email';
 import {useToast} from "@/hooks/use-toast"
+import Link from 'next/link';
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email';
@@ -239,6 +240,18 @@ export default function CampaignPage() {
           </Accordion>
         </CardContent>
       </Card>
+       <div className="flex justify-between mt-4">
+            <Link href="/" passHref>
+                <Button variant="outline">Back to Dashboard</Button>
+            </Link>
+            {message && (
+                <Button >
+                    <Link href="/compliance/check" passHref>
+                        Next: Check Compliance
+                    </Link>
+                </Button>
+            )}
+        </div>
     </div>
   );
 }

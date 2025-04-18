@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { ComplianceStatus, checkCompliance } from '@/services/compliance';
+import Link from 'next/link';
 
 export default function ComplianceCheckPage() {
     const [script, setScript] = useState('');
@@ -60,6 +61,18 @@ export default function ComplianceCheckPage() {
                     )}
                 </CardContent>
             </Card>
+              <div className="flex justify-between mt-4">
+                <Link href="/campaign" passHref>
+                    <Button variant="outline">Back to Campaign</Button>
+                </Link>
+                {complianceStatus?.status === 'ok' && (
+                    <Button >
+                        <Link href="/call/approve" passHref>
+                            Next: Approve Call Script
+                        </Link>
+                    </Button>
+                )}
+            </div>
         </div>
     );
 }

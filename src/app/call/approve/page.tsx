@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
 import { generateCallScript, GenerateCallScriptInput } from '@/ai/flows/generate-call-script'; // Import the Genkit flow
 import { Input } from "@/components/ui/input"
+import Link from 'next/link';
 
 export default function CallScriptApprovalPage() {
     const [script, setScript] = useState('');
@@ -127,6 +128,18 @@ export default function CallScriptApprovalPage() {
                     </Button>
                 </CardContent>
             </Card>
+             <div className="flex justify-between mt-4">
+                <Link href="/" passHref>
+                    <Button variant="outline">Back to Dashboard</Button>
+                </Link>
+                {approved && (
+                    <Button >
+                        <Link href="/risk-lead-visualization" passHref>
+                            Next: Risk & Lead Visualization
+                        </Link>
+                    </Button>
+                )}
+            </div>
         </div>
     );
 }

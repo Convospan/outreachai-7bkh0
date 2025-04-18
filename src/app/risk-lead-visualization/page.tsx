@@ -8,6 +8,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 export default function RiskLeadVisualizationPage() {
     // Placeholder data for campaign risk scores and lead prioritization
@@ -80,6 +81,11 @@ export default function RiskLeadVisualizationPage() {
                     <Button>Generate Call Script</Button>
                 </CardContent>
             </Card>
+             <div className="flex justify-between mt-4">
+                <Link href="/call/approve" passHref>
+                    <Button variant="outline">Back to Call Approval</Button>
+                </Link>
+            </div>
         </div>
     );
 }
