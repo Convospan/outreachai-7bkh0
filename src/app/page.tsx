@@ -43,11 +43,6 @@ export default function Home() {
           I love organizing for you! My easy dashboard shows who’s responding, lets you tag your favorite leads, and keeps everything in one spot. Let’s make your outreach a success together!
         </p>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-[#4A5D6D] text-white py-6 text-center">
-        <p>&copy; 2025 ConvoSpan.ai | Let’s connect! Visit <a href="/contact" className="underline">/contact</a></p>
-      </footer>
     </div>
   );
 }
