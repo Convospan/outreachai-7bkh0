@@ -29,6 +29,7 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           <Link href="/" >Home</Link>
           <Link href="/about" >About Us</Link>
+          <Link href="/pricing">Pricing</Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
