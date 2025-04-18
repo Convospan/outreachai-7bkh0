@@ -53,7 +53,7 @@ export default function ComplianceCheckPage() {
       <Card>
         <CardHeader>
           <CardTitle>Compliance Check</CardTitle>
-          <CardDescription>Check if your outreach script is compliant with LinkedIn ToS and GDPR. Compliance checks are only available with active Pro or Enterprise subscriptions.</CardDescription>
+          <CardDescription className="text-gray-600">Check if your outreach script is compliant with LinkedIn ToS and GDPR. Compliance checks are only available with active Pro or Enterprise subscriptions.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
