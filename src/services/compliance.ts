@@ -19,7 +19,30 @@ export interface ComplianceStatus {
  * @returns A promise that resolves to a ComplianceStatus object.
  */
 export async function checkCompliance(data: any): Promise<ComplianceStatus> {
-  // TODO: Implement this by calling the Compliance API.
+  // Simulate compliance check
+  const { script, consent } = data;
+
+  if (!consent) {
+    return {
+      status: 'error',
+      message: 'Consent is required for GDPR compliance.',
+    };
+  }
+
+  if (!script) {
+        return {
+            status: 'error',
+            message: 'Script cannot be empty',
+        };
+  }
+
+  // Basic check for potentially violating terms
+  if (script.includes('buy now') || script.includes('limited time offer')) {
+    return {
+      status: 'warning',
+      message: 'Script may violate LinkedIn ToS. Avoid overly promotional content.',
+    };
+  }
 
   return {
     status: 'ok',

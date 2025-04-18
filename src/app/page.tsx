@@ -1,5 +1,5 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
-import {Mail, MessageSquare, Shield, User, Workflow} from 'lucide-react';
+import {Mail, MessageSquare, Shield, User, Workflow, PhoneCall, Link} from 'lucide-react';
 import {Button} from "@/components/ui/button";
 
 export default function Home() {
@@ -45,7 +45,7 @@ export default function Home() {
           <CardHeader>
             <CardTitle>Script Approval Workflow</CardTitle>
             <CardDescription>
-              Review and approve AI-generated scripts before initiating calls.
+              Review and approve AI-generated scripts before initiating calls via Twilio.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center space-x-4">
@@ -61,7 +61,7 @@ export default function Home() {
           <CardHeader>
             <CardTitle>Real-Time Compliance Check</CardTitle>
             <CardDescription>
-              Performs real-time checks against LinkedIn ToS and GDPR.
+              Performs real-time checks against LinkedIn ToS, GDPR, and other regulations.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center space-x-4">
@@ -70,21 +70,45 @@ export default function Home() {
               <p className="text-sm">Adhere to regulations before outreach.</p>
             </div>
           </CardContent>
+          <CardContent>
+               <a href="/compliance/check" className="text-sm text-blue-500 hover:underline">Compliance Check</a>
+          </CardContent>
         </Card>
+
+          {/* AI Calling Agent */}
+          <Card>
+              <CardHeader>
+                  <CardTitle>AI Calling Agent</CardTitle>
+                  <CardDescription>
+                      AI generates and initiates calls, with user review and approval, powered by Dialogflow and Twilio.
+                  </CardDescription>
+              </CardHeader>
+              <CardContent className="flex items-center space-x-4">
+                  <PhoneCall className="h-8 w-8 text-primary"/>
+                  <div>
+                      <p className="text-sm">Automate voice follow-ups with user-reviewed scripts.</p>
+                  </div>
+              </CardContent>
+          </Card>
 
         {/* Multi-Platform API Integration */}
         <Card>
           <CardHeader>
             <CardTitle>Multi-Platform API Integration</CardTitle>
             <CardDescription>
-              Integrates LinkedIn, Twitter/X and Email APIs for fetching profile data.
+              Integrates LinkedIn, Twitter/X and Email APIs for fetching profile data and automating outreach sequences.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center space-x-4">
             <Mail className="h-8 w-8 text-primary"/>
             <div>
-              <p className="text-sm">Automate outreach sequences and personalize interactions.</p>
+              <p className="text-sm">Personalize interactions across multiple platforms.</p>
             </div>
+          </CardContent>
+           <CardContent>
+               <a href="/auth/linkedin" className="text-sm text-blue-500 hover:underline">LinkedIn OAuth</a>
+               <a href="/auth/twitter" className="text-sm text-blue-500 hover:underline">Twitter OAuth</a>
+               <a href="/auth/email" className="text-sm text-blue-500 hover:underline">Email OAuth</a>
           </CardContent>
         </Card>
 
@@ -105,4 +129,3 @@ export default function Home() {
     </div>
   );
 }
-
