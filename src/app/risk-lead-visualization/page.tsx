@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import {useSearchParams} from 'next/navigation';
 
 // Define data types for chart data
 interface CampaignRiskData {
@@ -56,6 +57,8 @@ export default function RiskLeadVisualizationPage() {
     const [campaignHistory, setCampaignHistory] = useState<string>('');
     const [sentimentScore, setSentimentScore] = useState<number | undefined>(undefined);
     const [trendForecast, setTrendForecast] = useState<string | undefined>(undefined);
+    const searchParams = useSearchParams();
+    const callId = searchParams.get('callId') ?? '';
 
 
     // Placeholder function to simulate score generation (0-100)
@@ -70,6 +73,7 @@ export default function RiskLeadVisualizationPage() {
                 tier: tier, // Example value
                 messageResponses: messageResponses,
                 campaignHistory: campaignHistory,
+                callId: callId,
             };
 
             const result: SummarizeOutreachPerformanceOutput = await summarizeOutreachPerformance(input);

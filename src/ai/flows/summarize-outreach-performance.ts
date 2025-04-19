@@ -12,6 +12,7 @@ import {z} from 'genkit';
 import { generateReport } from '@/ai/tools/generate-report';
 import { analyzeSentiment } from '@/ai/tools/analyze-sentiment';
 import { forecastTrends } from '@/ai/tools/forecast-trends';
+import {read} from '@/lib/firebaseAdmin';
 
 const SummarizeOutreachPerformanceInputSchema = z.object({
   responseRates: z.number().describe('The response rates of the outreach campaign.'),
@@ -22,6 +23,7 @@ const SummarizeOutreachPerformanceInputSchema = z.object({
   tier: z.enum(['basic', 'pro', 'enterprise']).default('basic').describe('Tier access level'),
   messageResponses: z.string().describe('Message Responses'),
   campaignHistory: z.string().describe('Campaign History'),
+  callId: z.string().describe('The id of the call.'),
 });
 export type SummarizeOutreachPerformanceInput = z.infer<
   typeof SummarizeOutreachPerformanceInputSchema
@@ -133,6 +135,9 @@ const summarizeOutreachPerformanceFlow = ai.defineFlow<
       script: input.script,
       tier: input.tier,
     });
+
+    // Read call data from Firestore
+     const callData = await read('calls', input.callId);
 
     return {
       summary: output!.summary,

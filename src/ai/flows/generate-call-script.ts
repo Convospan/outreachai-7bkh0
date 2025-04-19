@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
+import { create } from '@/lib/firebaseAdmin';
 
 const GenerateCallScriptInputSchema = z.object({
   campaignName: z.string().describe('The name of the outreach campaign.'),
@@ -22,12 +23,14 @@ const GenerateCallScriptInputSchema = z.object({
   connections: z.number().describe('The number of connections the target professional has.'),
   subscriptionTier: z.enum(['basic', 'pro', 'enterprise']).default('basic').describe('The subscription tier of the user.'),
   usedCallCount: z.number().default(0).describe('The number of calls used by the user in the current period.'),
+  leadId: z.string().describe('The id of the lead.'),
 });
 export type GenerateCallScriptInput = z.infer<typeof GenerateCallScriptInputSchema>;
 
 const GenerateCallScriptOutputSchema = z.object({
   script: z.string().describe('The generated call script.'),
   quotaExceeded: z.boolean().describe('Indicates whether the user has exceeded their call quota.'),
+  callId: z.string().describe('The id of the call.'),
 });
 export type GenerateCallScriptOutput = z.infer<typeof GenerateCallScriptOutputSchema>;
 
@@ -117,13 +120,26 @@ const generateCallScriptFlow = ai.defineFlow<
       return {
         script: '',
         quotaExceeded: true,
+        callId: '',
       };
     }
 
     const {output} = await prompt(input);
+
+    // Store the generated call script in Firestore
+    const callData = {
+      leadId: input.leadId,
+      script: output!.script,
+      status: 'pending', // Initial status
+      timestamp: new Date().toISOString(),
+    };
+
+    const callId = await create('calls', callData);
+
     return {
       script: output!.script,
       quotaExceeded: false,
+      callId: callId,
     };
   }
 );

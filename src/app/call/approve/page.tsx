@@ -29,6 +29,8 @@ export default function CallScriptApprovalPage() {
   const [subscriptionTier, setSubscriptionTier] = useState<'basic' | 'pro' | 'enterprise'>('basic');
   const [usedCallCount, setUsedCallCount] = useState(0); // Calls used in the current period
   const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [leadId, setLeadId] = useState(''); // Lead ID state
+  const [callId, setCallId] = useState('');   // Call ID state
 
   const handleGenerateScript = async () => {
     const input: GenerateCallScriptInput = {
@@ -41,12 +43,14 @@ export default function CallScriptApprovalPage() {
       connections: connections,
       subscriptionTier: subscriptionTier,
       usedCallCount: usedCallCount,
+      leadId: leadId, // Pass lead ID to the flow
     };
 
     try {
       const result = await generateCallScript(input);
       setScript(result.script);
       setQuotaExceeded(result.quotaExceeded);
+      setCallId(result.callId); // Set the generated call ID
       if (result.quotaExceeded) {
         toast({
           title: 'Quota Exceeded',
@@ -127,6 +131,15 @@ export default function CallScriptApprovalPage() {
               placeholder="Enter the industry"
             />
           </div>
+           <div className="grid gap-2">
+            <Label htmlFor="leadId">Lead ID</Label>
+            <Input
+              id="leadId"
+              value={leadId}
+              onChange={e => setLeadId(e.target.value)}
+              placeholder="Enter the lead ID"
+            />
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="connections">Connections</Label>
             <Input
@@ -175,6 +188,11 @@ export default function CallScriptApprovalPage() {
           {quotaExceeded && (
             <p className="text-red-500">You have exceeded your call quota for the current period.</p>
           )}
+           {callId && (
+            <p>
+              Call ID: {callId}
+            </p>
+          )}
           <Button onClick={handleApproveScript} disabled={approved || !script || quotaExceeded}>
             {approved ? 'Approved' : 'Approve Script'}
           </Button>
@@ -186,7 +204,7 @@ export default function CallScriptApprovalPage() {
         </Link>
         {approved && (
           <Button>
-            <Link href="/risk-lead-visualization" passHref>
+            <Link href={`/risk-lead-visualization?callId=${callId}`} passHref>
               Next: Risk & Lead Visualization
             </Link>
           </Button>
