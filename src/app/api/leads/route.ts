@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 const LeadSchema = z.object({
   campaign_id: z.string(),
+  campaign_name: z.string(),
   user_id: z.string(),
   platform: z.enum(['linkedin', 'twitter', 'email']),
   profile_data: z.record(z.any()), // Flexible profile data
