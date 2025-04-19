@@ -2,25 +2,43 @@
 
 import { db } from '@/lib/firebaseAdmin';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+// Define a Zod schema for user data validation
+const UserSchema = z.object({
+  email: z.string().email(),
+  tier: z.enum(['basic', 'pro', 'enterprise']).default('basic'),
+  quota: z.number().int().min(0).default(0),
+  consent: z.boolean().default(false),
+});
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, tier, quota, consent } = body;
+
+    // Validate the request body against the Zod schema
+    const validatedData = UserSchema.parse(body);
 
     const data = {
-      email,
-      tier,
-      quota: quota || 0,
-      consent: consent || false,
+      ...validatedData,
       created_at: new Date().toISOString(),
     };
 
     const docRef = await db.collection('users').add(data);
     return NextResponse.json({ id: docRef.id, status: 'created' }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Create user failed:", error);
-    return NextResponse.json({ error: 'Create failed' }, { status: 500 });
+
+    if (error instanceof z.ZodError) {
+      // Handle Zod validation errors
+      const errorMessages = error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      return NextResponse.json({ error: 'Validation failed', details: errorMessages }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: 'Create failed', details: error.message }, { status: 500 });
   }
 }
 

@@ -16,10 +16,20 @@ export async function GET(req: NextRequest) {
       .where('user_id', '==', userId)
       .get();
 
+    if (snapshot.empty) {
+      return NextResponse.json([], { status: 200, statusText: 'No campaigns found for this user' });
+    }
+
     const campaigns = snapshot.docs.map(doc => {
+      const data = doc.data();
       return {
         id: doc.id,
-        data: doc.data(),
+        name: data.name || 'Untitled Campaign',
+        platforms: data.platforms || [],
+        score: data.score || 0,
+        status: data.status || 'draft',
+        created_at: data.created_at || null,
+        user_id: data.user_id || null,
       };
     });
 

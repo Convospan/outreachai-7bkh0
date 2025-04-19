@@ -2,21 +2,41 @@
 
 import { db } from '@/lib/firebaseAdmin';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const LeadSchema = z.object({
+  campaign_id: z.string(),
+  user_id: z.string(),
+  platform: z.enum(['linkedin', 'twitter', 'email']),
+  profile_data: z.record(z.any()), // Flexible profile data
+  priority_score: z.number().min(0).max(100).default(50),
+  status: z.string().default('new'),
+});
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const validatedData = LeadSchema.parse(body);
 
     const data = {
-      ...body,
+      ...validatedData,
       created_at: new Date().toISOString(),
     };
 
     const docRef = await db.collection('leads').add(data);
     return NextResponse.json({ id: docRef.id, status: 'created' }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Create leads failed:", error);
-    return NextResponse.json({ error: 'Create failed' }, { status: 500 });
+
+    if (error instanceof z.ZodError) {
+      const errorMessages = error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      return NextResponse.json({ error: 'Validation failed', details: errorMessages }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: 'Create failed', details: error.message }, { status: 500 });
   }
 }
 
