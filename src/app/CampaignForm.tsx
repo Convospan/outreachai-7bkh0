@@ -41,7 +41,7 @@ export default function CampaignForm() {
           Create Campaign
         </button>
       </form>
-      {message && <p className="mt-4 text-center text-gray-950">{message}</p>}
+      {message && <p className="mt-4 text-center text-text-dark">{message}</p>}
     </motion.div>
   );
 }
