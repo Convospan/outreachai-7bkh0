@@ -1,27 +1,15 @@
 import type { Metadata } from 'next/metadata';
-import './globals.css';
-import {Toaster} from '@/components/ui/toaster';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import {metadata} from './metadata';
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const metadata: Metadata = {
+  title: 'ConvoSpan: AI Conversations That Convert to Real-World Impact',
+  description: 'Join me on ConvoSpan.ai for smart outreach with AI calls and sequences!',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
-      <body className="antialiased">
-          <Navbar />
-          <main className="flex-1">
-          {children}
-          </main>
-          <Footer />
-          <Toaster />
+      <body className="font-sans text-text-dark antialiased bg-white min-h-screen">
+        {children}
       </body>
     </html>
   );
