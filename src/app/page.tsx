@@ -3,8 +3,8 @@
 import type { Metadata } from 'next/metadata';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import PaymentForm from '@/components/PaymentForm';
-import CampaignForm from '@/app/CampaignForm';
+import PaymentForm from './PaymentForm';
+import CampaignForm from './CampaignForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -126,7 +126,7 @@ export default function Home() {
         >
           <Image
             src="/images/lead-management.jpg"
-            alt="Lead flow chart"
+            alt="Lead flow chart with coder"
             width={600}
             height={400}
             className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -139,7 +139,7 @@ export default function Home() {
       </section>
 
       {/* Payment Plan Section */}
-      <section className="py-12 px-4 max-w-6xl mx-auto bg-gray-950/5 rounded-xl shadow-sm">
+      <section className="py-12 px-4 max-w-6xl mx-auto text-center bg-[#F5F5F5] rounded-xl shadow-sm">
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
@@ -153,7 +153,7 @@ export default function Home() {
             height={400}
             className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
           />
-          <h2 className="text-3xl font-semibold mb-6 text-center">Choose a Plan That Fits Us!</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-center">Choose a Plan That Fits Us Perfectly</h2>
           <p className="text-lg mb-8 text-center max-w-3xl mx-auto">
             Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!
           </p>
@@ -163,13 +163,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-white py-6 text-center">
-        <p className="text-lg">
-          © 2025 ConvoSpan.ai |{' '}
-          <a href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
-            Contact
-          </a>
-        </p>
+      <footer className="bg-[#0288D1] text-white py-6 text-center">
+        <p>&copy; 2025 ConvoSpan.ai | Let’s connect! Visit <a href="/contact" className="underline text-[#FF9800]">/contact</a></p>
       </footer>
     </div>
   );
