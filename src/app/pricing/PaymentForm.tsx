@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 
@@ -36,7 +36,7 @@ export default function PaymentForm() {
       <select
         value={tier}
         onChange={(e) => setTier(e.target.value)}
-        className="w-full p-3 mb-6 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full p-3 mb-6 border border-input bg-background rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <option value="basic">Basic - ₹999/month (100 calls)</option>
         <option value="pro">Pro - ₹2,999/month (500 calls)</option>
@@ -44,11 +44,11 @@ export default function PaymentForm() {
       </select>
       <button
         onClick={handleSubscribe}
-        className="w-full bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-6 py-3 rounded-full shadow-md hover:opacity-90 transition duration-300"
+        className="w-full bg-primary text-primary-foreground px-6 py-3 rounded-full shadow-md hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition duration-300"
       >
         Subscribe Now!
       </button>
-      {message && <p className="mt-4 text-center text-foreground">{message}</p>}
+      {message && <p className="mt-4 text-center text-muted-foreground">{message}</p>}
     </motion.div>
   );
 }
