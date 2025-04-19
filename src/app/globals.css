@@ -1,11 +1,13 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Define custom utilities to handle bg-background */
+/* Define custom utilities to handle bg-background and text-foreground */
 @layer utilities {
   .bg-background {
     @apply bg-background-gray;
+  }
+  .text-foreground {
+    @apply text-text-dark;
   }
 }
