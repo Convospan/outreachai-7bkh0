@@ -1,6 +1,5 @@
 'use client'
 
-import type { Metadata } from 'next/metadata';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
@@ -39,7 +38,7 @@ export default function Home() {
           </a>
         </div>
       </header>
-      <main className="mt-4 flex grow px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
+      <main className="mt-4 flex flex-col px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
         <section className="relative mx-auto w-full max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -59,8 +58,8 @@ export default function Home() {
             </Link>
           </motion.div>
           <Image
-            src="/images/hero-ai-coder.jpg"
-            alt="AI coder at work"
+            src="/images/generated/hero-image.png"
+            alt="AI-powered success"
             fill
             style={{ objectFit: 'cover', opacity: 0.2 }}
             className="absolute top-0 left-0 z-0 rounded-xl"
@@ -76,8 +75,8 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Image
-              src="/images/prospecting-dashboard.jpg"
-              alt="Dashboard"
+              src="/images/generated/easy-prospecting.png"
+              alt="Easy prospecting dashboard interface"
               width={600}
               height={400}
               className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -90,7 +89,7 @@ export default function Home() {
         </section>
 
         {/* Multi-Channel Magic Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto bg-gray-950/5 rounded-xl shadow-sm">
+        <section className="py-12 px-4 max-w-6xl mx-auto text-center bg-gray-950/5 rounded-xl shadow-sm">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -107,7 +106,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Image src="/images/multi-channel-ai.jpg" alt="Multi-platform" width={300} height={200} className="rounded-lg mb-4" />
+                <Image src="/images/generated/smart-sequence.png" alt="Smart Sequences graphic" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Smart Sequences</h3>
                 <p className="text-gray-600">AI-crafted outreach plans tailored to your goals.</p>
               </motion.div>
@@ -116,7 +115,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Image src="/images/lead-management.jpg" alt="Lead chart" width={300} height={200} className="rounded-lg mb-4" />
+                <Image src="/images/generated/lead-tracking.png" alt="Lead Tracking dashboard" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Lead Tracking</h3>
                 <p className="text-gray-600">Real-time insights into your connections.</p>
               </motion.div>
@@ -125,7 +124,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Image src="/images/payment-success.jpg" alt="Payment" width={300} height={200} className="rounded-lg mb-4" />
+                <Image src="/images/generated/flexible-plans.png" alt="Flexible Plans" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Flexible Plans</h3>
                 <p className="text-gray-600">Choose a tier that grows with you.</p>
               </motion.div>
@@ -133,7 +132,7 @@ export default function Home() {
             <div className="mt-8 text-center">
               <h3 className="text-2xl font-medium mb-4">How We Start, Launch, and Win Together</h3>
               <Image
-                src="/images/campaign-process-infographic.jpg"
+                src="/images/generated/campaign-process.png"
                 alt="Process infographic"
                 width={800}
                 height={400}
@@ -153,7 +152,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Image
-              src="/images/lead-management.jpg"
+              src="/images/generated/lead-management-section.png"
               alt="Lead flow chart"
               width={600}
               height={400}
@@ -175,7 +174,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Image
-              src="/images/payment-success.jpg"
+              src="/images/generated/payment-confirmation.png"
               alt="Payment confirmation"
               width={600}
               height={400}
@@ -190,16 +189,25 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* Footer */}
+        
+      </main>
+       <div className="text-center">
+            <Link href="/pricing" passHref>
+              <Button variant="default"
+                    size="lg">
+                Start for Free Today!
+              </Button>
+            </Link>
+             <p className="mt-4 text-sm">No credit card needed—try me for 7 days!</p>
+          </div>
         <footer className="bg-gray-950 text-white py-6 text-center">
           <p className="text-lg">
             © 2025 ConvoSpan.ai |{' '}
-            <a href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
+            <Link href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
               Contact
-            </a>
+            </Link>
           </p>
         </footer>
-      </main>
     </div>
   );
 }
