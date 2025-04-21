@@ -1,16 +1,10 @@
 "use client";
 
-import type { Metadata } from 'next/metadata';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from './CampaignForm';
 import Link from 'next/link';
-
-export const metadata: Metadata = {
-  title: 'ConvoSpan: AI Conversations That Convert to Real-World Impact',
-  description: 'Join me on ConvoSpan.ai for smart outreach with AI calls and sequences!',
-};
 
 export default function Home() {
   return (
@@ -55,12 +49,12 @@ export default function Home() {
               I’ll turn your chats into wins with AI magic. Sign up free and let’s get started!
             </p>
             <a
-              href="/pricing"
+              href="/register"
               className="bg-cta-pink text-white px-6 py-3 rounded-full shadow-md hover:bg-opacity-90 transition duration-300 inline-block"
             >
-              See Pricing Plans
+              Start for Free!
             </a>
-            <p className="mt-4 text-sm">No credit card needed—try me for 7 days!</p>
+            <p className="mt-4 text-sm">No card, 7-day trial!</p>
           </motion.div>
           <Image
             src="/images/hero-ai-coder.jpg"
@@ -94,7 +88,7 @@ export default function Home() {
         </section>
 
         {/* Multi-Channel Magic Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto text-center bg-gray-950/5 rounded-xl shadow-sm">
+        <section className="py-12 px-4 max-w-6xl mx-auto bg-gray-950/5 rounded-xl shadow-sm">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

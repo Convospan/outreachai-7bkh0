@@ -28,7 +28,7 @@ export default function CampaignForm() {
           className="w-full p-2 mb-4 border border-border rounded"
           placeholder="Campaign Name"
         />
-        <button type="submit" className="bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md">
+        <button type="submit" className="bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-md">
           Create Campaign
         </button>
       </form>
