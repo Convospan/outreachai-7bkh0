@@ -52,12 +52,3 @@
     @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }
-/* Define custom utilities to handle bg-background and text-foreground */
-@layer utilities {
-  .bg-background {
-    @apply bg-background-gray;
-  }
-  .text-foreground {
-    @apply text-text-dark;
-  }
-}

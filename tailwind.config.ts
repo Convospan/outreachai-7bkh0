@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -75,6 +76,24 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      colors: {
+        'background-gray': '#F5F5F5',
+        'primary-orange': '#FF9800',
+        'accent-blue': '#0288D1',
+        'cta-pink': '#D81B60',
+        'text-dark': '#212121',
+        'gray-950': '#0F172A',
+        'gray-800': '#1E293B',
+        'gray-600': '#4B5563',
+        'gray-300': '#D1D5DB',
+        'primary': {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
       },
     },
   },
