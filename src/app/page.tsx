@@ -1,18 +1,16 @@
+"use client";
+
 import type { Metadata } from 'next/metadata';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from '@/app/CampaignForm';
 import Link from 'next/link';
-import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: 'ConvoSpan: AI Conversations That Convert to Real-World Impact',
   description: 'Join me on ConvoSpan.ai for smart outreach with AI calls and sequences!',
 };
-
-"use client";
-
 
 export default function Home() {
   return (
@@ -56,13 +54,12 @@ export default function Home() {
             <p className="text-lg mb-8 max-w-2xl mx-auto">
               I’am here to skyrocket your lead generation by turning digital outreach inti real world wins with AI magic.
             </p>
-            <Link href="/pricing" passHref>
-              <Button variant="default"
-                    size="lg">
-                Start for Free Today!
-              </Button>
-            </Link>
-          
+            <a
+              href="/register"
+              className="bg-cta-pink text-white px-6 py-3 rounded-full shadow-md hover:bg-opacity-90 transition duration-300 inline-block"
+            >
+              Start for Free!
+            </a>
             <p className="mt-4 text-sm">No card, 7-day trial!</p>
           </motion.div>
           <Image
