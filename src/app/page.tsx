@@ -1,9 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
-import CampaignForm from './CampaignForm';
 import Link from 'next/link';
 
 export default function Home() {
@@ -29,7 +27,7 @@ export default function Home() {
         </div>
         <div className="justify-self-end">
           <a
-            href="/register"
+            href="/pricing"
             className="inline-flex justify-center rounded-full text-sm/6 font-semibold bg-gray-950 text-white hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-950 px-4 py-2"
           >
             Get Started
@@ -38,24 +36,23 @@ export default function Home() {
       </header>
       <main className="mt-4 flex grow px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
         <section className="relative mx-auto w-full max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="relative z-10 text-center bg-accent-blue bg-opacity-80 p-8 rounded-xl text-white"
+          <div
+            className="relative z-10 text-center p-8 rounded-xl text-white"
+            style={{backgroundImage: 'linear-gradient(to right, #0288D1, #FF9800)'}}
           >
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              I’ll turn your chats into wins with AI magic. Sign up free and let’s get started!
+              I&apos;am here to skyrocket your lead generation by turning digital outreach inti real world wins with AI magic.
+              Sign up for free and let’s get started!
             </p>
             <a
-              href="/register"
-              className="bg-cta-pink text-white px-6 py-3 rounded-full shadow-md hover:bg-opacity-90 transition duration-300 inline-block"
+              href="/pricing"
+              className="bg-[#D81B60] text-white px-6 py-3 rounded-full shadow-md hover:bg-opacity-90 transition duration-300 inline-block"
             >
-              Start for Free!
+              Start for Free Today!
             </a>
             <p className="mt-4 text-sm">No card, 7-day trial!</p>
-          </motion.div>
+          </div>
           <Image
             src="/images/hero-ai-coder.jpg"
             alt="AI coder at work"
@@ -67,7 +64,7 @@ export default function Home() {
 
         {/* Easy Prospecting Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-          <motion.div
+          <div
             initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -84,12 +81,12 @@ export default function Home() {
             <p className="text-lg mb-6 max-w-3xl mx-auto">
               I send personalized messages and AI calls across platforms with ease!
             </p>
-          </motion.div>
+          </div>
         </section>
 
         {/* Multi-Channel Magic Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto bg-gray-950/5 rounded-xl shadow-sm">
-          <motion.div
+        <section className="py-12 px-4 max-w-6xl mx-auto text-center bg-white rounded-xl shadow-sm">
+          <div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
@@ -100,51 +97,40 @@ export default function Home() {
               I mix LinkedIn, Twitter/X, email, and AI calls, picking perfect sequences for you!
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+              <div
+                className="p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
                 <Image src="/images/multi-channel-ai.jpg" alt="Multi-platform" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Smart Sequences</h3>
                 <p className="text-gray-600">AI-crafted outreach plans tailored to your goals.</p>
-              </motion.div>
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+              </div>
+              <div
+                className="p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
                 <Image src="/images/lead-management.jpg" alt="Lead chart" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Lead Tracking</h3>
                 <p className="text-gray-600">Real-time insights into your connections.</p>
-              </motion.div>
-              <motion.div
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+              </div>
+              <div
+                className="p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
                 <Image src="/images/payment-success.jpg" alt="Payment" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Flexible Plans</h3>
                 <p className="text-gray-600">Choose a tier that grows with you.</p>
-              </motion.div>
+              </div>
             </div>
-            <div className="mt-8 text-center">
-              <h3 className="text-2xl font-medium mb-4">How We Start, Launch, and Win Together</h3>
-              <Image
-                src="/images/campaign-process-infographic.jpg"
-                alt="Process infographic"
-                width={800}
-                height={400}
-                className="mx-auto rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-              />
-              <p className="mt-4 text-sm">Steps: Sign Up, Plan, Build & Test, Meet AI Caller, Launch, Tweak, Celebrate!</p>
-            </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* Lead Management Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-          <motion.div
+          <div
             initial={{ x: -50, opacity: 0 }}
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -161,12 +147,12 @@ export default function Home() {
             <p className="text-lg mb-6 max-w-3xl mx-auto">
               My dashboard organizes everything for your success!
             </p>
-          </motion.div>
+          </div>
         </section>
 
         {/* Payment Plan Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto bg-gray-950/5 rounded-xl shadow-sm">
-          <motion.div
+          <div
             initial={{ y: 50, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -184,17 +170,24 @@ export default function Home() {
               Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!
             </p>
             <PaymentForm />
-            <CampaignForm />
-          </motion.div>
+          </div >
+           
+            <Button variant="default"
+                    size="lg" asChild>
+              <Link href="/pricing">Start for Free Today!
+                No credit card needed—try me for 7 days!
+              </Link>
+            </Button>
+           
         </section>
 
         {/* Footer */}
         <footer className="bg-gray-950 text-white py-6 text-center">
           <p className="text-lg">
             © 2025 ConvoSpan.ai |{' '}
-            <a href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
+            <Link href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
               Contact
-            </a>
+            </Link>
           </p>
         </footer>
       </main>

@@ -49,6 +49,13 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        border: "hsl(var(--border))",
+        ring: "hsl(var(--ring))",
+        input: "hsl(var(--input))",
       },
       borderRadius: {
         lg: "var(--radius)",
