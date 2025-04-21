@@ -1,9 +1,13 @@
-"use client";
+'use client'
 
+import type { Metadata } from 'next/metadata';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from '@/app/CampaignForm';
+import Link from 'next/link';
+import { Button } from "@/components/ui/button";
+import {siteConfig} from "@/config/site";
 
 export default function Home() {
   return (
@@ -45,15 +49,14 @@ export default function Home() {
           >
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              I’ll turn your chats into wins with AI magic. Sign up free and let’s get started!
+              I;am here to skyrocket your lead generation by turning digital outreach inti real world wins with AI magic.
             </p>
-            <a
-              href="/register"
-              className="bg-cta-pink text-white px-6 py-3 rounded-full shadow-md hover:bg-opacity-90 transition duration-300 inline-block"
-            >
-              Start for Free!
-            </a>
-            <p className="mt-4 text-sm">No card, 7-day trial!</p>
+            <Link href="/pricing" passHref>
+              <Button variant="default"
+                    size="lg">
+                Start for Free Today!
+              </Button>
+            </Link>
           </motion.div>
           <Image
             src="/images/hero-ai-coder.jpg"
