@@ -1,10 +1,14 @@
-'use client';
-
 import type { Metadata } from 'next/metadata';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import '../app/globals.css';
+import {siteConfig} from "@/config/site";
+
+export const metadata: Metadata = {
+  title: siteConfig.name,
+  description: siteConfig.description,
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
