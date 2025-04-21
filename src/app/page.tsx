@@ -6,7 +6,6 @@ import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from '@/app/CampaignForm';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import {siteConfig} from "@/config/site";
 
 export default function Home() {
   return (
@@ -38,7 +37,7 @@ export default function Home() {
           </a>
         </div>
       </header>
-      <main className="mt-4 flex flex-col px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
+      <main className="mt-4 flex grow px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6 flex-col">
         <section className="relative mx-auto w-full max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -48,7 +47,7 @@ export default function Home() {
           >
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              I;am here to skyrocket your lead generation by turning digital outreach inti real world wins with AI magic.
+              I am here to skyrocket your lead generation by turning digital outreach into real-world wins with AI magic.
             </p>
             <Link href="/pricing" passHref>
               <Button variant="default"
@@ -58,8 +57,8 @@ export default function Home() {
             </Link>
           </motion.div>
           <Image
-            src="/images/generated/hero-image.png"
-            alt="AI-powered success"
+            src="/images/hero-ai-coder.jpg"
+            alt="AI coder at work"
             fill
             style={{ objectFit: 'cover', opacity: 0.2 }}
             className="absolute top-0 left-0 z-0 rounded-xl"
@@ -75,8 +74,8 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Image
-              src="/images/generated/easy-prospecting.png"
-              alt="Easy prospecting dashboard interface"
+              src="/images/prospecting-dashboard.jpg"
+              alt="Dashboard"
               width={600}
               height={400}
               className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -106,7 +105,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Image src="/images/generated/smart-sequence.png" alt="Smart Sequences graphic" width={300} height={200} className="rounded-lg mb-4" />
+                <Image src="/images/multi-channel-ai.jpg" alt="Multi-platform" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Smart Sequences</h3>
                 <p className="text-gray-600">AI-crafted outreach plans tailored to your goals.</p>
               </motion.div>
@@ -115,7 +114,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Image src="/images/generated/lead-tracking.png" alt="Lead Tracking dashboard" width={300} height={200} className="rounded-lg mb-4" />
+                <Image src="/images/lead-management.jpg" alt="Lead chart" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Lead Tracking</h3>
                 <p className="text-gray-600">Real-time insights into your connections.</p>
               </motion.div>
@@ -124,7 +123,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Image src="/images/generated/flexible-plans.png" alt="Flexible Plans" width={300} height={200} className="rounded-lg mb-4" />
+                <Image src="/images/payment-success.jpg" alt="Payment" width={300} height={200} className="rounded-lg mb-4" />
                 <h3 className="text-xl font-medium">Flexible Plans</h3>
                 <p className="text-gray-600">Choose a tier that grows with you.</p>
               </motion.div>
@@ -132,7 +131,7 @@ export default function Home() {
             <div className="mt-8 text-center">
               <h3 className="text-2xl font-medium mb-4">How We Start, Launch, and Win Together</h3>
               <Image
-                src="/images/generated/campaign-process.png"
+                src="/images/campaign-process-infographic.jpg"
                 alt="Process infographic"
                 width={800}
                 height={400}
@@ -152,7 +151,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Image
-              src="/images/generated/lead-management-section.png"
+              src="/images/lead-management.jpg"
               alt="Lead flow chart"
               width={600}
               height={400}
@@ -174,7 +173,7 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <Image
-              src="/images/generated/payment-confirmation.png"
+              src="/images/payment-success.jpg"
               alt="Payment confirmation"
               width={600}
               height={400}
@@ -189,25 +188,16 @@ export default function Home() {
           </motion.div>
         </section>
 
-        
-      </main>
-       <div className="text-center">
-            <Link href="/pricing" passHref>
-              <Button variant="default"
-                    size="lg">
-                Start for Free Today!
-              </Button>
-            </Link>
-             <p className="mt-4 text-sm">No credit card needed—try me for 7 days!</p>
-          </div>
+        {/* Footer */}
         <footer className="bg-gray-950 text-white py-6 text-center">
           <p className="text-lg">
             © 2025 ConvoSpan.ai |{' '}
-            <Link href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
+            <a href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
               Contact
-            </Link>
+            </a>
           </p>
         </footer>
+      </main>
     </div>
   );
 }
