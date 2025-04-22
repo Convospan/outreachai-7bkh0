@@ -24,6 +24,7 @@ const SummarizeOutreachPerformanceInputSchema = z.object({
   messageResponses: z.string().describe('Message Responses'),
   campaignHistory: z.string().describe('Campaign History'),
   callId: z.string().describe('The id of the call.'),
+  platform: z.enum(['linkedin', 'twitter', 'email']).describe('The platform for the outreach script.'),
 });
 export type SummarizeOutreachPerformanceInput = z.infer<
   typeof SummarizeOutreachPerformanceInputSchema
@@ -35,6 +36,7 @@ const SummarizeOutreachPerformanceOutputSchema = z.object({
   reportContent: z.string().describe('The content of the generated PDF report.'),
   sentimentScore: z.optional(z.number().describe('Sentiment score of the message responses.')),
   trendForecast: z.optional(z.string().describe('3-5 year trend forecast of campaign performance.')),
+  suggestCall: z.boolean().describe('Suggest user to make a virtual call')
 });
 export type SummarizeOutreachPerformanceOutput = z.infer<
   typeof SummarizeOutreachPerformanceOutputSchema
@@ -75,6 +77,7 @@ const prompt = ai.definePrompt({
       sentimentScore: z.optional(z.number().describe('Sentiment score of the message responses.')),
       trendForecast: z.optional(z.string().describe('3-5 year trend forecast of campaign performance.')),
       tier: z.string().describe('Tier'),
+      suggestCall: z.boolean().describe('Suggest user to make a virtual call')
     }),
   },
   output: {
@@ -84,7 +87,7 @@ const prompt = ai.definePrompt({
   },
   prompt: `You are an expert marketing analyst.
 
-You will analyze the outreach campaign performance metrics and generate a summary in markdown format. Include the XGBoost model score to highlight lead prioritization.
+You will analyze the outreach campaign performance metrics and generate a summary in markdown format. Include the XGBoost model score to highlight lead prioritization.  Also consider suggesting call if sentiment is high
 
 Campaign Name: {{{campaignName}}}
 Response Rates: {{{responseRates}}}
@@ -97,7 +100,7 @@ Sentiment Score: {{{sentimentScore}}}
 Trend Forecast: {{{trendForecast}}}
 {{/if}}
 Tier Access Level: {{{tier}}}
-
+{{#if suggestCall}} Suggest to user to make call to follow up the process{{/if}}
 Summary: `,
 });
 
@@ -116,10 +119,12 @@ const summarizeOutreachPerformanceFlow = ai.defineFlow<
 
     let sentimentScore: number | undefined = undefined;
     let trendForecast: string | undefined = undefined;
+    let suggestCall: boolean = false;
 
     if (input.tier === 'pro' || input.tier === 'enterprise') {
       sentimentScore = await analyzeSentiment({messageResponses: input.messageResponses});
       trendForecast = await forecastTrends({campaignHistory: input.campaignHistory});
+      suggestCall = sentimentScore > 0.5; // Suggest a call if sentiment is positive
     }
 
     const {output} = await prompt({
@@ -128,6 +133,7 @@ const summarizeOutreachPerformanceFlow = ai.defineFlow<
       sentimentScore: sentimentScore,
       trendForecast: trendForecast,
       tier: input.tier,
+      suggestCall: suggestCall
     });
 
     const reportContent = await generateReport({
@@ -145,6 +151,7 @@ const summarizeOutreachPerformanceFlow = ai.defineFlow<
       reportContent: reportContent,
       sentimentScore: sentimentScore,
       trendForecast: trendForecast,
+      suggestCall: suggestCall,
     };
   }
 );

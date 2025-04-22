@@ -57,8 +57,10 @@ export default function RiskLeadVisualizationPage() {
     const [campaignHistory, setCampaignHistory] = useState<string>('');
     const [sentimentScore, setSentimentScore] = useState<number | undefined>(undefined);
     const [trendForecast, setTrendForecast] = useState<string | undefined>(undefined);
+    const [suggestCall, setSuggestCall] = useState<boolean>(false);
     const searchParams = useSearchParams();
     const callId = searchParams.get('callId') ?? '';
+    const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email'>('linkedin');
 
 
     // Placeholder function to simulate score generation (0-100)
@@ -74,6 +76,7 @@ export default function RiskLeadVisualizationPage() {
                 messageResponses: messageResponses,
                 campaignHistory: campaignHistory,
                 callId: callId,
+                platform: platform,
             };
 
             const result: SummarizeOutreachPerformanceOutput = await summarizeOutreachPerformance(input);
@@ -81,12 +84,14 @@ export default function RiskLeadVisualizationPage() {
             setReportContent(result.reportContent);
             setSentimentScore(result.sentimentScore);
             setTrendForecast(result.trendForecast);
+            setSuggestCall(result.suggestCall);
         } catch (error: any) {
             console.error('Failed to generate campaign score:', error);
             setCampaignScore(null);
             setReportContent(null);
             setSentimentScore(undefined);
             setTrendForecast(undefined);
+            setSuggestCall(false);
         }
     };
 
@@ -140,7 +145,6 @@ export default function RiskLeadVisualizationPage() {
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip />
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="grid gap-2">
@@ -190,6 +194,9 @@ export default function RiskLeadVisualizationPage() {
                         )}
                         {trendForecast !== undefined && (
                             <p className="mt-2">Trend Forecast: {trendForecast}</p>
+                        )}
+                        {suggestCall && (
+                            <p className="mt-2">Suggest Call: {suggestCall ? "Yes" : "No"}</p>
                         )}
                     </CardContent>
                 </Card>

@@ -31,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {enrichLinkedInProfile, EnrichLinkedInProfileOutput} from '@/ai/flows/enrich-linkedin-profile';
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email';
@@ -60,6 +61,7 @@ export default function CampaignPage() {
   const [sequencePrompt, setSequencePrompt] = useState<string>('');
 
   const [companyName, setCompanyName] = useState(''); // Company name state
+    const [includeCallToAction, setIncludeCallToAction] = useState(true);
 
   useEffect(() => {
     const fetchLinkedInProfile = async () => {
@@ -108,7 +110,7 @@ export default function CampaignPage() {
               toast({
                   title: "Error",
                   description: "Failed to fetch Email profile.",
-                  variant: "destructive",
+              variant: "destructive",
               })
         }
       } else {
@@ -167,6 +169,7 @@ export default function CampaignPage() {
         provider: emailProfile.provider,
       } : undefined,
       additionalContext: additionalContext,
+      includeCallToAction: includeCallToAction,
     };
 
     try {
@@ -298,6 +301,14 @@ export default function CampaignPage() {
               onChange={(e) => setAdditionalContext(e.target.value)}
               placeholder="Enter additional context to personalize the outreach script"
             />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="includeCallToAction"
+              checked={includeCallToAction}
+              onCheckedChange={(checked) => setIncludeCallToAction(checked || false)}
+            />
+            <Label htmlFor="includeCallToAction">Suggest a virtual call</Label>
           </div>
 
           <Button onClick={handleGenerateTemplate}>Generate Outreach Script</Button>
