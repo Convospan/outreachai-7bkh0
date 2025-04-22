@@ -86,7 +86,7 @@ module.exports = {
         'gray-800': '#1E293B',
         'gray-600': '#4B5563',
         'gray-300': '#D1D5DB',
-		'cobalt-blue': '#0047AB',
+        'cobalt-blue': '#0047AB',
         'primary': {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -94,9 +94,9 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
 }
-

@@ -27,3 +27,53 @@
     @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-inter;
+    --background: 230 60% 98%; /* #F5F7FA */
+    --foreground: 214 20% 21%; /* #2D3436 */
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter-semibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter-bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+  }
+  :root {
+    --primary: 200 100% 50%; /* Light Blue */
+    --primary-foreground: 20 20% 10%; /* Near Black */
+    --secondary: 220 3% 17%;
+    --secondary-foreground: 220 50% 98%;
+    --muted: 220 3% 17%;
+    --muted-foreground: 220 50% 98%;
+    --accent: 200 80% 40%; /* Slightly darker Light Blue */
+    --accent-foreground: 20 20% 10%;
+    --popover: 230 60% 98%; /* #F5F7FA */
+    --popover-foreground: 214 20% 21%; /* #2D3436 */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 214 20% 21%; /* #2D3436 */
+    --destructive: 0 84% 60%; /* Red */
+    --destructive-foreground: 0 0% 98%; /* White */
+    --border: 240 5% 59%; /* Soft Gray */
+    --input: 240 5% 59%;
+    --ring: 200 80% 40%; /* Light Blue */
+  }
+
+  .dark {
+    --background: 220 3% 17%;
+    --foreground: 220 50% 98%;
+  }
+}
