@@ -1,5 +1,3 @@
-'use server';
-
 const initialState = { script: '', approved: false };
 
 type Action = { type: 'APPROVE_SCRIPT'; payload: string };

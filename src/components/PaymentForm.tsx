@@ -1,17 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 
 export default function PaymentForm() {
   const [tier, setTier] = useState('basic');
   const [message, setMessage] = useState('');
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -23,7 +18,7 @@ export default function PaymentForm() {
     }
   };
 
-  if (!isClient) return null;
+  
 
   return (
     <motion.div

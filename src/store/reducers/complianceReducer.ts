@@ -1,4 +1,3 @@
-'use server';
 
 const initialState = { consent: false };
 

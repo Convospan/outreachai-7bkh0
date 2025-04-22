@@ -4,8 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Icons } from "@/components/icons";
@@ -33,10 +31,14 @@ const Navbar = () => {
           <div className="h-5 w-[1px] bg-border mx-1"></div>
           <Link href="/pricing">Pricing</Link>
           <div className="h-5 w-[1px] bg-border mx-1"></div>
+           <Link href="/usecases">Use Cases</Link>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
+           <Link href="/affiliate">Affiliate</Link>
+          <div className="h-5 w-[1px] bg-border mx-1"></div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">
-                Campaign <Icons.chevronDown className="h-4 w-4 ml-1" />
+                Modules <Icons.chevronDown className="h-4 w-4 ml-1" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
@@ -46,47 +48,18 @@ const Navbar = () => {
               <DropdownMenuItem asChild>
                   <Link href="/campaign">Campaign Automation</Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="h-5 w-[1px] bg-border mx-1"></div>
-             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
-                Compliance <Icons.chevronDown className="h-4 w-4 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuItem asChild>
-                <Link href="/compliance/check">Compliance Check</Link>
+               <DropdownMenuItem asChild>
+                  <Link href="/compliance/check">Compliance Check</Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="h-5 w-[1px] bg-border mx-1"></div>
-             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
-                Calling <Icons.chevronDown className="h-4 w-4 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuItem asChild>
-                <Link href="/call/approve">Call Script Approval</Link>
+               <DropdownMenuItem asChild>
+                 <Link href="/call/approve">Call Script Approval</Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="h-5 w-[1px] bg-border mx-1"></div>
-                   <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
-                Visualization <Icons.chevronDown className="h-4 w-4 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
               <DropdownMenuItem asChild>
                 <Link href="/risk-lead-visualization">Risk & Lead Visualization</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+         
         </div>
       </div>
     </nav>

@@ -1,12 +1,12 @@
 "use client";
 
-import {useState, useEffect} from 'react';
-import {Code, Link, MessageSquare, PhoneCall} from "lucide-react";
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
-import CampaignForm from './CampaignForm';
-import {Button} from "@/components/ui/button";
-
+import CampaignForm from '@/components/CampaignForm';
+import Link from 'next/link';
+import { Button } from "@/components/ui/button";
+import { PhoneCall } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -21,6 +21,13 @@ export default function Home() {
             <div className="max-sm:hidden" aria-hidden="true">·</div>
             <p>AI Outreach Platform</p>
           </div>
+          <div className="max-sm:hidden overflow-x-auto max-sm:-mx-6 max-sm:pl-6 mt-2">
+            <ul className="flex gap-1.5 text-xs/6 whitespace-nowrap">
+              <li className="flex gap-1.5 text-gray-600 after:text-gray-300 not-last:after:content-['/']">Next.js</li>
+              <li className="flex gap-1.5 text-gray-600 after:text-gray-300 not-last:after:content-['/']">Tailwind CSS</li>
+              <li className="flex gap-1.5 text-gray-600 after:text-gray-300 not-last:after:content-['/']">React</li>
+            </ul>
+          </div>
         </div>
         <div className="justify-self-end">
           <a
@@ -31,7 +38,7 @@ export default function Home() {
           </a>
         </div>
       </header>
-      <main className="mt-4 flex flex-col px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
+      <main className="mt-4 flex grow px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
         <section className="relative mx-auto w-full max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -41,17 +48,23 @@ export default function Home() {
           >
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              I am here to skyrocket your lead generation by turning digital outreach into real world wins with AI magic.
+              I’m here to skyrocket your lead generation by turning digital outreach into real-world wins with AI magic.
             </p>
-            <Code className="w-24 h-24 mx-auto mb-4" />
             <Link href="/pricing" passHref>
               <Button variant="default"
                     size="lg">
                 Start for Free Today!
+                No credit card needed—try me for 7 days!
               </Button>
             </Link>
           </motion.div>
-
+          {/* <Image
+            src="/images/hero-ai-coder.jpg"
+            alt="AI coder at work"
+            fill
+            style={{ objectFit: 'cover', opacity: 0.2 }}
+            className="absolute top-0 left-0 z-0 rounded-xl"
+          /> */}
         </section>
 
         {/* Easy Prospecting Section */}
@@ -62,7 +75,13 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <MessageSquare className="w-24 h-24 mx-auto mb-4" />
+            {/* <Image
+              src="/images/prospecting-dashboard.jpg"
+              alt="Dashboard"
+              width={600}
+              height={400}
+              className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+            /> */}
             <h2 className="text-3xl font-semibold mb-4">Let Me Handle Your Prospecting—Super Easy!</h2>
             <p className="text-lg mb-6 max-w-3xl mx-auto">
               I send personalized messages and AI calls across platforms with ease!
@@ -88,7 +107,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <Link className="w-12 h-12 mx-auto block mb-4" />
+                {/* <Image src="/images/multi-channel-ai.jpg" alt="Multi-platform" width={300} height={200} className="rounded-lg mb-4" /> */}
                 <h3 className="text-xl font-medium">Smart Sequences</h3>
                 <p className="text-gray-600">AI-crafted outreach plans tailored to your goals.</p>
               </motion.div>
@@ -97,7 +116,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <MessageSquare className="w-12 h-12 mx-auto block mb-4" />
+                {/* <Image src="/images/lead-management.jpg" alt="Lead chart" width={300} height={200} className="rounded-lg mb-4" /> */}
                 <h3 className="text-xl font-medium">Lead Tracking</h3>
                 <p className="text-gray-600">Real-time insights into your connections.</p>
               </motion.div>
@@ -106,48 +125,24 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                <PhoneCall className="w-12 h-12 mx-auto block mb-4" />
-                <h3 className="text-xl font-medium">AI-Powered Calls</h3>
-                <p className="text-gray-600">Connect with leads using personalized AI calls.</p>
+                {/* <Image src="/images/payment-success.jpg" alt="Payment" width={300} height={200} className="rounded-lg mb-4" /> */}
+                <h3 className="text-xl font-medium">Flexible Plans</h3>
+                <p className="text-gray-600">Choose a tier that grows with you.</p>
               </motion.div>
+            </div>
+            <div className="mt-8 text-center">
+              <h3 className="text-2xl font-medium mb-4">How We Start, Launch, and Win Together</h3>
+              {/* <Image
+                src="/images/campaign-process-infographic.jpg"
+                alt="Process infographic"
+                width={800}
+                height={400}
+                className="mx-auto rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+              /> */}
+              <p className="mt-4 text-sm">Steps: Sign Up, Plan, Build & Test, Meet AI Caller, Launch, Tweak, Celebrate!</p>
             </div>
           </motion.div>
         </section>
-
-{/* Add section for Steps: Sign Up, Plan, Build & Test, Meet AI Caller, Launch, Tweak, Celebrate! */}
-        <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-semibold mb-4">How We Start, Launch, and Win Together</h2>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8">
-            {/* Step 1: Sign Up and Explore */}
-            <div className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="absolute top-0 right-0 flex items-center justify-center h-10 w-10 text-gray-600">
-                {/* Arrow Icon */}
-              </div>
-              <h3 className="text-xl font-medium mb-2">Step 1: Sign Up and Explore with Me</h3>
-              <p className="text-gray-600">Hey! Let’s get you started—sign up for free with ConvoSpan.ai (no credit card needed for a 7-day trial!). Once you’re in, I’ll show you around my easy dashboard where you can see all the cool tools I’ve got for reaching out on LinkedIn, Twitter/X, and email.</p>
-              {/* Add more content or button here if needed */}
-            </div>
-
-            {/* Step 2: Plan Your Outreach Together */}
-            <div className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-             <div className="absolute top-0 right-0 flex items-center justify-center h-10 w-10 text-gray-600">
-                {/* Arrow Icon */}
-              </div>
-              <h3 className="text-xl font-medium mb-2">Step 2: Plan Your Outreach Together</h3>
-              <p className="text-gray-600">I’ll help you pick your audience! Tell me who you want to connect with—add their profiles or let me suggest leads. We’ll create a simple plan with personalized messages and AI call scripts, all set up in a few clicks. It’s like planning a fun chat party!</p>
-              {/* Add more content or button here if needed */}
-            </div>
-            
-             {/* Step 3: Build and Test with My AI Magic */}
-            <div className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-              
-              <h3 className="text-xl font-medium mb-2">Step 3: Build and Test with My AI Magic</h3>
-              <p className="text-gray-600">Now, let’s make it perfect! I’ll use my AI to craft smart messages and let my virtual AI caller practice the scripts for you. You can tweak the words or approve them—I’ll even run a quick trial call to make sure my voice sounds friendly and ready to go!</p>
-              {/* Add more content or button here if needed */}
-            </div>
-          </div>
-        </section>
-
 
         {/* Lead Management Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
@@ -157,7 +152,13 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <MessageSquare className="w-24 h-24 mx-auto mb-4" />
+            {/* <Image
+              src="/images/lead-management.jpg"
+              alt="Lead flow chart"
+              width={600}
+              height={400}
+              className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+            /> */}
             <h2 className="text-3xl font-semibold mb-4">Keep Track of Leads with Me—Simple and Fun!</h2>
             <p className="text-lg mb-6 max-w-3xl mx-auto">
               My dashboard organizes everything for your success!
@@ -166,14 +167,20 @@ export default function Home() {
         </section>
 
         {/* Payment Plan Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto text-center bg-gray-950/5 rounded-xl shadow-sm">
+        <section className="py-12 px-4 max-w-6xl mx-auto bg-gray-950/5 rounded-xl shadow-sm">
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <PhoneCall className="w-24 h-24 mx-auto mb-4" />
+            {/* <Image
+              src="/images/payment-success.jpg"
+              alt="Payment confirmation"
+              width={600}
+              height={400}
+              className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+            /> */}
             <h2 className="text-3xl font-semibold mb-6 text-center">Choose a Plan That Fits Us!</h2>
             <p className="text-lg mb-8 text-center max-w-3xl mx-auto">
               Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!
@@ -183,22 +190,13 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-           <Link href="/pricing" passHref>
-              <Button variant="default"
-                    size="lg">
-                Start for Free Today!
-              </Button>
-            </Link>
-        </section>
-
         {/* Footer */}
         <footer className="bg-gray-950 text-white py-6 text-center">
           <p className="text-lg">
             © 2025 ConvoSpan.ai |{' '}
-            <Link href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
+            <a href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
               Contact
-            </Link>
+            </a>
           </p>
         </footer>
       </main>

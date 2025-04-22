@@ -2,8 +2,8 @@
     "IDX.aI.enableInlineCompletion": true,
     "IDX.aI.enableCodebaseIndexing": true,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true,
-        "source.organizeImports": true
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "explicit"
     },
     "editor.formatOnSave": true,
     "eslint.validate": [
