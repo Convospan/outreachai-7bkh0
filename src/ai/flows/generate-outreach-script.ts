@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Generates personalized outreach scripts for LinkedIn, Twitter/X, and email.
+ * @fileOverview Generates personalized outreach scripts for LinkedIn, Twitter/X, email and Whatsapp.
  *
  * - generateOutreachScript - A function that handles the outreach script generation process.
  * - GenerateOutreachScriptInput - The input type for the generateOutreachScript function.
@@ -14,7 +14,7 @@ import {TwitterProfile} from '@/services/twitter';
 import {EmailProfile} from '@/services/email';
 
 const GenerateOutreachScriptInputSchema = z.object({
-  platform: z.enum(['linkedin', 'twitter', 'email']).describe('The platform for the outreach script.'),
+  platform: z.enum(['linkedin', 'twitter', 'email', 'whatsapp']).describe('The platform for the outreach script.'),
   linkedinProfile: z.optional(z.object({
     id: z.string().describe('The LinkedIn profile ID.'),
     headline: z.string().describe('The profile headline.'),

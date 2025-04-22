@@ -34,7 +34,7 @@ import {enrichLinkedInProfile, EnrichLinkedInProfileOutput} from '@/ai/flows/enr
 import { Checkbox } from "@/components/ui/checkbox"
 
 interface MessageTemplate {
-  platform: 'linkedin' | 'twitter' | 'email';
+  platform: 'linkedin' | 'twitter' | 'email' | 'whatsapp';
   template: string;
 }
 
@@ -42,10 +42,11 @@ const defaultTemplates: MessageTemplate[] = [
   {platform: 'linkedin', template: 'Hello, I saw your profile and...'},
   {platform: 'twitter', template: 'Hey, I enjoyed your tweet about...'},
   {platform: 'email', template: 'Dear [Name], I hope this email finds you well...'},
+  {platform: 'whatsapp', template: 'Hello, I found your contact and...'},
 ];
 
 export default function CampaignPage() {
-  const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email'>('linkedin');
+  const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email' | 'whatsapp'>('linkedin');
   const [message, setMessage] = useState('');
   const [templates, setTemplates] = useState<MessageTemplate[]>(defaultTemplates);
   const [linkedinUsername, setLinkedInUsername] = useState('');
@@ -242,6 +243,7 @@ export default function CampaignPage() {
                 <SelectItem value="linkedin">LinkedIn</SelectItem>
                 <SelectItem value="twitter">Twitter/X</SelectItem>
                 <SelectItem value="email">Email Drip Campaign</SelectItem>
+                 <SelectItem value="whatsapp">WhatsApp</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -289,6 +291,17 @@ export default function CampaignPage() {
                         value={emailAddress}
                         onChange={(e) => setEmailAddress(e.target.value)}
                         placeholder="Enter Email Address"
+                    />
+                </div>
+            )}
+           {platform === 'whatsapp' && (
+                <div className="grid gap-2">
+                    <Label htmlFor="emailAddress">WhatsApp Number</Label>
+                    <Textarea
+                        id="whatsappNumber"
+                        value={emailAddress}
+                        onChange={(e) => setEmailAddress(e.target.value)}
+                        placeholder="Enter WhatsApp Number"
                     />
                 </div>
             )}
