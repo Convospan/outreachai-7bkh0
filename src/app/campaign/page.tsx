@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import {useState, useEffect} from 'react';
@@ -29,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {enrichLinkedInProfile, EnrichLinkedInProfileOutput} from '@/ai/flows/enrich-linkedin-profile';
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email';
@@ -56,6 +58,8 @@ export default function CampaignPage() {
   const [numSteps, setNumSteps] = useState<number>(3);
   const [generatedSequence, setGeneratedSequence] = useState<GenerateOutreachSequenceOutput | null>(null);
   const [sequencePrompt, setSequencePrompt] = useState<string>('');
+
+  const [companyName, setCompanyName] = useState(''); // Company name state
 
   useEffect(() => {
     const fetchLinkedInProfile = async () => {
@@ -118,12 +122,40 @@ export default function CampaignPage() {
   }, [platform, linkedinUsername, twitterUsername, emailAddress]);
 
   const handleGenerateTemplate = async () => {
+    let profileData = linkedinProfile;
+
+    if (platform === 'linkedin' && linkedinProfile && (!linkedinProfile.headline || !linkedinProfile.profileUrl)) {
+      // Enrich LinkedIn profile if data is insufficient
+      try {
+        const enrichedProfileResult: EnrichLinkedInProfileOutput = await enrichLinkedInProfile({
+          name: linkedinUsername, // Assuming linkedinUsername is the name
+          company: companyName,
+          linkedinProfile: linkedinProfile,
+          additionalContext: additionalContext,
+        });
+        setMessage(enrichedProfileResult.enrichedProfile);
+        setTemplates(prevTemplates => [...prevTemplates, {platform: platform, template: enrichedProfileResult.enrichedProfile}]);
+        toast({
+          title: "Success",
+          description: "Successfully generated outreach script with enriched profile.",
+        });
+        return;
+      } catch (enrichError) {
+        console.error('Failed to enrich LinkedIn profile:', enrichError);
+        toast({
+          title: "Error",
+          description: "Failed to enrich LinkedIn profile.",
+          variant: "destructive",
+        });
+      }
+    }
+
     const input: GenerateOutreachScriptInput = {
       platform: platform,
-      linkedinProfile: linkedinProfile ? {
-        id: linkedinProfile.id,
-        headline: linkedinProfile.headline,
-        profileUrl: linkedinProfile.profileUrl,
+      linkedinProfile: profileData ? {
+        id: profileData.id,
+        headline: profileData.headline,
+        profileUrl: profileData.profileUrl,
       } : undefined,
       twitterProfile: twitterProfile ? {
         id: twitterProfile.id,
@@ -212,15 +244,26 @@ export default function CampaignPage() {
           </div>
 
             {platform === 'linkedin' && (
-                <div className="grid gap-2">
-                    <Label htmlFor="linkedinUsername">LinkedIn Username</Label>
+                <>
+                  <div className="grid gap-2">
+                      <Label htmlFor="linkedinUsername">LinkedIn Username</Label>
+                      <Textarea
+                          id="linkedinUsername"
+                          value={linkedinUsername}
+                          onChange={(e) => setLinkedInUsername(e.target.value)}
+                          placeholder="Enter LinkedIn username"
+                      />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="companyName">Company Name</Label>
                     <Textarea
-                        id="linkedinUsername"
-                        value={linkedinUsername}
-                        onChange={(e) => setLinkedInUsername(e.target.value)}
-                        placeholder="Enter LinkedIn username"
+                      id="companyName"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Enter Company Name"
                     />
-                </div>
+                  </div>
+                </>
             )}
 
             {platform === 'twitter' && (
@@ -347,4 +390,3 @@ export default function CampaignPage() {
     </div>
   );
 }
-
