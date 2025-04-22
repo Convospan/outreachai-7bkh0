@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import PaymentForm from '@/components/PaymentForm';
-import CampaignForm from '@/components/CampaignForm';
+import CampaignForm from '@/app/CampaignForm';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { PhoneCall } from 'lucide-react';
@@ -15,9 +15,15 @@ export default function Home() {
       <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
-            <h1 className="font-semibold">
-              <a href="/" className="hover:text-primary-orange transition-colors">ConvoSpan</a>
-            </h1>
+              <Link href="/" className="flex items-center">
+                  <Image
+                      src="/logo.png"
+                      alt="ConvoSpan Logo"
+                      width={150}
+                      height={30}
+                      className="mr-2"
+                  />
+              </Link>
             <div className="max-sm:hidden" aria-hidden="true">·</div>
             <p>AI Outreach Platform</p>
           </div>
@@ -58,13 +64,6 @@ export default function Home() {
               </Button>
             </Link>
           </motion.div>
-          {/* <Image
-            src="/images/hero-ai-coder.jpg"
-            alt="AI coder at work"
-            fill
-            style={{ objectFit: 'cover', opacity: 0.2 }}
-            className="absolute top-0 left-0 z-0 rounded-xl"
-          /> */}
         </section>
 
         {/* Easy Prospecting Section */}
@@ -75,13 +74,6 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {/* <Image
-              src="/images/prospecting-dashboard.jpg"
-              alt="Dashboard"
-              width={600}
-              height={400}
-              className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-            /> */}
             <h2 className="text-3xl font-semibold mb-4">Let Me Handle Your Prospecting—Super Easy!</h2>
             <p className="text-lg mb-6 max-w-3xl mx-auto">
               I send personalized messages and AI calls across platforms with ease!
@@ -107,7 +99,6 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* <Image src="/images/multi-channel-ai.jpg" alt="Multi-platform" width={300} height={200} className="rounded-lg mb-4" /> */}
                 <h3 className="text-xl font-medium">Smart Sequences</h3>
                 <p className="text-gray-600">AI-crafted outreach plans tailored to your goals.</p>
               </motion.div>
@@ -116,7 +107,6 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* <Image src="/images/lead-management.jpg" alt="Lead chart" width={300} height={200} className="rounded-lg mb-4" /> */}
                 <h3 className="text-xl font-medium">Lead Tracking</h3>
                 <p className="text-gray-600">Real-time insights into your connections.</p>
               </motion.div>
@@ -125,20 +115,12 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* <Image src="/images/payment-success.jpg" alt="Payment" width={300} height={200} className="rounded-lg mb-4" /> */}
                 <h3 className="text-xl font-medium">Flexible Plans</h3>
                 <p className="text-gray-600">Choose a tier that grows with you.</p>
               </motion.div>
             </div>
             <div className="mt-8 text-center">
               <h3 className="text-2xl font-medium mb-4">How We Start, Launch, and Win Together</h3>
-              {/* <Image
-                src="/images/campaign-process-infographic.jpg"
-                alt="Process infographic"
-                width={800}
-                height={400}
-                className="mx-auto rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-              /> */}
               <p className="mt-4 text-sm">Steps: Sign Up, Plan, Build & Test, Meet AI Caller, Launch, Tweak, Celebrate!</p>
             </div>
           </motion.div>
@@ -152,13 +134,6 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {/* <Image
-              src="/images/lead-management.jpg"
-              alt="Lead flow chart"
-              width={600}
-              height={400}
-              className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-            /> */}
             <h2 className="text-3xl font-semibold mb-4">Keep Track of Leads with Me—Simple and Fun!</h2>
             <p className="text-lg mb-6 max-w-3xl mx-auto">
               My dashboard organizes everything for your success!
@@ -174,13 +149,6 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {/* <Image
-              src="/images/payment-success.jpg"
-              alt="Payment confirmation"
-              width={600}
-              height={400}
-              className="mx-auto mb-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-            /> */}
             <h2 className="text-3xl font-semibold mb-6 text-center">Choose a Plan That Fits Us!</h2>
             <p className="text-lg mb-8 text-center max-w-3xl mx-auto">
               Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!

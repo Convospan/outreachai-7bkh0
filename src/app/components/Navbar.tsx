@@ -17,8 +17,8 @@ const Navbar = () => {
       <div className="container flex items-center justify-between py-2">
         <Link href="/" className="flex items-center">
           <Image
-            src="/logo.svg"
-            alt="ConvoSpan.ai Logo"
+            src="/logo.png"
+            alt="ConvoSpan Logo"
             width={150}
             height={30}
             className="mr-2"
@@ -67,3 +67,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
