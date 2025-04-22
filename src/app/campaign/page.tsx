@@ -206,7 +206,7 @@ export default function CampaignPage() {
               <SelectContent>
                 <SelectItem value="linkedin">LinkedIn</SelectItem>
                 <SelectItem value="twitter">Twitter/X</SelectItem>
-                <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="email">Email Drip Campaign</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -347,3 +347,4 @@ export default function CampaignPage() {
     </div>
   );
 }
+

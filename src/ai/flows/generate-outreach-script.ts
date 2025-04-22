@@ -4,7 +4,7 @@
  *
  * - generateOutreachScript - A function that handles the outreach script generation process.
  * - GenerateOutreachScriptInput - The input type for the generateOutreachScript function.
- * - GenerateOutreachScriptOutput - The return type for the generateOutreachScript function.
+ * - GenerateOutreachScriptOutput - The return type for the GenerateOutreachScript function.
  */
 
 import {ai} from '@/ai/ai-instance';
@@ -107,3 +107,4 @@ const generateOutreachScriptFlow = ai.defineFlow<
     return output!;
   }
 );
+
