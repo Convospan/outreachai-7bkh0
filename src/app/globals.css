@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 230 60% 98%; /* Light mode background */
-    --foreground: 214 20% 21%; /* Light mode foreground */
+    --background: 230 60% 98%; /* Light mode background - #F5F7FA */
+    --foreground: 214 20% 21%; /* Light mode foreground - #2D3436 */
     --card: 0 0% 100%; /* White */
     --card-foreground: 214 20% 21%; /* #2D3436 */
     --popover: 0 0% 100%;
@@ -81,7 +81,7 @@
 
 @layer components {
  .card {
-    @apply bg-card bg-opacity-80 rounded-lg p-4 shadow-sm border border-border drop-shadow-md;
+    @apply bg-card text-card-foreground border-border drop-shadow-md rounded-lg p-4 shadow-sm;
   }
   .fab {
     @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
@@ -90,6 +90,6 @@
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
   }
   .modal-content {
-    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
+    @apply bg-popover text-popover-foreground bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }

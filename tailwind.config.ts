@@ -1,4 +1,3 @@
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -20,8 +19,8 @@ module.exports = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: "hsl(var(--background))", // Correctly mapped
+        foreground: "hsl(var(--foreground))", // Correctly mapped
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -47,16 +46,20 @@ module.exports = {
           foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "hsl(var(--card))", // Correctly mapped
+          foreground: "hsl(var(--card-foreground))", // Correctly mapped
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        border: "hsl(var(--border))",
-        ring: "hsl(var(--ring))",
-        input: "hsl(var(--input))",
+         // Keep specific color definitions if needed for custom elements outside the theme
+        'primary-orange': '#FF9800',
+        'accent-blue': '#0288D1',
+        'cta-pink': '#D81B60',
+        'background-gray': '#F5F5F5', // Can be removed if --background is used
+        'text-dark': '#212121',       // Can be removed if --foreground is used
+        'gray-950': '#0F172A',
+        'gray-800': '#1E293B',
+        'gray-600': '#4B5563',
+        'gray-300': '#D1D5DB',
+        'cobalt-blue': '#0047AB',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,37 +68,23 @@ module.exports = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
+          from: { height: "0" }, // Use string value for height
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          to: { height: "0" }, // Use string value for height
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
-      colors: {
-        'background-gray': '#F5F5F5',
-        'primary-orange': '#FF9800',
-        'accent-blue': '#0288D1',
-        'cta-pink': '#D81B60',
-        'text-dark': '#212121',
-        'gray-950': '#0F172A',
-        'gray-800': '#1E293B',
-        'gray-600': '#4B5563',
-        'gray-300': '#D1D5DB',
-        'primary': {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-      },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'], // Ensure Inter is primary sans font
+        inter: ['Inter', 'sans-serif'],
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

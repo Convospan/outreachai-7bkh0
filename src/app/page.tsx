@@ -1,37 +1,51 @@
 'use client';
 
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import PaymentForm from '@/components/PaymentForm';
-import CampaignForm from './CampaignForm'; // Corrected import
-import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { PhoneCall, Workflow, TrendingUp, Target, BrainCircuit, CheckCircle, LineChart, Settings, Rocket, CircleDollarSign, Bot } from 'lucide-react';
+import {
+  BrainCircuit,
+  CheckCircle,
+  CircleDollarSign,
+  LineChart,
+  PhoneCall,
+  Rocket,
+  Settings,
+  Target,
+  TrendingUp,
+  Workflow,
+  Bot // Added Bot icon
+} from "lucide-react";
+import Link from 'next/link';
+import { motion } from "framer-motion";
+import PaymentForm from '@/components/PaymentForm'; // Corrected import path
+import CampaignForm from '@/app/CampaignForm';   // Corrected import path
 
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
+    <div className="min-h-screen flex flex-col"> {/* Use flex-col for stacking */}
+      {/* Hero Section - No changes needed based on last prompt */}
+       <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
-            <h1 className="font-semibold">
-              <a href="/" className="hover:text-primary-orange transition-colors">ConvoSpan</a>
-            </h1>
+             <div className="font-bold uppercase border px-2 py-1 rounded">
+                 CONVOSPAN
+             </div>
             <div className="max-sm:hidden" aria-hidden="true">·</div>
             <p>AI Outreach Platform</p>
           </div>
         </div>
         <div className="justify-self-end">
-          <Button variant="default" asChild>
-            <Link href="/register">
+          <Button variant="default" size="lg">
+            <Link href="/pricing" passHref>
               Get Started
             </Link>
           </Button>
         </div>
       </header>
-      <main className="flex grow flex-col px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6 space-y-12"> {/* Added space-y-12 for vertical spacing */}
+
+
+      <main className="flex-grow px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6 space-y-12"> {/* Use flex-grow and vertical spacing */}
+        {/* Hero Section - Replaced Image with text/icon */}
         <section className="relative mx-auto w-full max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -39,6 +53,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="relative z-10 text-center bg-accent bg-opacity-80 p-8 rounded-xl text-primary-foreground shadow-2xl drop-shadow-lg"
           >
+            {/* Removed Hero Icon as requested */}
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
               I am here to skyrocket your lead generation by turning digital outreach into real world wins with AI magic.
@@ -48,6 +63,7 @@ export default function Home() {
                 Start for Free Today!
               </Button>
             </Link>
+             <p className="mt-4 text-sm">No card, 7-day trial!</p>
           </motion.div>
         </section>
 
@@ -83,7 +99,7 @@ export default function Home() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <motion.div
-                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-lg"
+                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-md"
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.3 }}
               >
@@ -92,7 +108,7 @@ export default function Home() {
                 <p className="text-muted-foreground text-center">AI-crafted outreach plans tailored to your goals.</p>
               </motion.div>
               <motion.div
-                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-lg"
+                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-md"
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.3 }}
               >
@@ -101,7 +117,7 @@ export default function Home() {
                 <p className="text-muted-foreground text-center">Real-time insights into your connections.</p>
               </motion.div>
               <motion.div
-                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-lg"
+                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-md"
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.3 }}
               >
@@ -117,28 +133,30 @@ export default function Home() {
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
            <h3 className="text-3xl font-semibold mb-10 text-center">How We Start, Launch, and Win Together</h3>
            <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Arrow placeholders */}
-              <div className="hidden md:block absolute top-1/2 left-1/4 transform -translate-y-1/2 text-4xl text-muted-foreground">&#8594;</div>
-              <div className="hidden md:block absolute top-1/2 left-3/4 transform -translate-y-1/2 text-4xl text-muted-foreground">&#8594;</div>
-              <div className="hidden md:block absolute top-1/3 right-1/2 transform translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8594;</div>
-              <div className="hidden md:block absolute top-2/3 right-1/2 transform translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8594;</div>
+              {/* Arrow placeholders - adjusted positioning and added more */}
+              <div className="hidden md:block absolute top-1/2 left-1/4 transform -translate-y-1/2 -translate-x-4 text-4xl text-muted-foreground">&#8594;</div>
+              <div className="hidden md:block absolute top-1/2 right-1/4 transform -translate-y-1/2 translate-x-4 text-4xl text-muted-foreground">&#8594;</div>
+              {/* Vertical arrows between rows */}
+              <div className="hidden md:block absolute top-[calc(33%+2rem)] left-1/2 transform -translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8595;</div>
+              <div className="hidden md:block absolute top-[calc(66%+4rem)] left-1/2 transform -translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8595;</div>
+
 
                {/* Step 1 */}
                <motion.div
-                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-md"
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.3 }}>
                    <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
                      <Rocket className="h-6 w-6" />
                    </div>
                    <h4 className="text-lg font-medium mb-2">Step 1: Sign Up & Explore</h4>
-                   <p className="text-muted-foreground text-sm text-center">Start free (7-day trial, no card needed!). Explore the dashboard and tools for LinkedIn, Twitter/X, and email.</p>
+                   <p className="text-muted-foreground text-sm text-center">Start free (7-day trial!). Explore the dashboard and tools for LinkedIn, Twitter/X, and email.</p>
                     <Button variant="link" size="sm" className="mt-4">Learn More</Button>
                </motion.div>
 
                {/* Step 2 */}
                <motion.div
-                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-md"
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.3 }}>
                     <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
@@ -151,7 +169,7 @@ export default function Home() {
 
                 {/* Step 3 */}
                <motion.div
-                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-md"
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.3 }}>
                    <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
@@ -164,7 +182,7 @@ export default function Home() {
 
                  {/* Step 4 */}
                <motion.div
-                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-md"
                    whileHover={{ scale: 1.03 }}
                    transition={{ duration: 0.3 }}>
                      <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
@@ -177,7 +195,7 @@ export default function Home() {
 
                 {/* Step 5 */}
                <motion.div
-                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-md"
                    whileHover={{ scale: 1.03 }}
                    transition={{ duration: 0.3 }}>
                      <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
@@ -190,7 +208,7 @@ export default function Home() {
 
                 {/* Step 6 */}
                 <motion.div
-                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-md"
                     whileHover={{ scale: 1.03 }}
                    transition={{ duration: 0.3 }}>
                      <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
@@ -201,9 +219,9 @@ export default function Home() {
                       <Button variant="link" size="sm" className="mt-4">Learn More</Button>
                  </motion.div>
 
-                 {/* Step 7 */}
+                 {/* Step 7 - Spanning across the bottom or centered */}
                 <motion.div
-                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center md:col-span-2 lg:col-span-1 drop-shadow-lg"
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center md:col-span-3 lg:col-span-1 lg:col-start-2 drop-shadow-md" // Adjusted span for better layout
                     whileHover={{ scale: 1.03 }}
                    transition={{ duration: 0.3 }}>
                     <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
@@ -258,10 +276,11 @@ export default function Home() {
                  Start for Free Today!
                </Button>
              </Link>
+             <p className="mt-2 text-sm text-muted-foreground">No credit card needed—try me for 7 days!</p>
          </div>
+
+
       </main>
     </div>
   );
 }
-
-    

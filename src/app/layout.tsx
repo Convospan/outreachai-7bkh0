@@ -3,21 +3,19 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import {siteConfig} from "@/config/site";
+import { metadata as siteMetadata } from './metadata'; // Import metadata
 
-export const metadata: Metadata = {
-    title: siteConfig.name,
-    description: siteConfig.description,
-};
+export const metadata: Metadata = siteMetadata; // Use imported metadata
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body
-        className="font-sans text-text-dark antialiased bg-white min-h-screen"
+        className="font-sans text-foreground antialiased bg-background min-h-screen" // Use theme variables
         suppressHydrationWarning // Suppress hydration warnings for this element
       >
         <Navbar />
-        {children}
+        <div className="flex-grow">{children}</div> {/* Ensure children take up space */}
         <Toaster />
         <Footer />
       </body>
