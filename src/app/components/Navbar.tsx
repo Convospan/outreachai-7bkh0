@@ -31,8 +31,6 @@ const Navbar = () => {
           <div className="h-5 w-[1px] bg-border mx-1"></div>
           <Link href="/pricing">Pricing</Link>
           <div className="h-5 w-[1px] bg-border mx-1"></div>
-           <Link href="/usecases">Use Cases</Link>
-          <div className="h-5 w-[1px] bg-border mx-1"></div>
            <Link href="/affiliate">Affiliate</Link>
           <div className="h-5 w-[1px] bg-border mx-1"></div>
           <DropdownMenu>
@@ -41,7 +39,7 @@ const Navbar = () => {
                 Modules <Icons.chevronDown className="h-4 w-4 ml-1" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-56 bg-[#a9cad4]">
               <DropdownMenuItem asChild>
                 <Link href="/campaign/create">Campaign Creation</Link>
               </DropdownMenuItem>
@@ -59,7 +57,7 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-         
+
         </div>
       </div>
     </nav>
@@ -67,4 +65,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
