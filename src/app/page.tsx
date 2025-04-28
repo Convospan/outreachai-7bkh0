@@ -1,161 +1,267 @@
-"use client";
+'use client';
 
-import {Button} from "@/components/ui/button";
-import {PhoneCall, Link as LinkIcon} from "lucide-react";
-import {siteConfig} from "@/config/site";
-import PaymentForm from '@/components/PaymentForm';
-import CampaignForm from '@/app/CampaignForm';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from "@/components/ui/card";
-import type { Metadata } from 'next/metadata';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+import PaymentForm from '@/components/PaymentForm';
+import CampaignForm from './CampaignForm'; // Corrected import
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-export const metadata: Metadata = {
-  title: siteConfig.name,
-  description: siteConfig.description,
-};
+import { Button } from "@/components/ui/button";
+import { PhoneCall, Workflow, TrendingUp, Target, BrainCircuit, CheckCircle, LineChart, Settings, Rocket, CircleDollarSign, Bot } from 'lucide-react';
+
 
 export default function Home() {
   return (
-    
+    <div className="min-h-screen">
       {/* Hero Section */}
-      
-        
-          
-            
-              ConvoSpan
-            
-            ·
-            AI Outreach Platform
-          
-          
-            
-              Next.js
-             Tailwind CSS
-              React
-            
-          
-        
-        
-          
-            Get Started
-          
-        
-      
-      <main className="mt-4 flex flex-col px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6">
-        <section className="relative mx-auto w-full max-w-7xl rounded-xl shadow-md">
-          
-            
-              Hey, Let’s Grow Together with ConvoSpan!
-            
-            
-              I’m here to skyrocket your lead generation by turning digital outreach into real-world wins with AI magic.
-            
-            
+      <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
+        <div>
+          <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
+            <h1 className="font-semibold">
+              <a href="/" className="hover:text-primary-orange transition-colors">ConvoSpan</a>
+            </h1>
+            <div className="max-sm:hidden" aria-hidden="true">·</div>
+            <p>AI Outreach Platform</p>
+          </div>
+        </div>
+        <div className="justify-self-end">
+          <Button variant="default" asChild>
+            <Link href="/register">
+              Get Started
+            </Link>
+          </Button>
+        </div>
+      </header>
+      <main className="flex grow flex-col px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6 space-y-12"> {/* Added space-y-12 for vertical spacing */}
+        <section className="relative mx-auto w-full max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="relative z-10 text-center bg-accent bg-opacity-80 p-8 rounded-xl text-primary-foreground shadow-2xl drop-shadow-lg"
+          >
+            <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              I am here to skyrocket your lead generation by turning digital outreach into real world wins with AI magic.
+            </p>
+            <Link href="/pricing" passHref>
+              <Button variant="secondary" size="lg">
                 Start for Free Today!
-                No credit card needed—try me for 7 days!
-              
-            
-          
-          
-        
+              </Button>
+            </Link>
+          </motion.div>
         </section>
 
         {/* Easy Prospecting Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-          
-            
-              Let Me Handle Your Prospecting—Super Easy!
-            
-            
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="p-6 bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 drop-shadow-md"
+          >
+            <PhoneCall className="h-12 w-12 text-primary mb-4 mx-auto" />
+            <h2 className="text-3xl font-semibold mb-4">Let Me Handle Your Prospecting—Super Easy!</h2>
+            <p className="text-lg mb-6 max-w-3xl mx-auto">
               I send personalized messages and AI calls across platforms with ease!
-            
-          
+            </p>
+          </motion.div>
         </section>
 
         {/* Multi-Channel Magic Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto bg-white/80 rounded-xl shadow-sm">
-          
-            
-              Double Your Chances with My Multi-Channel Magic
-            
-            
+        <section className="py-12 px-4 max-w-6xl mx-auto bg-background rounded-xl shadow-sm drop-shadow-md">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="p-6"
+          >
+            <h2 className="text-3xl font-semibold mb-6 text-center">Double Your Chances with My Multi-Channel Magic</h2>
+            <p className="text-lg mb-8 text-center max-w-3xl mx-auto">
               I mix LinkedIn, Twitter/X, email, and AI calls, picking perfect sequences for you!
-            
-            
-              
-                
-                  
-                    Smart Sequences
-                  
-                  AI-crafted outreach plans tailored to your goals.
-                
-                
-                  
-                    Lead Tracking
-                  
-                  Real-time insights into your connections.
-                
-                
-                  
-                    Flexible Plans
-                  
-                  Choose a tier that grows with you.
-                
-              
-            
-            
-              How We Start, Launch, and Win Together
-              
-                Steps: Sign Up, Plan, Build & Test, Meet AI Caller, Launch, Tweak, Celebrate!
-              
-            
-          
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div
+                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-lg"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Workflow className="h-8 w-8 text-primary mb-2 mx-auto" />
+                <h3 className="text-xl font-medium text-center">Smart Sequences</h3>
+                <p className="text-muted-foreground text-center">AI-crafted outreach plans tailored to your goals.</p>
+              </motion.div>
+              <motion.div
+                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-lg"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.3 }}
+              >
+                <TrendingUp className="h-8 w-8 text-primary mb-2 mx-auto" />
+                <h3 className="text-xl font-medium text-center">Lead Tracking</h3>
+                <p className="text-muted-foreground text-center">Real-time insights into your connections.</p>
+              </motion.div>
+              <motion.div
+                className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-lg"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Settings className="h-8 w-8 text-primary mb-2 mx-auto" />
+                <h3 className="text-xl font-medium text-center">Flexible Plans</h3>
+                <p className="text-muted-foreground text-center">Choose a tier that grows with you.</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* How it Works Section */}
+        <section className="py-12 px-4 max-w-6xl mx-auto text-center">
+           <h3 className="text-3xl font-semibold mb-10 text-center">How We Start, Launch, and Win Together</h3>
+           <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Arrow placeholders */}
+              <div className="hidden md:block absolute top-1/2 left-1/4 transform -translate-y-1/2 text-4xl text-muted-foreground">&#8594;</div>
+              <div className="hidden md:block absolute top-1/2 left-3/4 transform -translate-y-1/2 text-4xl text-muted-foreground">&#8594;</div>
+              <div className="hidden md:block absolute top-1/3 right-1/2 transform translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8594;</div>
+              <div className="hidden md:block absolute top-2/3 right-1/2 transform translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8594;</div>
+
+               {/* Step 1 */}
+               <motion.div
+                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}>
+                   <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                     <Rocket className="h-6 w-6" />
+                   </div>
+                   <h4 className="text-lg font-medium mb-2">Step 1: Sign Up & Explore</h4>
+                   <p className="text-muted-foreground text-sm text-center">Start free (7-day trial, no card needed!). Explore the dashboard and tools for LinkedIn, Twitter/X, and email.</p>
+                    <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+               </motion.div>
+
+               {/* Step 2 */}
+               <motion.div
+                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}>
+                    <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                        <Target className="h-6 w-6" />
+                    </div>
+                   <h4 className="text-lg font-medium mb-2">Step 2: Plan Outreach</h4>
+                   <p className="text-muted-foreground text-sm text-center">Pick your audience or let me suggest leads. Create a simple plan with personalized messages and AI call scripts.</p>
+                   <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+               </motion.div>
+
+                {/* Step 3 */}
+               <motion.div
+                  className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}>
+                   <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                        <BrainCircuit className="h-6 w-6" />
+                   </div>
+                   <h4 className="text-lg font-medium mb-2">Step 3: Build & Test</h4>
+                    <p className="text-muted-foreground text-sm text-center">AI crafts smart messages. Let my virtual AI caller practice scripts. Tweak or approve, run a trial call!</p>
+                    <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+               </motion.div>
+
+                 {/* Step 4 */}
+               <motion.div
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                   whileHover={{ scale: 1.03 }}
+                   transition={{ duration: 0.3 }}>
+                     <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                         <Bot className="h-6 w-6" />
+                     </div>
+                     <h4 className="text-lg font-medium mb-2">Step 4: Meet AI Caller</h4>
+                      <p className="text-muted-foreground text-sm text-center">My virtual assistant makes calls using our scripts. Approve the plan, and I'll let the AI connect naturally.</p>
+                      <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+                 </motion.div>
+
+                {/* Step 5 */}
+               <motion.div
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                   whileHover={{ scale: 1.03 }}
+                   transition={{ duration: 0.3 }}>
+                     <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                         <Rocket className="h-6 w-6" />
+                     </div>
+                     <h4 className="text-lg font-medium mb-2">Step 5: Launch</h4>
+                     <p className="text-muted-foreground text-sm text-center">Hit launch! I'll send messages and my AI caller will make calls. I handle timing and follow-ups.</p>
+                      <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+                 </motion.div>
+
+                {/* Step 6 */}
+                <motion.div
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center drop-shadow-lg"
+                    whileHover={{ scale: 1.03 }}
+                   transition={{ duration: 0.3 }}>
+                     <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                         <LineChart className="h-6 w-6" />
+                    </div>
+                     <h4 className="text-lg font-medium mb-2">Step 6: Watch & Tweak</h4>
+                     <p className="text-muted-foreground text-sm text-center">See real-time dashboard updates on replies, interest, and AI caller performance. Adjust the plan as needed.</p>
+                      <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+                 </motion.div>
+
+                 {/* Step 7 */}
+                <motion.div
+                   className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center md:col-span-2 lg:col-span-1 drop-shadow-lg"
+                    whileHover={{ scale: 1.03 }}
+                   transition={{ duration: 0.3 }}>
+                    <div className="bg-primary text-primary-foreground rounded-full p-3 mb-4 shadow-md">
+                        <CheckCircle className="h-6 w-6" />
+                    </div>
+                     <h4 className="text-lg font-medium mb-2">Step 7: Celebrate Results</h4>
+                     <p className="text-muted-foreground text-sm text-center">Yay! Check graphs for more connections and leads. Review wins and plan the next move!</p>
+                    <Button variant="link" size="sm" className="mt-4">Learn More</Button>
+                 </motion.div>
+           </div>
         </section>
 
         {/* Lead Management Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-          
-            
-              Keep Track of Leads with Me—Simple and Fun!
-            
-            
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+             className="p-6 bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 drop-shadow-md"
+          >
+             <TrendingUp className="h-12 w-12 text-primary mb-4 mx-auto" />
+            <h2 className="text-3xl font-semibold mb-4">Keep Track of Leads with Me—Simple and Fun!</h2>
+            <p className="text-lg mb-6 max-w-3xl mx-auto">
               My dashboard organizes everything for your success!
-            
-          
+            </p>
+          </motion.div>
         </section>
 
         {/* Payment Plan Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto  rounded-xl shadow-sm">
-          
-            
-              Choose a Plan That Fits Us!
-            
-            
+        <section className="py-12 px-4 max-w-6xl mx-auto bg-secondary/10 rounded-xl shadow-sm drop-shadow-md">
+           <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center p-6"
+          >
+             <CircleDollarSign className="h-12 w-12 text-primary mb-4 mx-auto" />
+            <h2 className="text-3xl font-semibold mb-6">Choose a Plan That Fits Us!</h2>
+            <p className="text-lg mb-8 max-w-3xl mx-auto">
               Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!
-            
-            
-            
-            
-          
-        
-         
-           Start for Free Today!
-           No credit card needed—try me for 7 days!
-         
-        
+            </p>
+            <PaymentForm />
+            <CampaignForm />
+          </motion.div>
+        </section>
 
-        {/* Footer */}
-        
-          © 2025 ConvoSpan.ai |   Contact Us
-        
-      
-    
+         <div className="text-center my-12">
+             <Link href="/pricing" passHref>
+               <Button variant="default" size="lg">
+                 Start for Free Today!
+               </Button>
+             </Link>
+         </div>
+      </main>
+    </div>
   );
 }
+
+    
