@@ -12,7 +12,7 @@ import Link from "next/link";
 
 const Navbar = () => {
   return (
-    <nav className="bg-background border-b shadow-sm sticky top-0 z-10">
+    <nav className="bg-background border-b shadow-sm sticky top-0 z-10"> {/* Uses theme background */}
       <div className="container flex items-center justify-between py-2">
         <Link href="/" className="flex items-center">
           {/* Replace Image with Text */}

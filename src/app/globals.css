@@ -2,38 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Define custom utilities to handle background and text-foreground */
-@layer utilities {
-  .bg-background {
-    @apply bg-background-gray;
+@layer base {
+  :root {
+    --background: 230 60% 98%; /* Light mode background */
+    --foreground: 214 20% 21%; /* Light mode foreground */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 214 20% 21%; /* #2D3436 */
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 20% 21%;
+    --primary: 180 40% 30%; /* Teal */
+    --primary-foreground: 50 90% 98%;
+    --secondary: 220 3% 17%; /* Dark Gray */
+    --secondary-foreground: 220 50% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 180 40% 30%; /* Teal */
+    --accent-foreground: 50 90% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 240 5% 59%; /* Soft Gray */
+    --input: 240 5% 59%;
+    --ring: 180 40% 30%; /* Teal */
+    --radius: 0.75rem; /* Custom radius from previous config */
   }
-  .text-foreground {
-    @apply text-text-dark;
-  }
-}
 
-/* Define custom components */
-@layer components {
-  .card {
-    @apply rounded-lg border shadow-sm; /* Removed bg-card and text-card-foreground */
-  }
-  .fab {
-    @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
-  }
-  .modal {
-    @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
-  }
-  .modal-content {
-    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
+  .dark {
+    --background: 220 3% 17%; /* Dark mode background */
+    --foreground: 220 50% 98%; /* Dark mode foreground */
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 180 40% 30%; /* Teal */
+    --primary-foreground: 50 90% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 180 40% 30%; /* Teal */
+    --accent-foreground: 50 90% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 240 5% 59%; /* Soft Gray - Might need dark mode adjustment */
+    --input: 240 5% 59%; /* Might need dark mode adjustment */
+    --ring: 180 40% 30%; /* Teal */
   }
 }
 
 @layer base {
-  body {
-    @apply bg-background text-foreground font-inter;
-    --background: 230 60% 98%; /* #F5F7FA */
-    --foreground: 214 20% 21%; /* #2D3436 */
+  * {
+    /* Explicitly apply border color using the CSS variable */
+    border-color: hsl(var(--border));
   }
+  body {
+    @apply bg-background text-foreground font-sans; /* Use theme variables */
+    /* Font face definitions can stay if Inter is configured in tailwind.config */
+  }
+
   @font-face {
     font-family: 'Inter';
     src: url('/fonts/inter-regular.woff2') format('woff2');
@@ -52,28 +77,19 @@
     font-weight: 700;
     font-style: normal;
   }
-  :root {
-    --primary: 200 100% 50%; /* Light Blue */
-    --primary-foreground: 20 20% 10%; /* Near Black */
-    --secondary: 220 3% 17%;
-    --secondary-foreground: 220 50% 98%;
-    --muted: 220 3% 17%;
-    --muted-foreground: 220 50% 98%;
-    --accent: 200 80% 40%; /* Slightly darker Light Blue */
-    --accent-foreground: 20 20% 10%;
-    --popover: 230 60% 98%; /* #F5F7FA */
-    --popover-foreground: 214 20% 21%; /* #2D3436 */
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 214 20% 21%; /* #2D3436 */
-    --destructive: 0 84% 60%; /* Red */
-    --destructive-foreground: 0 0% 98%; /* White */
-    --border: 240 5% 59%; /* Soft Gray */
-    --input: 240 5% 59%;
-    --ring: 200 80% 40%; /* Light Blue */
-  }
+}
 
-  .dark {
-    --background: 220 3% 17%;
-    --foreground: 220 50% 98%;
+@layer components {
+ .card {
+    @apply bg-card bg-opacity-80 rounded-lg p-4 shadow-sm border border-border drop-shadow-md;
+  }
+  .fab {
+    @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
+  }
+  .modal {
+    @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
+  }
+  .modal-content {
+    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }
