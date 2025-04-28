@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -9,13 +8,10 @@ export default function AboutPage() {
   return (
     <div className="container mx-auto p-4 md:p-8 bg-background text-foreground">
       <div className="max-w-4xl mx-auto">
-        <Image
-          src="/logo.png"
-          alt="ConvoSpan Logo"
-          width={200}
-          height={40}
-          className="mx-auto mb-8"
-        />
+        {/* Replace Image with Text */}
+        <div className="font-bold uppercase inline-block border px-2 py-1 rounded mx-auto mb-8 text-center block w-fit">
+          CONVOSPAN
+        </div>
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-10">About ConvoSpan.ai</h1>
 
         <div className="space-y-8 text-lg leading-relaxed">

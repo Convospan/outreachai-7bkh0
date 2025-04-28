@@ -9,20 +9,16 @@ import {
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Image from 'next/image';
 
 const Navbar = () => {
   return (
     <nav className="bg-background border-b shadow-sm sticky top-0 z-10">
       <div className="container flex items-center justify-between py-2">
         <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="ConvoSpan Logo"
-            width={150}
-            height={30}
-            className="mr-2"
-          />
+          {/* Replace Image with Text */}
+          <div className="font-bold uppercase border px-2 py-1 rounded">
+            CONVOSPAN
+          </div>
         </Link>
         <div className="flex items-center space-x-4">
           <Link href="/" >Home</Link>
