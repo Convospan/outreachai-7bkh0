@@ -55,8 +55,7 @@
     border-color: hsl(var(--border));
   }
   body {
-    /* Apply theme variables correctly */
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans; /* Use theme variables defined in :root */
   }
 
   @font-face {
@@ -81,8 +80,7 @@
 
 @layer components {
  .card {
-    /* Apply theme variables correctly */
-    @apply bg-card text-card-foreground border border-border rounded-lg p-4 shadow-sm drop-shadow-md;
+    @apply bg-card bg-opacity-80 rounded-lg p-4 shadow-sm border border-border drop-shadow-md; /* Use theme variables */
   }
   .fab {
     @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
@@ -91,7 +89,6 @@
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
   }
   .modal-content {
-    /* Apply theme variables correctly */
-    @apply bg-popover text-popover-foreground bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
+    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md; /* Use theme variables */
   }
 }
