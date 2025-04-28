@@ -51,12 +51,10 @@
 
 @layer base {
   * {
-    /* Explicitly apply border color using the CSS variable */
-    border-color: hsl(var(--border));
+    @apply border-border; /* Apply border color using Tailwind utility */
   }
   body {
-    @apply bg-background text-foreground font-sans; /* Use theme variables */
-    /* Font face definitions can stay if Inter is configured in tailwind.config */
+    @apply bg-background text-foreground font-sans; /* Apply background, text, and font */
   }
 
   @font-face {
@@ -81,7 +79,7 @@
 
 @layer components {
  .card {
-    @apply bg-card text-card-foreground border-border drop-shadow-md rounded-lg p-4 shadow-sm;
+    @apply bg-card text-card-foreground border border-border drop-shadow-md rounded-lg p-4 shadow-sm; /* Use theme variables */
   }
   .fab {
     @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;
@@ -90,6 +88,6 @@
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
   }
   .modal-content {
-    @apply bg-popover text-popover-foreground bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
+    @apply bg-popover text-popover-foreground bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md; /* Use theme variables */
   }
 }

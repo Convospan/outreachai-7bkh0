@@ -19,8 +19,8 @@ module.exports = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))", // Correctly mapped
-        foreground: "hsl(var(--foreground))", // Correctly mapped
+        background: "hsl(var(--background))", // Ensure this maps to the CSS variable
+        foreground: "hsl(var(--foreground))", // Ensure this maps to the CSS variable
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -46,15 +46,15 @@ module.exports = {
           foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))", // Correctly mapped
-          foreground: "hsl(var(--card-foreground))", // Correctly mapped
+          DEFAULT: "hsl(var(--card))", // Ensure this maps to the CSS variable
+          foreground: "hsl(var(--card-foreground))", // Ensure this maps to the CSS variable
         },
          // Keep specific color definitions if needed for custom elements outside the theme
         'primary-orange': '#FF9800',
         'accent-blue': '#0288D1',
         'cta-pink': '#D81B60',
-        'background-gray': '#F5F5F5', // Can be removed if --background is used
-        'text-dark': '#212121',       // Can be removed if --foreground is used
+        'background-gray': '#F5F5F5', // Consider removing if --background covers it
+        'text-dark': '#212121',       // Consider removing if --foreground covers it
         'gray-950': '#0F172A',
         'gray-800': '#1E293B',
         'gray-600': '#4B5563',
