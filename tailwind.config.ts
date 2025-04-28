@@ -19,8 +19,8 @@ module.exports = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))", // Ensure this maps to the CSS variable
-        foreground: "hsl(var(--foreground))", // Ensure this maps to the CSS variable
+        background: "hsl(var(--background))", // Mapped to CSS variable
+        foreground: "hsl(var(--foreground))", // Mapped to CSS variable
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -46,15 +46,15 @@ module.exports = {
           foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))", // Ensure this maps to the CSS variable
-          foreground: "hsl(var(--card-foreground))", // Ensure this maps to the CSS variable
+          DEFAULT: "hsl(var(--card))", // Mapped to CSS variable
+          foreground: "hsl(var(--card-foreground))", // Mapped to CSS variable
         },
-         // Keep specific color definitions if needed for custom elements outside the theme
+         // Keep specific color definitions if needed for custom elements
         'primary-orange': '#FF9800',
         'accent-blue': '#0288D1',
         'cta-pink': '#D81B60',
-        'background-gray': '#F5F5F5', // Consider removing if --background covers it
-        'text-dark': '#212121',       // Consider removing if --foreground covers it
+        'background-gray': '#F5F5F5', // Keep if used directly
+        'text-dark': '#212121',       // Keep if used directly
         'gray-950': '#0F172A',
         'gray-800': '#1E293B',
         'gray-600': '#4B5563',
@@ -68,12 +68,12 @@ module.exports = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" }, // Use string value for height
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" }, // Use string value for height
+          to: { height: "0" },
         },
       },
       animation: {
@@ -81,7 +81,7 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // Ensure Inter is primary sans font
+        sans: ['Inter', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
       },
     },
