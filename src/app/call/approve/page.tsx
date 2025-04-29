@@ -12,7 +12,7 @@ import {Label} from '@/components/ui/label';
 import {Textarea} from '@/components/ui/textarea';
 import {Button} from '@/components/ui/button';
 import {toast} from '@/hooks/use-toast';
-import {generateCallScript, GenerateCallScriptInput} from '@/ai/flows/generate-call-script'; // Import the Genkit flow
+import {generateCallScript, GenerateCallScriptInput} from '@/server/generate-call-script'; // Import the Genkit flow
 import {Input} from '@/components/ui/input';
 import Link from 'next/link';
 

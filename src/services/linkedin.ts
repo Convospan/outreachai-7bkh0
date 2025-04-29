@@ -45,10 +45,9 @@ export interface OAuthConfiguration {
  * Returns OAuth configuration
  */
 export async function getLinkedInOAuthConfig(): Promise<OAuthConfiguration> {
-  // TODO: Implement retrieval of OAuth configuration from environment variables or a secure source.
   return {
-    clientId: 'your_client_id',
-    clientSecret: 'your_client_secret',
-    redirectUri: 'your_redirect_uri',
+    clientId: '78390mtb4x6bnd',
+    clientSecret: 'WPL_AP1.oLC30bEBnic3YUVE.1vCHkQ==',
+    redirectUri: 'https://staging.outreachai.com/auth/linkedin',
   };
 }

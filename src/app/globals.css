@@ -1,3 +1,5 @@
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -55,7 +57,7 @@
     border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground font-sans; /* Use theme variables defined in :root */
+    @apply bg-[var(--background)] text-[var(--foreground)] font-sans;
   }
 
   @font-face {
@@ -79,8 +81,8 @@
 }
 
 @layer components {
- .card {
-    @apply bg-card bg-opacity-80 rounded-lg p-4 shadow-sm border border-border drop-shadow-md; /* Use theme variables */
+  .card {
+    @apply bg-[var(--card)] bg-opacity-80 rounded-lg p-4 shadow-sm border border-[var(--border)] drop-shadow-md;
   }
   .fab {
     @apply bg-gradient-to-r from-[#D4A373] to-[#6EBF8B] text-white px-4 py-2 rounded-full shadow-md hover:opacity-90 transition duration-300;

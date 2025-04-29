@@ -12,7 +12,7 @@ import {z} from 'genkit';
 import { generateReport } from '@/ai/tools/generate-report';
 import { analyzeSentiment } from '@/ai/tools/analyze-sentiment';
 import { forecastTrends } from '@/ai/tools/forecast-trends';
-import {read} from '@/lib/firebaseAdmin';
+import {read} from '@/lib/firebaseServer';
 
 const SummarizeOutreachPerformanceInputSchema = z.object({
   responseRates: z.number().describe('The response rates of the outreach campaign.'),

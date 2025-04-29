@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
-import { create } from '@/lib/firebaseAdmin';
+import { create } from '@/lib/firebaseServer';
 
 const GenerateCallScriptInputSchema = z.object({
   campaignName: z.string().describe('The name of the outreach campaign.'),

@@ -1,6 +1,6 @@
 'use server'
 
-import { db } from '../../../lib/firebaseAdmin';
+import { db } from '@/lib/firebaseServer';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
