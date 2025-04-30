@@ -23,10 +23,11 @@ import CampaignForm from '@/app/CampaignForm';   // Corrected import path
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col"> {/* Use flex-col for stacking */}
-      {/* Hero Section - No changes needed based on last prompt */}
+      {/* Hero Section */}
        <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
+             {/* Replace Image with Text */}
              <div className="font-bold uppercase border px-2 py-1 rounded">
                  CONVOSPAN
              </div>
@@ -45,7 +46,7 @@ export default function Home() {
 
 
       <main className="flex-grow px-4 pb-4 sm:mt-6 sm:px-6 sm:pb-6 space-y-12"> {/* Use flex-grow and vertical spacing */}
-        {/* Hero Section - Replaced Image with text/icon */}
+        {/* Hero Section */}
         <section className="relative mx-auto w-full max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 50 }}

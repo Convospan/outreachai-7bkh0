@@ -16,11 +16,11 @@ module.exports = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))", // Use CSS variable
-        input: "hsl(var(--input))",   // Use CSS variable
-        ring: "hsl(var(--ring))",     // Use CSS variable
-        background: "hsl(var(--background))", // Use CSS variable
-        foreground: "hsl(var(--foreground))", // Use CSS variable
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -46,15 +46,15 @@ module.exports = {
           foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))", // Use CSS variable
-          foreground: "hsl(var(--card-foreground))", // Use CSS variable
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
          // Keep specific color definitions if needed for custom elements outside the theme
         'primary-orange': '#FF9800',
         'accent-blue': '#0288D1',
         'cta-pink': '#D81B60',
-        'background-gray': '#F5F5F5', // Can be removed if --background is used consistently
-        'text-dark': '#212121',       // Can be removed if --foreground is used consistently
+        'background-gray': '#F5F5F5',
+        'text-dark': '#212121',
         'gray-950': '#0F172A',
         'gray-800': '#1E293B',
         'gray-600': '#4B5563',
