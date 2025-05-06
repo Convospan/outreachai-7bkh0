@@ -1,33 +1,50 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { getLinkedInOAuthConfig } from '@/services/linkedin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Linkedin, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast'; // Import useToast
 
 export default function LinkedInAuthPage() {
+  const { toast } = useToast(); // Initialize toast
+
   const handleLinkedInConnect = async () => {
     try {
       const config = await getLinkedInOAuthConfig();
-      // Ensure redirectUri is a full URL
-      const redirectUri = config.redirectUri.startsWith('http') ? config.redirectUri : `${window.location.origin}${config.redirectUri.startsWith('/') ? '' : '/'}${config.redirectUri}`;
+      // Ensure redirectUri is a full URL. If it's relative, prepend origin.
+      let redirectUri = config.redirectUri;
+      if (!redirectUri.startsWith('http')) {
+        redirectUri = `${window.location.origin}${redirectUri.startsWith('/') ? '' : '/'}${redirectUri}`;
+      }
       
-      const scope = "r_liteprofile%20r_emailaddress%20w_member_social%20r_basicprofile%20openid%20profile%20email"; // Added more scopes as per common usage, including openid, profile, email which are often needed for Member Data Portability or basic profile info.
-      // For Member Data Portability specific endpoints like /rest/memberAuthorizations, you might need specific partner permissions and scopes.
-      // The documented scope 'r_dma_portability_3rd_party' is for approved partners.
-      // For general data access, r_liteprofile and r_emailaddress are common.
+      // Scopes:
+      // r_liteprofile: Basic profile info (name, photo, headline)
+      // r_emailaddress: Primary email address
+      // w_member_social: Share, comment, like on user's behalf (use with caution)
+      // openid, profile, email: Standard OpenID Connect scopes for identity and more profile details.
+      // r_dma_portability_3rd_party: For Member Data Portability (requires LinkedIn partnership approval)
+      // For general profile data and email, these are common and powerful:
+      const scopes = ['r_liteprofile', 'r_emailaddress', 'openid', 'profile', 'email'];
+      // If you have r_dma_portability_3rd_party and are approved, you can add it:
+      // const scopes = ['r_liteprofile', 'r_emailaddress', 'openid', 'profile', 'email', 'r_dma_portability_3rd_party'];
 
+      const scopeString = scopes.join(' ');
+      
       // Construct the authorization URL as per LinkedIn documentation
+      // Using standard OAuth 2.0 Authorization Code Flow
       // https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS
-      // Example using the standard OAuth 2.0 Authorization Code Flow
-      const authorizationUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=SOME_RANDOM_STATE_STRING`;
+      const authorizationUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopeString)}&state=SOME_RANDOM_STATE_STRING_FOR_CSRF_PROTECTION`; // Add a unique state for CSRF
       
       window.location.href = authorizationUrl;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error getting LinkedIn OAuth config:", error);
-        // Handle error, e.g., show a toast message
+        toast({ // Use toast for error notification
+          title: "LinkedIn Connection Error",
+          description: error.message || "Could not initiate LinkedIn authorization. Please try again.",
+          variant: "destructive",
+        });
     }
   };
 
@@ -46,7 +63,7 @@ export default function LinkedInAuthPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-muted-foreground text-center">
-            By clicking "Connect with LinkedIn", you will be redirected to LinkedIn to authorize ConvoSpan.ai to access your profile data as per LinkedIn's Member Data Portability guidelines. We only request the necessary permissions to help you build effective outreach campaigns.
+            By clicking "Connect with LinkedIn", you will be redirected to LinkedIn to authorize ConvoSpan.ai to access your profile data. We request permissions to help you build effective outreach campaigns.
           </p>
           <Button
             onClick={handleLinkedInConnect}
@@ -67,3 +84,4 @@ export default function LinkedInAuthPage() {
     </div>
   );
 }
+
