@@ -12,7 +12,7 @@ const PrivacyPolicyPage: React.FC = () => {
         </h1>
         <div className="space-y-6 text-lg leading-relaxed bg-card p-6 md:p-8 rounded-xl shadow-lg drop-shadow-md">
           <p>
-            Your privacy is important to us. It is ConvoSpan.ai&apos;s policy to respect your privacy regarding any information we may collect from you across our website, convospan.ai, and other sites we own and operate.
+            Your privacy is important to us. It is ConvoSpan AI&apos;s policy to respect your privacy regarding any information we may collect from you across our website, convospan.ai, and other sites we own and operate.
           </p>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">1. Information We Collect</h2>
           <p>

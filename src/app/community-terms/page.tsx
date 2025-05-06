@@ -12,11 +12,11 @@ const CommunityProgramTermsPage: React.FC = () => {
         </h1>
         <div className="space-y-6 text-lg leading-relaxed bg-card p-6 md:p-8 rounded-xl shadow-lg drop-shadow-md">
           <p>
-            Welcome to the ConvoSpan.ai Community Program! These terms outline your participation in our community.
+            Welcome to the ConvoSpan AI Community Program! These terms outline your participation in our community.
           </p>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">1. Eligibility</h2>
           <p>
-            By signing up for ConvoSpan.ai using Google or Microsoft authentication, you are automatically enrolled in our Community Program.
+            By signing up for ConvoSpan AI using Google or Microsoft authentication, you are automatically enrolled in our Community Program.
           </p>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">2. Purpose</h2>
           <p>
@@ -34,11 +34,11 @@ const CommunityProgramTermsPage: React.FC = () => {
           </ul>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">4. Content Sharing</h2>
           <p>
-            Any content you share within community features (e.g., forums, discussion groups) should be relevant and add value. By sharing content, you grant ConvoSpan.ai a non-exclusive, royalty-free license to use, reproduce, and distribute that content within the platform for community purposes.
+            Any content you share within community features (e.g., forums, discussion groups) should be relevant and add value. By sharing content, you grant ConvoSpan AI a non-exclusive, royalty-free license to use, reproduce, and distribute that content within the platform for community purposes.
           </p>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">5. Moderation</h2>
           <p>
-            ConvoSpan.ai reserves the right to moderate all community content and to remove any content or suspend/terminate user access to community features for violations of these terms, at our sole discretion.
+            ConvoSpan AI reserves the right to moderate all community content and to remove any content or suspend/terminate user access to community features for violations of these terms, at our sole discretion.
           </p>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">6. Changes to Program Terms</h2>
           <p>

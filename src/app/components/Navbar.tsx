@@ -36,7 +36,7 @@ const Navbar = () => {
         <Link href="/" className="flex items-center">
           {/* Replace Image with Text */}
           <div className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
-            CONVOSPAN
+            CONVOSPAN AI
           </div>
         </Link>
 

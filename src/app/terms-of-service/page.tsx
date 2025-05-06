@@ -12,10 +12,10 @@ const TermsOfServicePage: React.FC = () => {
         </h1>
         <div className="space-y-6 text-lg leading-relaxed bg-card p-6 md:p-8 rounded-xl shadow-lg drop-shadow-md">
           <p>
-            Welcome to ConvoSpan.ai! These terms and conditions outline the rules and regulations for the use of ConvoSpan.ai&apos;s Website, located at convospan.ai.
+            Welcome to ConvoSpan AI! These terms and conditions outline the rules and regulations for the use of ConvoSpan AI&apos;s Website, located at convospan.ai.
           </p>
           <p>
-            By accessing this website we assume you accept these terms and conditions. Do not continue to use ConvoSpan.ai if you do not agree to take all of the terms and conditions stated on this page.
+            By accessing this website we assume you accept these terms and conditions. Do not continue to use ConvoSpan AI if you do not agree to take all of the terms and conditions stated on this page.
           </p>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">1. Definitions</h2>
           <p>
@@ -32,7 +32,7 @@ const TermsOfServicePage: React.FC = () => {
           </ul>
           <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">3. Intellectual Property</h2>
           <p>
-            The Service and its original content, features, and functionality are and will remain the exclusive property of ConvoSpan.ai and its licensors.
+            The Service and its original content, features, and functionality are and will remain the exclusive property of ConvoSpan AI and its licensors.
           </p>
            <h2 className="text-2xl font-semibold mt-6 mb-3 text-primary">4. Community Program</h2>
           <p>

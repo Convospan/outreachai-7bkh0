@@ -26,7 +26,7 @@ export default function LinkedInAuthPage() {
       // openid, profile, email: Standard OpenID Connect scopes for identity and more profile details.
       // r_dma_portability_3rd_party: For Member Data Portability (requires LinkedIn partnership approval)
       // For general profile data and email, these are common and powerful:
-      const scopes = ['r_liteprofile', 'r_emailaddress', 'openid', 'profile', 'email'];
+      const scopes = ['r_liteprofile', 'r_emailaddress', 'openid', 'profile', 'email', 'r_dma_portability_3rd_party'];
       // If you have r_dma_portability_3rd_party and are approved, you can add it:
       // const scopes = ['r_liteprofile', 'r_emailaddress', 'openid', 'profile', 'email', 'r_dma_portability_3rd_party'];
 
@@ -63,7 +63,7 @@ export default function LinkedInAuthPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-muted-foreground text-center">
-            By clicking "Connect with LinkedIn", you will be redirected to LinkedIn to authorize ConvoSpan.ai to access your profile data. We request permissions to help you build effective outreach campaigns.
+            By clicking "Connect with LinkedIn", you will be redirected to LinkedIn to authorize ConvoSpan AI to access your profile data. We request permissions to help you build effective outreach campaigns.
           </p>
           <Button
             onClick={handleLinkedInConnect}

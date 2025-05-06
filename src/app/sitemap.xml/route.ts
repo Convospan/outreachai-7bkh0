@@ -53,6 +53,9 @@ export async function GET(): Promise<Response> {
          <url>
            <loc>${baseUrl}/privacy-policy</loc>
          </url>
+         <url>
+           <loc>${baseUrl}/refund-policy</loc>
+         </url>
        </urlset>`,
     {
       headers: {

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import LinkedInProspectSearchClient from '@/components/linkedin/LinkedInProspectSearchClient';
 
 export const metadata: Metadata = {
-  title: 'LinkedIn Prospect Search | ConvoSpan.ai',
+  title: 'LinkedIn Prospect Search | ConvoSpan AI',
   description: 'Search and filter LinkedIn prospects to target for your outreach campaigns.',
 };
 
