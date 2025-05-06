@@ -20,18 +20,18 @@ import Link from 'next/link';
 import {motion} from "framer-motion";
 import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from '@/components/CampaignForm';
+import Footer from '@/app/components/Footer'; // Import Footer
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col"> {/* Ensure full height and flex column for footer */}
+    <div className="min-h-screen flex flex-col bg-background text-foreground"> {/* Ensure full height and flex column for footer */}
       {/* Hero Section */}
       <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
-             {/* Replace Image with Text */}
-             <div className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
+            <div className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
                 CONVOSPAN
-              </div>
+            </div>
             <div className="max-sm:hidden" aria-hidden="true">·</div>
             <p className="text-foreground">AI Outreach Platform</p>
           </div>
@@ -56,7 +56,7 @@ export default function Home() {
             {/* Removed Hero Icon as requested */}
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with ConvoSpan!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
-              I am here to skyrocket your lead generation by turning digital outreach into real world wins with AI magic.
+             I am here to skyrocket your lead generation by turning digital outreach into real world wins with AI magic.
             </p>
             <Button variant="secondary" size="lg" asChild>
                <Link href="/pricing">
@@ -136,9 +136,10 @@ export default function Home() {
               {/* Arrow placeholders - adjusted positioning and added more */}
               <div className="hidden md:block absolute top-1/2 left-1/4 transform -translate-y-1/2 -translate-x-4 text-4xl text-muted-foreground">&#8594;</div>
               <div className="hidden md:block absolute top-1/2 right-1/4 transform -translate-y-1/2 translate-x-4 text-4xl text-muted-foreground">&#8594;</div>
-              {/* Vertical arrows between rows */}
-              <div className="hidden md:block absolute top-[calc(33%+2rem)] left-1/2 transform -translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8595;</div>
-              <div className="hidden md:block absolute top-[calc(66%+4rem)] left-1/2 transform -translate-x-1/2 rotate-90 text-4xl text-muted-foreground">&#8595;</div>
+              {/* Vertical arrows for smaller screens or between rows on larger screens */}
+              <div className="md:hidden absolute left-1/2 transform -translate-x-1/2 top-1/4 -translate-y-full text-4xl text-muted-foreground">&#8595;</div>
+              <div className="md:hidden absolute left-1/2 transform -translate-x-1/2 top-2/4 -translate-y-full text-4xl text-muted-foreground">&#8595;</div>
+              <div className="md:hidden absolute left-1/2 transform -translate-x-1/2 top-3/4 -translate-y-full text-4xl text-muted-foreground">&#8595;</div>
 
 
                {/* Step 1 */}
@@ -150,7 +151,7 @@ export default function Home() {
                      <Rocket className="h-6 w-6" />
                    </div>
                    <h4 className="text-lg font-medium mb-2">Step 1: Sign Up & Explore</h4>
-                   <p className="text-muted-foreground text-sm text-center">Start free (7-day trial!). Explore the dashboard and tools for LinkedIn, Twitter/X, and email.</p>
+                   <p className="text-muted-foreground text-sm text-center">Start free (7-day trial, no card needed!). Explore the dashboard and tools for LinkedIn, Twitter/X, and email.</p>
                     <Button variant="link" size="sm" className="mt-4">Learn More</Button>
                </motion.div>
 
@@ -271,14 +272,13 @@ export default function Home() {
         </section>
 
          <div className="text-center my-12"> {/* Added CTA before footer */}
-             <Button variant="default"
-                     size="lg" asChild>
-               <Link href="/pricing">Start for Free Today!
-               </Link>
-             </Button>
-              <p className="mt-2 text-sm text-muted-foreground">No credit card needed—try me for 7 days!</p>
-           </div>
+            <Button variant="default" size="lg" asChild>
+              <Link href="/pricing">Start for Free Today!</Link>
+            </Button>
+            <p className="mt-2 text-sm text-muted-foreground">No credit card needed—try me for 7 days!</p>
+        </div>
       </main>
+      <Footer isHomePage={true} /> {/* Pass isHomePage prop */}
     </div>
   );
 }
