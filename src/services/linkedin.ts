@@ -51,3 +51,4 @@ export async function getLinkedInOAuthConfig(): Promise<OAuthConfiguration> {
     redirectUri: 'https://staging.outreachai.com/auth/linkedin',
   };
 }
+
