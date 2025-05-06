@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import {siteConfig} from "@/config/site";
-import { initializeFirebase } from '@/lib/firebase';
+import { initializeFirebase } from '@/lib/firebase'; // Corrected import
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 

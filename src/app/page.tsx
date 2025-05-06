@@ -20,7 +20,7 @@ import Link from 'next/link';
 import {motion} from "framer-motion";
 import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from '@/components/CampaignForm';
-import Footer from '@/app/components/Footer'; // Import Footer
+
 
 export default function Home() {
   return (
@@ -29,7 +29,7 @@ export default function Home() {
       <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
-            <div className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
+             <div className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
                 CONVOSPAN
             </div>
             <div className="max-sm:hidden" aria-hidden="true">·</div>
@@ -278,7 +278,8 @@ export default function Home() {
             <p className="mt-2 text-sm text-muted-foreground">No credit card needed—try me for 7 days!</p>
         </div>
       </main>
-      <Footer isHomePage={true} /> {/* Pass isHomePage prop */}
+      {/* Footer is rendered by RootLayout */}
     </div>
   );
 }
+
