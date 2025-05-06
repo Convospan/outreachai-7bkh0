@@ -1,3 +1,4 @@
+
 'use server';
 
 import { MetadataRoute } from 'next/server';
@@ -18,6 +19,15 @@ export async function GET(): Promise<Response> {
          </url>
          <url>
            <loc>${baseUrl}/campaign/create</loc>
+         </url>
+         <url>
+           <loc>${baseUrl}/campaign/create/linkedin-auth</loc>
+         </url>
+         <url>
+           <loc>${baseUrl}/campaign/create/upload-csv</loc>
+         </url>
+         <url>
+           <loc>${baseUrl}/linkedin-search</loc>
          </url>
          <url>
            <loc>${baseUrl}/campaign</loc>

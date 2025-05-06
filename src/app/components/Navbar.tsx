@@ -1,6 +1,7 @@
+
 'use client';
 
-import React from 'react'; // Added React import
+import React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ const Navbar = () => {
     { href: "/about", label: "About Us" },
     { href: "/pricing", label: "Pricing" },
     { href: "/affiliate", label: "Affiliate" },
+    { href: "/linkedin-search", label: "LinkedIn Search" }, // Added LinkedIn Search
   ];
 
   return (
@@ -68,6 +70,10 @@ const Navbar = () => {
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
                 <Link href="/campaign/create/upload-csv" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Upload CSV</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/50" />
+               <DropdownMenuItem asChild>
+                <Link href="/linkedin-search" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">LinkedIn Prospect Search</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
@@ -124,6 +130,10 @@ const Navbar = () => {
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
                 <Link href="/campaign/create/upload-csv" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Upload CSV</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem asChild>
+                <Link href="/linkedin-search" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">LinkedIn Prospect Search</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
