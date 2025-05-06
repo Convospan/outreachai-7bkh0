@@ -1,7 +1,8 @@
 'use server';
 
-import {google, Auth} from 'googleapis';
-import {OAuth2Client} from 'google-auth-library';
+import type {Auth} from 'googleapis';
+import {google} from 'googleapis';
+import type {OAuth2Client} from 'google-auth-library';
 
 /**
  * Represents a Google Calendar event.
@@ -22,6 +23,23 @@ export interface GoogleCalendarEvent {
     useDefault: boolean;
     overrides?: {method: 'email' | 'popup'; minutes: number}[];
   };
+  // For Google Meet integration
+  conferenceData?: {
+    createRequest?: {
+      requestId: string; // A unique ID for the request
+      conferenceSolutionKey?: {type: 'hangoutsMeet'}; // Specify Google Meet
+    };
+    // Other conferenceData fields might be present in responses
+    entryPoints?: {entryPointType?: string; uri?: string; label?: string}[];
+    conferenceSolution?: {
+      key?: {type?: string};
+      name?: string;
+      iconUri?: string;
+    };
+    // ... any other relevant fields from ConferenceData type
+  };
+  // This field will be populated by Google Calendar in the response
+  hangoutLink?: string;
 }
 
 /**
@@ -60,11 +78,7 @@ export async function getGoogleCalendarOAuthConfig(): Promise<GoogleOAuthConfigu
  */
 export async function createOAuth2Client(): Promise<OAuth2Client> {
   const config = await getGoogleCalendarOAuthConfig();
-  return new google.auth.OAuth2(
-    config.clientId,
-    config.clientSecret,
-    config.redirectUri
-  );
+  return new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUri);
 }
 
 /**
@@ -72,22 +86,51 @@ export async function createOAuth2Client(): Promise<OAuth2Client> {
  *
  * @param eventDetails The details of the event to create.
  * @param authClient An authorized OAuth2 client.
+ * @param addGoogleMeet A boolean indicating whether to add a Google Meet link.
  * @returns A promise that resolves to the created event data or null if failed.
  */
 export async function createGoogleCalendarEvent(
   eventDetails: GoogleCalendarEvent,
-  authClient: Auth.OAuth2Client
-): Promise<any | null> {
+  authClient: Auth.OAuth2Client,
+  addGoogleMeet: boolean
+): Promise<google.calendar_v3.Schema$Event | null> {
   try {
     const calendar = google.calendar({version: 'v3', auth: authClient});
+
+    const eventToCreate: google.calendar_v3.Schema$Event = {
+      summary: eventDetails.summary,
+      description: eventDetails.description,
+      start: eventDetails.start,
+      end: eventDetails.end,
+      attendees: eventDetails.attendees,
+      reminders: eventDetails.reminders,
+    };
+
+    if (addGoogleMeet) {
+      eventToCreate.conferenceData = {
+        createRequest: {
+          requestId: `convospan-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, // Unique request ID
+          conferenceSolutionKey: {type: 'hangoutsMeet'},
+        },
+      };
+    }
+
     const response = await calendar.events.insert({
       calendarId: 'primary', // Use 'primary' for the user's main calendar
-      requestBody: eventDetails,
+      requestBody: eventToCreate,
+      conferenceDataVersion: addGoogleMeet ? 1 : 0, // Set to 1 if creating new conference data
     });
     console.log('Google Calendar Event created: ', response.data.htmlLink);
+    if (response.data.hangoutLink) {
+      console.log('Google Meet link: ', response.data.hangoutLink);
+    }
     return response.data;
   } catch (error) {
     console.error('Failed to create Google Calendar event:', error);
+    // Log more details from the error if available
+    if (error instanceof Error && 'response' in error && (error as any).response?.data?.error) {
+        console.error('Google API Error:', (error as any).response.data.error);
+    }
     return null;
   }
 }
@@ -99,7 +142,11 @@ export async function createGoogleCalendarEvent(
  * @returns The authorization URL.
  */
 export function generateGoogleCalendarAuthUrl(oauth2Client: Auth.OAuth2Client): string {
-  const scopes = ['https://www.googleapis.com/auth/calendar.events'];
+  const scopes = [
+    'https://www.googleapis.com/auth/calendar.events',
+    // Add 'https://www.googleapis.com/auth/meetings.space.created' if creating Meet spaces directly,
+    // but for attaching to calendar events, 'calendar.events' is usually sufficient.
+  ];
   return oauth2Client.generateAuthUrl({
     access_type: 'offline', // 'offline' to get a refresh token
     scope: scopes,
