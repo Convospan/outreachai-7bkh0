@@ -27,7 +27,7 @@ const Navbar = () => {
     { href: "/about", label: "About Us" },
     { href: "/pricing", label: "Pricing" },
     { href: "/affiliate", label: "Affiliate" },
-    { href: "/linkedin-search", label: "LinkedIn Search" }, // Added LinkedIn Search
+    { href: "/linkedin-search", label: "LinkedIn Search" },
   ];
 
   return (
@@ -84,6 +84,9 @@ const Navbar = () => {
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
                  <Link href="/call/approve" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Call Script Approval</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                 <Link href="/call/select-sarvam-model" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Select Sarvam AI Model</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/risk-lead-visualization" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Risk & Lead Visualization</Link>
@@ -145,6 +148,9 @@ const Navbar = () => {
                <DropdownMenuItem asChild>
                  <Link href="/call/approve" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Call Script Approval</Link>
               </DropdownMenuItem>
+               <DropdownMenuItem asChild>
+                 <Link href="/call/select-sarvam-model" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Select Sarvam AI Model</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/risk-lead-visualization" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Risk & Lead Visualization</Link>
               </DropdownMenuItem>
@@ -158,3 +164,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
