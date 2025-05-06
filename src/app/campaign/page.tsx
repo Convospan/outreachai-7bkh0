@@ -30,7 +30,9 @@ import {getTwitterProfile} from '@/services/twitter';
 import type {Auth} from 'googleapis';
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
-import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon } from 'lucide-react';
+import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle } from 'lucide-react';
+import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
+
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email' | 'whatsapp';
@@ -49,6 +51,19 @@ const defaultTemplates: MessageTemplate[] = [
   {platform: 'email', template: 'Dear [Name], I hope this email finds you well...'},
   {platform: 'whatsapp', template: 'Hello, I found your contact and...'},
 ];
+
+const prospectJourneyStages: ProspectStage[] = [
+  { id: 'Identified', name: 'Identified', icon: <UserCheck className="h-4 w-4" /> },
+  { id: 'LinkedInConnected', name: 'LinkedIn Connected', icon: <LinkedinIcon className="h-4 w-4" /> },
+  { id: 'LinkedInIntroSent', name: 'Intro Message Sent', icon: <Send className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp1', name: 'Follow-up Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> },
+  { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> },
+  { id: 'CallScheduled', name: 'Call Scheduled', icon: <CalendarPlus className="h-4 w-4" /> },
+  { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
+  { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
+];
+
 
 export default function CampaignPage() {
   const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email' | 'whatsapp'>('linkedin');
@@ -93,6 +108,10 @@ export default function CampaignPage() {
   const [calendarEventAttendees, setCalendarEventAttendees] = useState('');
   const [addGoogleMeet, setAddGoogleMeet] = useState(true);
 
+  // Prospect Journey State
+  const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>('Identified');
+
+
   useEffect(() => {
     const initGoogleAuthClient = async () => {
       try {
@@ -118,6 +137,7 @@ export default function CampaignPage() {
             setIsGoogleCalendarAuthorized(true);
             toast({ title: 'Google Calendar Authorized', description: 'Successfully connected to Google Calendar.' });
             window.history.replaceState({}, document.title, window.location.pathname);
+             setCurrentProspectJourneyStage('CallScheduled'); // Update journey
           } else {
             throw new Error('Failed to obtain tokens.');
           }
@@ -144,15 +164,47 @@ export default function CampaignPage() {
       toast({ title: 'Google Calendar Not Authorized', description: 'Please authorize Google Calendar access first.', variant: 'destructive' });
       return;
     }
-    // ... (rest of the scheduling logic)
+    if (!calendarEventSummary || !calendarEventStart || !calendarEventEnd) {
+      toast({title: 'Missing Event Details', description: 'Please provide summary, start, and end times.', variant: 'destructive'});
+      return;
+    }
+    const eventDetails: GoogleCalendarEvent = {
+        summary: calendarEventSummary,
+        description: calendarEventDescription,
+        start: { dateTime: new Date(calendarEventStart).toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+        end: { dateTime: new Date(calendarEventEnd).toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+        attendees: calendarEventAttendees.split(',').map(email => ({ email: email.trim() })).filter(att => att.email),
+        reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 30 }] },
+    };
+
+    try {
+        const createdEvent = await createGoogleCalendarEvent(eventDetails, googleAuthClient, addGoogleMeet);
+        if (createdEvent) {
+            toast({title: 'Event Scheduled!', description: `Event "${createdEvent.summary}" created. Check your Google Calendar.`});
+            setCurrentProspectJourneyStage('CallCompleted'); // Or a specific 'CallMade' stage
+            // Optionally reset form fields
+            setCalendarEventSummary('');
+            setCalendarEventDescription('');
+            setCalendarEventStart('');
+            setCalendarEventEnd('');
+            setCalendarEventAttendees('');
+        } else {
+            throw new Error('Failed to create event in Google Calendar.');
+        }
+    } catch (error: any) {
+        console.error('Failed to schedule Google Calendar event:', error);
+        toast({title: 'Scheduling Error', description: error.message || 'Could not schedule event.', variant: 'destructive'});
+    }
   };
 
 
   useEffect(() => {
     const fetchLinkedInProfileData = async () => {
       if (platform === 'linkedin' && linkedinUsername) {
+        setCurrentProspectJourneyStage('Identified');
         try {
           let profile = await getLinkedInProfile(linkedinUsername);
+           setCurrentProspectJourneyStage('LinkedInConnected');
           if (!profile.headline || !profile.profileUrl) { // Basic check for enrichment
             const enriched = await enrichLinkedInProfile({
               name: linkedinUsername,
@@ -165,6 +217,7 @@ export default function CampaignPage() {
             // For now, let's assume enrichment provides some update or log it.
             console.log("Enriched profile data string:", enriched.enrichedProfile);
             // You might need to update the profile state here based on parsed enriched data.
+            // For demo: profile.headline = enriched.enrichedProfile; // simplistic update
             toast({title: "Profile Enriched", description: "Additional profile details fetched."});
           }
           setLinkedInProfile(profile);
@@ -180,6 +233,7 @@ export default function CampaignPage() {
         setLinkedInProfile(null);
         setIsLinkedInOutreachActive(false);
         setLinkedinConversation([]);
+        setCurrentProspectJourneyStage('Identified'); // Reset journey if no LinkedIn
       }
     };
 
@@ -198,6 +252,9 @@ export default function CampaignPage() {
       toast({ title: "LinkedIn Profile Needed", description: "Please provide a LinkedIn username first.", variant: "destructive" });
       return;
     }
+    if (isIntroductory) setCurrentProspectJourneyStage('LinkedInIntroSent');
+    else setCurrentProspectJourneyStage('LinkedInFollowUp1'); // or a dynamic stage based on conversation.length
+
 
     const input: GenerateOutreachScriptInput = {
       platform: 'linkedin',
@@ -229,6 +286,7 @@ export default function CampaignPage() {
                 setProspectEmailForDrip(extractedEmail[0]);
                  toast({title: "Email Captured!", description: `Prospect's email ${extractedEmail[0]} captured. Ready to start email drip.`});
                 setSuggestedNextObjective('transition_to_email');
+                setCurrentProspectJourneyStage('EmailAddressCaptured');
             }
         } else if (suggestedNextObjective === 'request_email') {
             setCurrentObjective('request_email'); // Keep trying to get email
@@ -256,6 +314,7 @@ export default function CampaignPage() {
     setPlatform('email'); // Switch context to email
     setEmailAddress(prospectEmailForDrip); // Set target for email drip
     toast({title: "Transitioning to Email", description: `Preparing email drip for ${prospectEmailForDrip}. Please configure and generate sequence.`});
+    setCurrentProspectJourneyStage('EmailDripInitiated');
   };
 
 
@@ -273,6 +332,11 @@ export default function CampaignPage() {
           prompt: emailDripPrompt,
           numSteps: numEmailDripSteps,
           // You might want to pass additional context like linkedinConversation summary
+          previousConversationSummary: linkedinConversation.map(m => `${m.sender}: ${m.message}`).join('\n'),
+          targetProspectInfo: {
+            name: linkedinProfile?.firstName, // if available
+            company: companyName || linkedinProfile?.headline?.split(' at ')[1], // simple extraction
+          }
         }),
       });
 
@@ -289,7 +353,17 @@ export default function CampaignPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <Card className="shadow-xl">
+        <Card className="mb-6 shadow-lg drop-shadow-xl">
+            <CardHeader>
+                <CardTitle className="text-2xl font-bold text-primary">Prospect Journey Visualizer</CardTitle>
+                <CardDescription>Track the prospect's progress through the outreach funnel.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ProspectJourneyVisualizer stages={prospectJourneyStages} currentStageId={currentProspectJourneyStage} />
+            </CardContent>
+        </Card>
+
+      <Card className="shadow-xl drop-shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-primary">Campaign Automation Hub</CardTitle>
           <CardDescription>Orchestrate your outreach across LinkedIn, Email, and more.</CardDescription>
@@ -300,7 +374,7 @@ export default function CampaignPage() {
               <Label htmlFor="platform">Primary Outreach Platform</Label>
               <Select onValueChange={value => {
                   setPlatform(value as 'linkedin' | 'twitter' | 'email' | 'whatsapp');
-                  setIsLinkedInOutreachActive(value === 'linkedin');
+                  setIsLinkedInOutreachActive(value === 'linkedin' && !!linkedinProfile);
                   setIsEmailDripTriggered(false); // Reset email drip if platform changes
               }} defaultValue="linkedin">
                 <SelectTrigger id="platform"><SelectValue placeholder="Select a platform" /></SelectTrigger>
@@ -376,6 +450,9 @@ export default function CampaignPage() {
                         <Mail className="mr-2 h-4 w-4"/> Transition to Email Drip for {prospectEmailForDrip}
                     </Button>
                 )}
+                 {platform === 'linkedin' && suggestedNextObjective === 'schedule_call' && (
+                    <p className="mt-3 text-sm text-green-600">Prospect seems interested! Consider scheduling a call via Google Calendar below.</p>
+                )}
               </CardContent>
             </Card>
           )}
@@ -422,6 +499,9 @@ export default function CampaignPage() {
                     </div>
                   </div>
                 )}
+                 {generatedEmailDripSequence && suggestedNextObjective === 'schedule_call' && (
+                     <p className="mt-3 text-sm text-green-600">Email sequence sent. If prospect shows interest, consider scheduling a call via Google Calendar below.</p>
+                 )}
               </CardContent>
             </Card>
           )}
@@ -434,7 +514,24 @@ export default function CampaignPage() {
                     <CardTitle>Generate Script for {platform.charAt(0).toUpperCase() + platform.slice(1)}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Button onClick={() => handleSendLinkedInMessage(true)} className="w-full"> {/* Reusing logic, but it's not ideal. Needs dedicated flow for other platforms */}
+                    <Button onClick={async () => {
+                       const input: GenerateOutreachScriptInput = {
+                            platform: platform,
+                            additionalContext: additionalContext,
+                            ...(platform === 'twitter' && twitterProfile ? { twitterProfile: { id: twitterProfile.id, username: twitterProfile.username, name: twitterProfile.name } } : {}),
+                            ...(platform === 'email' && emailProfile ? { emailProfile: { email: emailProfile.email, provider: emailProfile.provider } } : {}),
+                            // WhatsApp would likely need manual phone number input if not already captured
+                        };
+                        try {
+                            const result = await generateOutreachScript(input);
+                            setCurrentMessage(result.script); // Assuming currentMessage state is for general scripts
+                            setSuggestedNextObjective(result.suggestedNextObjective);
+                             toast({ title: `${platform.charAt(0).toUpperCase() + platform.slice(1)} Script Generated` });
+                        } catch (error) {
+                             console.error(`Failed to generate ${platform} script:`, error);
+                             toast({ title: 'Error', description: `Failed to generate ${platform} script.`, variant: 'destructive' });
+                        }
+                    }} className="w-full">
                        <BotMessageSquare className="mr-2 h-4 w-4" /> Generate {platform.charAt(0).toUpperCase() + platform.slice(1)} Script
                     </Button>
                     {currentMessage && (
@@ -458,11 +555,28 @@ export default function CampaignPage() {
                   <Button onClick={handleGoogleCalendarAuthorize} variant="outline">Authorize Google Calendar</Button>
                 ) : (
                   <>
-                    <div className="grid gap-2">
-                      <Label htmlFor="eventSummary">Event Summary</Label>
-                      <Input id="eventSummary" value={calendarEventSummary} onChange={e => setCalendarEventSummary(e.target.value)} placeholder="Meeting with Prospect" />
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="eventSummary">Event Summary</Label>
+                            <Input id="eventSummary" value={calendarEventSummary} onChange={e => setCalendarEventSummary(e.target.value)} placeholder="Meeting with Prospect" />
+                        </div>
+                         <div>
+                            <Label htmlFor="eventAttendees">Attendees (comma-separated emails)</Label>
+                            <Input id="eventAttendees" value={calendarEventAttendees} onChange={e => setCalendarEventAttendees(e.target.value)} placeholder="prospect@example.com, you@example.com" />
+                        </div>
+                        <div>
+                            <Label htmlFor="eventStart">Start Date & Time</Label>
+                            <Input id="eventStart" type="datetime-local" value={calendarEventStart} onChange={e => setCalendarEventStart(e.target.value)} />
+                        </div>
+                        <div>
+                            <Label htmlFor="eventEnd">End Date & Time</Label>
+                            <Input id="eventEnd" type="datetime-local" value={calendarEventEnd} onChange={e => setCalendarEventEnd(e.target.value)} />
+                        </div>
                     </div>
-                    {/* ... Other Google Calendar event fields ... */}
+                     <div>
+                        <Label htmlFor="eventDescription">Event Description (Optional)</Label>
+                        <Textarea id="eventDescription" value={calendarEventDescription} onChange={e => setCalendarEventDescription(e.target.value)} placeholder="Discuss project X, follow up on recent conversation..." />
+                    </div>
                      <div className="flex items-center space-x-2">
                       <Checkbox id="addGoogleMeet" checked={addGoogleMeet} onCheckedChange={(checked) => setAddGoogleMeet(checked as boolean)} />
                       <Label htmlFor="addGoogleMeet">Add Google Meet Link</Label>
@@ -480,7 +594,13 @@ export default function CampaignPage() {
         {(currentMessage || generatedEmailDripSequence) && (
           <Link href="/compliance/check" passHref><Button>Next: Check Compliance</Button></Link>
         )}
+         {currentProspectJourneyStage === 'CallCompleted' && (
+             <Link href="/risk-lead-visualization" passHref>
+                 <Button variant="default">View Risk & Lead Visualization</Button>
+             </Link>
+         )}
       </div>
     </div>
   );
 }
+
