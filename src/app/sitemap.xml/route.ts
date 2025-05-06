@@ -3,35 +3,45 @@
 import { MetadataRoute } from 'next/server';
 
 export async function GET(): Promise<Response> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://convospan.ai';
   return new Response(
     `<?xml version="1.0" encoding="UTF-8"?>
        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
          <url>
-           <loc>https://convospan.ai</loc>
+           <loc>${baseUrl}</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/about</loc>
+           <loc>${baseUrl}/about</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/pricing</loc>
+           <loc>${baseUrl}/pricing</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/campaign/create</loc>
+           <loc>${baseUrl}/campaign/create</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/campaign</loc>
+           <loc>${baseUrl}/campaign</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/compliance/check</loc>
+           <loc>${baseUrl}/compliance/check</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/call/approve</loc>
+           <loc>${baseUrl}/call/approve</loc>
          </url>
          <url>
-           <loc>https://convospan.ai/risk-lead-visualization</loc>
+           <loc>${baseUrl}/risk-lead-visualization</loc>
          </url>
-                  <url>
-           <loc>https://convospan.ai/contact</loc>
+         <url>
+           <loc>${baseUrl}/contact</loc>
+         </url>
+         <url>
+           <loc>${baseUrl}/terms-of-service</loc>
+         </url>
+         <url>
+           <loc>${baseUrl}/community-terms</loc>
+         </url>
+         <url>
+           <loc>${baseUrl}/privacy-policy</loc>
          </url>
        </urlset>`,
     {
@@ -41,4 +51,3 @@ export async function GET(): Promise<Response> {
     }
   );
 }
-
