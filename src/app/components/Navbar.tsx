@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React from 'react'; // Added React import
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +34,8 @@ const Navbar = () => {
     <nav className="bg-background border-b shadow-sm sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between py-3 px-4 md:px-6">
         <Link href="/" className="flex items-center">
-          <div className="font-bold uppercase border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
+          {/* Replace Image with Text */}
+          <div className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
             CONVOSPAN
           </div>
         </Link>
