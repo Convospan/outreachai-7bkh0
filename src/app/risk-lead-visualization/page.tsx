@@ -15,6 +15,7 @@ import {generateCallScript as generateAICallScript} from '@/ai/flows/generate-ca
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea"; // Added import for Textarea
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import {useSearchParams} from 'next/navigation';
 import { HomeIcon, Loader2 } from "lucide-react";
