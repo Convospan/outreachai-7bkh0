@@ -14,6 +14,7 @@ import {
 import { Mail } from 'lucide-react';
 import Link from 'next/link';
 import type React from 'react';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 // Simple SVG icon for Google
 const GoogleIcon = () => (
@@ -53,6 +54,16 @@ export function CreateAccountPopup({
   onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
 }) {
+  const router = useRouter();
+
+  const handleAuthContinue = () => {
+    // Simulate successful account creation
+    if (onOpenChange) {
+      onOpenChange(false); // Close the popup
+    }
+    router.push('/pricing'); // Redirect to pricing page
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
@@ -66,19 +77,35 @@ export function CreateAccountPopup({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Button variant="outline" className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50">
+          <Button 
+            variant="outline" 
+            className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
+            onClick={handleAuthContinue}
+          >
             <GoogleIcon />
             Continue with Google
           </Button>
-          <Button variant="outline" className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50">
+          <Button 
+            variant="outline" 
+            className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
+            onClick={handleAuthContinue}
+          >
             <MicrosoftIcon />
             Continue with Microsoft
           </Button>
-          <Button variant="outline" className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50">
+          <Button 
+            variant="outline" 
+            className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
+            onClick={handleAuthContinue}
+          >
              <FacebookIcon />
             Continue with Facebook
           </Button>
-          <Button variant="outline" className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50">
+          <Button 
+            variant="outline" 
+            className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
+            onClick={handleAuthContinue}
+          >
             <Mail className="mr-2 h-5 w-5" />
             Continue with Email
           </Button>
@@ -107,3 +134,4 @@ export function CreateAccountPopup({
     </Dialog>
   );
 }
+
