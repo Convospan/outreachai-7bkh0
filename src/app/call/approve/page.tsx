@@ -17,6 +17,13 @@ import {Input} from '@/components/ui/input';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Bot, ChevronRight, HomeIcon } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function CallScriptApprovalPage() {
   const router = useRouter();
@@ -216,4 +223,3 @@ export default function CallScriptApprovalPage() {
     </div>
   );
 }
-
