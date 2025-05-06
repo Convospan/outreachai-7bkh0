@@ -32,6 +32,9 @@ import {
 } from "@/components/ui/table"
 import {enrichLinkedInProfile, EnrichLinkedInProfileOutput} from '@/ai/flows/enrich-linkedin-profile';
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from '@/components/ui/input';
+import { createGoogleCalendarEvent, GoogleCalendarEvent, generateGoogleCalendarAuthUrl, createOAuth2Client, getGoogleCalendarTokensFromCode } from '@/services/google-calendar';
+import type { Auth } from 'googleapis';
 
 interface MessageTemplate {
   platform: 'linkedin' | 'twitter' | 'email' | 'whatsapp';
@@ -56,13 +59,141 @@ export default function CampaignPage() {
   const [twitterProfile, setTwitterProfile] = useState<TwitterProfile | null>(null);
   const [emailProfile, setEmailProfile] = useState<EmailProfile | null>(null);
   const [additionalContext, setAdditionalContext] = useState('');
-    const {toast} = useToast()
+  const {toast} = useToast()
   const [numSteps, setNumSteps] = useState<number>(3);
   const [generatedSequence, setGeneratedSequence] = useState<GenerateOutreachSequenceOutput | null>(null);
   const [sequencePrompt, setSequencePrompt] = useState<string>('');
 
   const [companyName, setCompanyName] = useState(''); // Company name state
-    const [includeCallToAction, setIncludeCallToAction] = useState(true);
+  const [includeCallToAction, setIncludeCallToAction] = useState(true);
+
+  // Google Calendar State
+  const [googleAuthClient, setGoogleAuthClient] = useState<Auth.OAuth2Client | null>(null);
+  const [isGoogleCalendarAuthorized, setIsGoogleCalendarAuthorized] = useState(false);
+  const [calendarEventSummary, setCalendarEventSummary] = useState('');
+  const [calendarEventDescription, setCalendarEventDescription] = useState('');
+  const [calendarEventStart, setCalendarEventStart] = useState('');
+  const [calendarEventEnd, setCalendarEventEnd] = useState('');
+  const [calendarEventAttendees, setCalendarEventAttendees] = useState('');
+
+
+  useEffect(() => {
+    const initGoogleAuthClient = async () => {
+      try {
+        const client = await createOAuth2Client();
+        setGoogleAuthClient(client);
+      } catch (error) {
+        console.error("Failed to initialize Google Auth Client:", error);
+        toast({
+          title: "Google Calendar Error",
+          description: "Could not initialize Google Calendar integration.",
+          variant: "destructive",
+        });
+      }
+    };
+    initGoogleAuthClient();
+  }, [toast]);
+
+
+  useEffect(() => {
+    // Handle Google Calendar OAuth callback
+    const handleGoogleCallback = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code && googleAuthClient && !isGoogleCalendarAuthorized) {
+        try {
+          const tokens = await getGoogleCalendarTokensFromCode(code, googleAuthClient);
+          if (tokens) {
+            googleAuthClient.setCredentials(tokens);
+            setIsGoogleCalendarAuthorized(true);
+            toast({
+              title: "Google Calendar Authorized",
+              description: "Successfully connected to Google Calendar.",
+            });
+            // Remove code from URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else {
+            throw new Error("Failed to obtain tokens.");
+          }
+        } catch (error) {
+          console.error("Error exchanging Google Calendar code for tokens:", error);
+          toast({
+            title: "Google Calendar Authorization Failed",
+            description: "Could not authorize Google Calendar. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+    handleGoogleCallback();
+  }, [googleAuthClient, isGoogleCalendarAuthorized, toast]);
+
+
+  const handleGoogleCalendarAuthorize = async () => {
+    if (googleAuthClient) {
+      const authUrl = generateGoogleCalendarAuthUrl(googleAuthClient);
+      window.location.href = authUrl;
+    } else {
+      toast({
+        title: "Google Calendar Error",
+        description: "Google Calendar client not initialized. Please refresh.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleScheduleGoogleCalendarEvent = async () => {
+    if (!isGoogleCalendarAuthorized || !googleAuthClient) {
+      toast({
+        title: 'Google Calendar Not Authorized',
+        description: 'Please authorize Google Calendar access first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    if (!calendarEventSummary || !calendarEventStart || !calendarEventEnd) {
+        toast({
+            title: 'Missing Event Details',
+            description: 'Please provide summary, start, and end times for the event.',
+            variant: 'destructive',
+        });
+        return;
+    }
+
+    const eventDetails: GoogleCalendarEvent = {
+      summary: calendarEventSummary,
+      description: calendarEventDescription,
+      start: { dateTime: new Date(calendarEventStart).toISOString() },
+      end: { dateTime: new Date(calendarEventEnd).toISOString() },
+      attendees: calendarEventAttendees.split(',').map(email => ({ email: email.trim() })).filter(a => a.email),
+    };
+
+    try {
+      const createdEvent = await createGoogleCalendarEvent(eventDetails, googleAuthClient);
+      if (createdEvent) {
+        toast({
+          title: 'Google Calendar Event Scheduled',
+          description: `Event "${createdEvent.summary}" created successfully.`,
+        });
+        // Optionally, clear form fields
+        setCalendarEventSummary('');
+        setCalendarEventDescription('');
+        setCalendarEventStart('');
+        setCalendarEventEnd('');
+        setCalendarEventAttendees('');
+      } else {
+        throw new Error("Failed to create event in Google Calendar.");
+      }
+    } catch (error) {
+      console.error('Failed to schedule Google Calendar event:', error);
+      toast({
+        title: 'Error Scheduling Event',
+        description: 'Could not schedule the Google Calendar event. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   useEffect(() => {
     const fetchLinkedInProfile = async () => {
@@ -122,7 +253,7 @@ export default function CampaignPage() {
     if (platform === 'linkedin') fetchLinkedInProfile();
     if (platform === 'twitter') fetchTwitterProfile();
     if (platform === 'email') fetchEmailProfile();
-  }, [platform, linkedinUsername, twitterUsername, emailAddress]);
+  }, [platform, linkedinUsername, twitterUsername, emailAddress, toast]);
 
   const handleGenerateTemplate = async () => {
     let profileData = linkedinProfile;
@@ -235,7 +366,7 @@ export default function CampaignPage() {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="platform">Platform</Label>
-            <Select onValueChange={setPlatform}>
+            <Select onValueChange={(value) => setPlatform(value as 'linkedin' | 'twitter' | 'email' | 'whatsapp')}>
               <SelectTrigger id="platform">
                 <SelectValue placeholder="Select a platform"/>
               </SelectTrigger>
@@ -296,10 +427,10 @@ export default function CampaignPage() {
             )}
            {platform === 'whatsapp' && (
                 <div className="grid gap-2">
-                    <Label htmlFor="emailAddress">WhatsApp Number</Label>
+                    <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
                     <Textarea
-                        id="whatsappNumber"
-                        value={emailAddress}
+                        id="whatsappNumber" // Changed from emailAddress to whatsappNumber for clarity
+                        value={emailAddress} // Consider a separate state for WhatsApp number if needed
                         onChange={(e) => setEmailAddress(e.target.value)}
                         placeholder="Enter WhatsApp Number"
                     />
@@ -319,7 +450,7 @@ export default function CampaignPage() {
             <Checkbox
               id="includeCallToAction"
               checked={includeCallToAction}
-              onCheckedChange={(checked) => setIncludeCallToAction(checked || false)}
+              onCheckedChange={(checked) => setIncludeCallToAction(checked as boolean)}
             />
             <Label htmlFor="includeCallToAction">Suggest a virtual call</Label>
           </div>
@@ -381,7 +512,7 @@ export default function CampaignPage() {
             </div>
           )}
 
-          <Accordion type="single" collapsible>
+          <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="templates">
               <AccordionTrigger>Generated Templates</AccordionTrigger>
               <AccordionContent>
@@ -396,6 +527,41 @@ export default function CampaignPage() {
                 </ul>
               </AccordionContent>
             </AccordionItem>
+
+            <AccordionItem value="google-calendar">
+              <AccordionTrigger>Schedule Google Calendar Event</AccordionTrigger>
+              <AccordionContent className="space-y-4">
+                {!isGoogleCalendarAuthorized ? (
+                  <Button onClick={handleGoogleCalendarAuthorize}>Authorize Google Calendar</Button>
+                ) : (
+                  <>
+                    <div className="grid gap-2">
+                      <Label htmlFor="eventSummary">Event Summary</Label>
+                      <Input id="eventSummary" value={calendarEventSummary} onChange={(e) => setCalendarEventSummary(e.target.value)} placeholder="Meeting with Prospect" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="eventDescription">Event Description (Optional)</Label>
+                      <Textarea id="eventDescription" value={calendarEventDescription} onChange={(e) => setCalendarEventDescription(e.target.value)} placeholder="Discuss partnership opportunities..." />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                        <Label htmlFor="eventStart">Start Date & Time</Label>
+                        <Input id="eventStart" type="datetime-local" value={calendarEventStart} onChange={(e) => setCalendarEventStart(e.target.value)} />
+                        </div>
+                        <div className="grid gap-2">
+                        <Label htmlFor="eventEnd">End Date & Time</Label>
+                        <Input id="eventEnd" type="datetime-local" value={calendarEventEnd} onChange={(e) => setCalendarEventEnd(e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="eventAttendees">Attendees (comma-separated emails, optional)</Label>
+                      <Input id="eventAttendees" value={calendarEventAttendees} onChange={(e) => setCalendarEventAttendees(e.target.value)} placeholder="prospect@example.com, colleague@example.com" />
+                    </div>
+                    <Button onClick={handleScheduleGoogleCalendarEvent}>Schedule Event</Button>
+                  </>
+                )}
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         </CardContent>
       </Card>
@@ -403,7 +569,7 @@ export default function CampaignPage() {
             <Link href="/" passHref>
                 <Button variant="outline">Back to Dashboard</Button>
             </Link>
-            {message && (
+            {message && ( // Only show next button if a message has been generated
                 <Button >
                     <Link href="/compliance/check" passHref>
                         Next: Check Compliance
