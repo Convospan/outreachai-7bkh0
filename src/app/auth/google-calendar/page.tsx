@@ -11,7 +11,7 @@ export default function GoogleCalendarAuthPage() {
     const redirectToGoogleAuth = async () => {
       try {
         const oauth2Client = await createOAuth2Client();
-        const authUrl = generateGoogleCalendarAuthUrl(oauth2Client);
+        const authUrl = await generateGoogleCalendarAuthUrl(oauth2Client); // Added await
         window.location.href = authUrl;
       } catch (error) {
         console.error('Failed to initiate Google Calendar authorization:', error);

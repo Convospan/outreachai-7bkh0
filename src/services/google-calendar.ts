@@ -141,12 +141,14 @@ export async function createGoogleCalendarEvent(
  * @param oauth2Client The OAuth2 client.
  * @returns The authorization URL.
  */
-export function generateGoogleCalendarAuthUrl(oauth2Client: Auth.OAuth2Client): string {
+export async function generateGoogleCalendarAuthUrl(oauth2Client: Auth.OAuth2Client): Promise<string> {
   const scopes = [
     'https://www.googleapis.com/auth/calendar.events',
     // Add 'https://www.googleapis.com/auth/meetings.space.created' if creating Meet spaces directly,
     // but for attaching to calendar events, 'calendar.events' is usually sufficient.
   ];
+  // The generateAuthUrl method itself is synchronous.
+  // We make the wrapper async to comply with Server Action expectations if the module is treated as such.
   return oauth2Client.generateAuthUrl({
     access_type: 'offline', // 'offline' to get a refresh token
     scope: scopes,
