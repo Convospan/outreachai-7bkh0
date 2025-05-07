@@ -4,6 +4,7 @@ import type { FirebaseApp } from 'firebase/app';
 import { initializeApp, getApps } from 'firebase/app';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
+// IMPORTANT: Verify all NEXT_PUBLIC_FIREBASE_... and NEXT_PUBLIC_RECAPTCHA_SITE_KEY environment variables are correctly set in your .env file or hosting provider's configuration.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -67,15 +68,21 @@ export function initializeFirebase() {
               console.error("AppCheck Error Name:", appCheckError.name);
               console.error("AppCheck Error Message:", appCheckError.message);
             }
-            console.error(
-              "🚨 TROUBLESHOOTING Firebase App Check (reCAPTCHA error):\n" +
-              "1. VERIFY KEY: Ensure NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your .env file is correct (" + recaptchaSiteKey.substring(0,10) + "...).\n" +
-              "2. DOMAIN AUTHORIZATION: The current domain (e.g., localhost, your deployment URL " + (typeof window !== 'undefined' ? window.location.hostname : '') + ") MUST be added to the allowed domains for this reCAPTCHA key in Google Cloud Console (Security > reCAPTCHA Enterprise).\n" +
-              "3. API ENABLED: Make sure the 'reCAPTCHA Enterprise API' is enabled for your Google Cloud project '" + (firebaseConfig.projectId || 'YOUR_PROJECT_ID') + "'.\n" +
-              "4. BILLING: Confirm billing is enabled for your Google Cloud project. reCAPTCHA Enterprise might have usage costs.\n" +
-              "5. EXTENSIONS: Disable ad blockers or browser extensions that might interfere with reCAPTCHA.\n" +
-              "6. DEBUG TOKEN: If you previously used an App Check debug token for local testing, ensure it's removed for production or when testing the real reCAPTCHA flow."
-            );
+            if ((appCheckError as any)?.code === 'appCheck/recaptcha-error') {
+                 console.error(
+                  "🚨 TROUBLESHOOTING Firebase App Check (reCAPTCHA error):\n" +
+                  "1. VERIFY KEY: Ensure NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your .env file is correct (" + recaptchaSiteKey.substring(0,10) + "...).\n" +
+                  "2. DOMAIN AUTHORIZATION: The current domain (e.g., localhost, your deployment URL " + (typeof window !== 'undefined' ? window.location.hostname : '') + ") MUST be added to the allowed domains for this reCAPTCHA key in Google Cloud Console (Security > reCAPTCHA Enterprise).\n" +
+                  "3. API ENABLED: Make sure the 'reCAPTCHA Enterprise API' is enabled for your Google Cloud project '" + (firebaseConfig.projectId || 'YOUR_PROJECT_ID') + "'.\n" +
+                  "4. BILLING: Confirm billing is enabled for your Google Cloud project. reCAPTCHA Enterprise might have usage costs.\n" +
+                  "5. EXTENSIONS: Disable ad blockers or browser extensions that might interfere with reCAPTCHA.\n" +
+                  "6. DEBUG TOKEN: If you previously used an App Check debug token for local testing, ensure it's removed for production or when testing the real reCAPTCHA flow."
+                );
+            } else {
+               console.error(
+                "🚨 An unexpected error occurred during App Check initialization. Check the console for more details."
+               );
+            }
           }
         }
       } catch (initError) {
@@ -99,11 +106,11 @@ export function initializeFirebase() {
              if (appCheckError.message && appCheckError.message.includes('app-check/already-initialized')) {
                  console.warn('🟡 Firebase App Check already initialized on subsequent load.');
                  appCheckInitialized = true;
-             } else {
+             } else if ((appCheckError as any)?.code === 'appCheck/recaptcha-error') {
+                 console.error("🔴 Firebase App Check initialization FAILED (reCAPTCHA error) on subsequent load. See detailed troubleshooting steps above.");
+             }
+              else {
                 console.error("🔴 Firebase App Check initialization FAILED on subsequent load:", appCheckError);
-                console.error(
-                    "🚨 TROUBLESHOOTING (subsequent load): Check previous logs for detailed error messages. Ensure all conditions for reCAPTCHA are met (domain authorization, API enabled, billing)."
-                );
              }
           }
         } else {
