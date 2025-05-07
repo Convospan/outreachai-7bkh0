@@ -1,5 +1,6 @@
 /**
  * Represents an email profile.
+ * This interface might still be useful for storing email related data of prospects.
  */
 export interface EmailProfile {
   /**
@@ -7,28 +8,32 @@ export interface EmailProfile {
    */
   email: string;
   /**
-   * The email provider.
+   * The email provider (e.g., gmail, outlook).
+   * This might be less relevant if all sending is through SendPulse.
    */
-  provider: string;
+  provider?: string;
 }
 
 /**
  * Asynchronously retrieves an email profile by email address.
+ * This function is a placeholder and might not be needed if SendPulse handles all profile data.
  *
  * @param email The email address.
  * @returns A promise that resolves to an EmailProfile object.
  */
 export async function getEmailProfile(email: string): Promise<EmailProfile> {
-  // TODO: Implement this by calling the Email API.
-
+  // Placeholder, actual implementation would depend on data sources.
+  console.warn("getEmailProfile is a placeholder function.");
   return {
-    email: 'john.doe@example.com',
-    provider: 'gmail',
+    email: email,
+    provider: email.split('@')[1]?.split('.')[0] || 'unknown', // Basic provider extraction
   };
 }
 
 /**
  * Interface for OAuth configuration.
+ * This is generally for services like Gmail/Outlook direct integration.
+ * For SendPulse, API Key/Secret is used.
  */
 export interface OAuthConfiguration {
   clientId: string;
@@ -37,21 +42,22 @@ export interface OAuthConfiguration {
 }
 
 /**
- * Returns OAuth configuration
+ * Returns OAuth configuration for direct email provider integration (e.g., Gmail).
+ * Note: ConvoSpan now primarily uses SendPulse for sending emails via API.
  */
 export async function getEmailOAuthConfig(): Promise<OAuthConfiguration> {
-  // TODO: Implement retrieval of OAuth configuration from environment variables or a secure source.
+  console.warn("getEmailOAuthConfig is for direct provider OAuth, not SendPulse API key/secret method.");
+  // Placeholder values, not used for SendPulse API key/secret method.
   return {
-    clientId: 'your_client_id',
-    clientSecret: 'your_client_secret',
-    redirectUri: 'your_redirect_uri',
+    clientId: process.env.GENERIC_EMAIL_CLIENT_ID || 'your_client_id',
+    clientSecret: process.env.GENERIC_EMAIL_CLIENT_SECRET || 'your_client_secret',
+    redirectUri: process.env.GENERIC_EMAIL_REDIRECT_URI || 'your_redirect_uri',
   };
 }
 
-// Placeholder for email API integration
-export async function integrateEmailAPI(): Promise<void> {
-    // This function would contain the actual logic for integrating with the Email API
-    // using IMAP/SMTP via imaplib and smtplib with OAuth 2.0 (Google API).
-    // Implementation requires backend logic and secure handling of credentials.
-    console.log("Email API integration logic would be implemented here.");
-}
+// The IMAP/SMTP integration logic previously here is now superseded
+// by the SendPulse API integration handled via the Genkit tool `sendEmailWithSendPulse`.
+// Direct IMAP/SMTP connections are complex to manage securely and reliably
+// for deliverability, so using a dedicated email service provider like SendPulse is preferred.
+
+console.log("Email service configured to use SendPulse via Genkit tool for sending.");
