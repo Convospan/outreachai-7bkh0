@@ -1,6 +1,6 @@
 'use client';
 
-import type React from 'react';
+import React from 'react'; // Added React import
 import { cn } from '@/lib/utils';
 import { CheckCircle } from 'lucide-react';
 
