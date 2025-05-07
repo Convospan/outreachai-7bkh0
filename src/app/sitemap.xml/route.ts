@@ -33,6 +33,9 @@ export async function GET(): Promise<Response> {
            <loc>${baseUrl}/campaign</loc>
          </url>
          <url>
+           <loc>${baseUrl}/campaign/email-drip</loc>
+         </url>
+         <url>
            <loc>${baseUrl}/compliance/check</loc>
          </url>
          <url>

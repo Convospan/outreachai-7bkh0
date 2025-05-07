@@ -3,7 +3,7 @@
 
 import type {GenerateOutreachSequenceOutput} from '@/ai/flows/generate-outreach-sequence';
 import {generateOutreachScript, type GenerateOutreachScriptInput, type GenerateOutreachScriptOutput} from '@/ai/flows/generate-outreach-script';
-import {enrichLinkedInProfile, type EnrichLinkedInProfileOutput} from '@/ai/flows/enrich-linkedin-profile';
+import {enrichLinkedInProfile, type EnrichLinkedInProfileInput} from '@/ai/flows/enrich-linkedin-profile'; // Corrected type import
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
@@ -11,27 +11,26 @@ import {Checkbox} from '@/components/ui/checkbox';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {Table, TableBody, TableCell, TableHeader, TableHead, TableRow} from '@/components/ui/table';
 import {Textarea} from '@/components/ui/textarea';
 import {useToast} from '@/hooks/use-toast';
 import type {EmailProfile} from '@/services/email';
-import {getEmailProfile} from '@/services/email';
 import type {GoogleCalendarEvent} from '@/services/google-calendar';
 import {
   createGoogleCalendarEvent,
   createOAuth2Client,
-  generateGoogleCalendarAuthUrl,
   getGoogleCalendarTokensFromCode,
+  generateGoogleCalendarAuthUrl, // Corrected import name
 } from '@/services/google-calendar';
 import type {LinkedInProfile} from '@/services/linkedin';
 import {getLinkedInProfile} from '@/services/linkedin';
 import type {TwitterProfile} from '@/services/twitter';
-import {getTwitterProfile} from '@/services/twitter';
+// import {getTwitterProfile} from '@/services/twitter'; // Assuming getTwitterProfile is available if needed
 import type {Auth} from 'googleapis';
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
-import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle } from 'lucide-react';
+import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle, ArrowLeft, HomeIcon, ChevronRight } from 'lucide-react';
 import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
+import { useRouter } from 'next/navigation';
 
 
 interface MessageTemplate {
@@ -44,13 +43,6 @@ interface ConversationMessage {
   message: string;
   timestamp: Date;
 }
-
-const defaultTemplates: MessageTemplate[] = [
-  {platform: 'linkedin', template: 'Hello, I saw your profile and...'},
-  {platform: 'twitter', template: 'Hey, I enjoyed your tweet about...'},
-  {platform: 'email', template: 'Dear [Name], I hope this email finds you well...'},
-  {platform: 'whatsapp', template: 'Hello, I found your contact and...'},
-];
 
 const prospectJourneyStages: ProspectStage[] = [
   { id: 'Identified', name: 'Identified', icon: <UserCheck className="h-4 w-4" /> },
@@ -72,7 +64,6 @@ const prospectJourneyStages: ProspectStage[] = [
 export default function CampaignPage() {
   const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email' | 'whatsapp'>('linkedin');
   const [currentMessage, setCurrentMessage] = useState('');
-  const [generatedTemplates, setGeneratedTemplates] = useState<MessageTemplate[]>(defaultTemplates);
   const [linkedinUsername, setLinkedInUsername] = useState('');
   const [twitterUsername, setTwitterUsername] = useState('');
   const [emailAddress, setEmailAddress] = useState(''); // Used for email drip target
@@ -84,20 +75,13 @@ export default function CampaignPage() {
 
   const [additionalContext, setAdditionalContext] = useState('');
   const {toast} = useToast();
+  const router = useRouter();
 
   // LinkedIn Conversation State
   const [linkedinConversation, setLinkedinConversation] = useState<ConversationMessage[]>([]);
-  const [currentLinkedinMessage, setCurrentLinkedinMessage] = useState('');
   const [isLinkedInOutreachActive, setIsLinkedInOutreachActive] = useState(false);
   const [currentObjective, setCurrentObjective] = useState<GenerateOutreachScriptInput['objective']>('build_rapport');
   const [suggestedNextObjective, setSuggestedNextObjective] = useState<GenerateOutreachScriptOutput['suggestedNextObjective'] | undefined>(undefined);
-
-
-  // Email Drip State
-  const [numEmailDripSteps, setNumEmailDripSteps] = useState<number>(3);
-  const [generatedEmailDripSequence, setGeneratedEmailDripSequence] = useState<GenerateOutreachSequenceOutput | null>(null);
-  const [emailDripPrompt, setEmailDripPrompt] = useState<string>('Follow up on our LinkedIn conversation and offer a demo.');
-  const [isEmailDripTriggered, setIsEmailDripTriggered] = useState(false);
 
 
   const [companyName, setCompanyName] = useState('');
@@ -114,6 +98,7 @@ export default function CampaignPage() {
 
   // Prospect Journey State
   const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>('Identified');
+  const [leadId, setLeadId] = useState<string | null>(null); // To store lead ID if applicable
 
 
   useEffect(() => {
@@ -156,7 +141,7 @@ export default function CampaignPage() {
 
   const handleGoogleCalendarAuthorize = async () => {
     if (googleAuthClient) {
-      const authUrl = await generateGoogleCalendarAuthUrl(googleAuthClient);
+      const authUrl = await generateGoogleCalendarAuthUrl(googleAuthClient); // Changed this
       window.location.href = authUrl;
     } else {
       toast({ title: 'Google Calendar Error', description: 'Google Calendar client not initialized. Please refresh.', variant: 'destructive' });
@@ -187,7 +172,6 @@ export default function CampaignPage() {
         if (createdEvent) {
             toast({title: 'Event Scheduled!', description: `Event "${createdEvent.summary}" created. Check your Google Calendar.`});
             setCurrentProspectJourneyStage('CallCompleted'); // Or a specific 'CallMade' stage
-            // Optionally reset form fields
             setCalendarEventSummary('');
             setCalendarEventDescription('');
             setCalendarEventStart('');
@@ -208,23 +192,25 @@ export default function CampaignPage() {
       if (platform === 'linkedin' && linkedinUsername) {
         setCurrentProspectJourneyStage('Identified');
         try {
-          let profile = await getLinkedInProfile(linkedinUsername);
-           setCurrentProspectJourneyStage('LinkedInConnected');
-          if (!profile.headline || !profile.profileUrl) { // Basic check for enrichment
-            const enriched = await enrichLinkedInProfile({
-              name: linkedinUsername,
-              company: companyName,
-              linkedinProfile: profile,
-              additionalContext: additionalContext
-            });
-            console.log("Enriched profile data string:", enriched.enrichedProfile);
-            // Update profile based on enriched data - simplistic update for demo
-            profile = { ...profile, headline: enriched.enrichedProfile || profile.headline };
-            toast({title: "Profile Enriched", description: "Additional profile details fetched."});
-          }
-          setLinkedInProfile(profile);
-          setIsLinkedInOutreachActive(true); // Auto-start LinkedIn outreach
-          await handleSendLinkedInMessage(true); // Generate initial introductory message
+          const profile = await getLinkedInProfile(linkedinUsername); // Simpler initial fetch
+           setLeadId(profile.id); // Assuming profile.id can serve as a leadId
+
+          const enrichInput: EnrichLinkedInProfileInput = {
+            name: profile.firstName || linkedinUsername,
+            company: companyName,
+            linkedinProfile: profile,
+            additionalContext: additionalContext,
+          };
+          const enriched = await enrichLinkedInProfile(enrichInput);
+          
+          const finalProfile = {
+            ...profile,
+            headline: enriched.enrichedProfile || profile.headline, // Update with enriched data
+          };
+          setLinkedInProfile(finalProfile);
+          setCurrentProspectJourneyStage('LinkedInConnected');
+          setIsLinkedInOutreachActive(true);
+          await handleSendLinkedInMessage(true, finalProfile); // Pass finalProfile
 
         } catch (error) {
           console.error('Failed to fetch/enrich LinkedIn profile:', error);
@@ -234,42 +220,30 @@ export default function CampaignPage() {
         setLinkedInProfile(null);
         setIsLinkedInOutreachActive(false);
         setLinkedinConversation([]);
-        setCurrentProspectJourneyStage('Identified'); // Reset journey if no LinkedIn
+        setCurrentProspectJourneyStage('Identified');
       }
     };
 
-    const fetchTwitterProfile = async () => { /* Placeholder for Twitter profile fetching */ };
-    const fetchEmailProfileData = async () => { /* Placeholder for Email profile fetching */ };
-
     if (platform === 'linkedin') fetchLinkedInProfileData();
-    if (platform === 'twitter') fetchTwitterProfile();
-    if (platform === 'email') fetchEmailProfileData();
-
-  }, [platform, linkedinUsername, companyName, additionalContext, toast]); // Removed handleSendLinkedInMessage from deps
+    // Other platform fetches would go here
+  }, [platform, linkedinUsername, companyName, additionalContext, toast]); // Removed handleSendLinkedInMessage
 
 
- const handleSendLinkedInMessage = async (isIntroductory = false) => {
-    if (!linkedinProfile) {
+ const handleSendLinkedInMessage = async (isIntroductory = false, currentProfile?: LinkedInProfile | null) => {
+    const profileToUse = currentProfile || linkedinProfile;
+    if (!profileToUse) {
       toast({ title: "LinkedIn Profile Needed", description: "Please provide a LinkedIn username first.", variant: "destructive" });
       return;
     }
     
-    if (isIntroductory) {
-        setCurrentProspectJourneyStage('LinkedInIntroSent');
-    } else {
-        // Determine follow-up stage based on conversation length or specific triggers
-        if(linkedinConversation.filter(m => m.sender === 'user').length === 1) {
-             setCurrentProspectJourneyStage('LinkedInFollowUp1');
-        } else if (linkedinConversation.filter(m => m.sender === 'user').length === 2) {
-             setCurrentProspectJourneyStage('LinkedInFollowUp2');
-        }
-        // Add more conditions for further follow-ups if needed
-    }
-
+    const newStage = isIntroductory ? 'LinkedInIntroSent' : 
+                     linkedinConversation.filter(m => m.sender === 'user').length === 0 ? 'LinkedInFollowUp1' :
+                     'LinkedInFollowUp2';
+    setCurrentProspectJourneyStage(newStage as ProspectStage['id']);
 
     const input: GenerateOutreachScriptInput = {
       platform: 'linkedin',
-      linkedinProfile: { id: linkedinProfile.id, headline: linkedinProfile.headline, profileUrl: linkedinProfile.profileUrl },
+      linkedinProfile: { id: profileToUse.id, headline: profileToUse.headline, profileUrl: profileToUse.profileUrl },
       additionalContext: additionalContext,
       includeCallToAction: includeCallToAction,
       conversationHistory: isIntroductory ? [] : linkedinConversation.map(m => ({sender: m.sender, message: m.message})),
@@ -281,36 +255,22 @@ export default function CampaignPage() {
       const result = await generateOutreachScript(input);
       const aiMessage = result.script;
       setSuggestedNextObjective(result.suggestedNextObjective);
-
       setLinkedinConversation(prev => [...prev, { sender: 'user', message: aiMessage, timestamp: new Date() }]);
-      setCurrentMessage(''); // Clear the main message input
       
-      // Simulate prospect's reply after a delay
       setTimeout(() => {
-        const prospectReply = `Thanks for reaching out! This sounds interesting. My email is prospect@example.com.`; // Simulated reply
+        const prospectReply = `Thanks for reaching out! This sounds interesting. My email is prospect${Math.floor(Math.random()*100)}@example.com.`;
         setLinkedinConversation(prev => [...prev, { sender: 'prospect', message: prospectReply, timestamp: new Date() }]);
         
-        // AI analyzes reply and suggests next step or triggers action
-        if (prospectReply.includes('@') && prospectReply.includes('.com')) { // Simple email detection
-            const extractedEmail = prospectReply.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
-            if (extractedEmail && extractedEmail.length > 0) {
-                setProspectEmailForDrip(extractedEmail[0]);
-                 toast({title: "Email Captured!", description: `Prospect's email ${extractedEmail[0]} captured. Ready to start email drip.`});
-                setSuggestedNextObjective('transition_to_email');
-                setCurrentProspectJourneyStage('EmailAddressCaptured');
-            }
-        } else if (result.suggestedNextObjective === 'request_email') { // Use suggested objective from AI
-            setCurrentObjective('request_email'); // Keep trying to get email
-        } else if (result.suggestedNextObjective === 'schedule_call') {
-            setCurrentObjective('schedule_call');
-            setCurrentProspectJourneyStage('CallScheduled'); // Or a preliminary stage like 'CallInterestShown'
-        }
-         else {
+        const emailMatch = prospectReply.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+        if (emailMatch && emailMatch.length > 0) {
+            setProspectEmailForDrip(emailMatch[0]);
+            toast({title: "Email Captured!", description: `Prospect's email ${emailMatch[0]} captured. Ready to start email drip.`});
+            setSuggestedNextObjective('transition_to_email');
+            setCurrentProspectJourneyStage('EmailAddressCaptured');
+        } else {
             setCurrentObjective(result.suggestedNextObjective || 'continue_linkedin_chat');
         }
-
       }, 2000 + Math.random() * 2000);
-
 
       toast({ title: 'LinkedIn Message Sent (Simulated)', description: 'AI-generated message added to conversation.' });
     } catch (error) {
@@ -319,59 +279,17 @@ export default function CampaignPage() {
     }
   };
 
-  const handleTransitionToEmail = async () => {
+  const handleTransitionToEmail = () => {
     if (!prospectEmailForDrip) {
         toast({title: "Prospect Email Missing", description: "Cannot start email drip without prospect's email.", variant: "destructive"});
         return;
     }
-    setIsEmailDripTriggered(true);
-    setIsLinkedInOutreachActive(false); // Optionally pause/end LinkedIn chat
-    setPlatform('email'); // Switch context to email
-    setEmailAddress(prospectEmailForDrip); // Set target for email drip
-    toast({title: "Transitioning to Email", description: `Preparing email drip for ${prospectEmailForDrip}. Please configure and generate sequence.`});
-    setCurrentProspectJourneyStage('EmailDripInitiated');
-  };
-
-
-  const handleGenerateEmailDripSequence = async () => {
-    if(!isEmailDripTriggered || !emailAddress) {
-        toast({title: "Email Drip Not Ready", description: "Transition to email first or provide prospect's email.", variant: "destructive"});
-        return;
-    }
-    setCurrentProspectJourneyStage('EmailDripInitiated'); // Confirming stage
-    try {
-      const response = await fetch('/api/sequence/select', { // Assuming this endpoint is for generic sequences
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          platform: 'email', // Specifically for email
-          prompt: emailDripPrompt,
-          numSteps: numEmailDripSteps,
-          previousConversationSummary: linkedinConversation.map(m => `${m.sender}: ${m.message}`).join('\n'),
-          targetProspectInfo: {
-            name: linkedinProfile?.firstName || 'Valued Prospect', 
-            company: companyName || linkedinProfile?.headline?.split(' at ')[1] || 'their company', 
-          }
-        }),
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data: GenerateOutreachSequenceOutput = await response.json();
-      setGeneratedEmailDripSequence(data);
-      toast({ title: 'Email Drip Sequence Generated', description: 'Review and schedule your email drip.' });
-      // If successful, and the goal is to schedule a call
-      if(emailDripPrompt.toLowerCase().includes("schedule") || emailDripPrompt.toLowerCase().includes("call") || emailDripPrompt.toLowerCase().includes("demo")){
-        // setCurrentProspectJourneyStage('CallScheduled'); // This might be too early, depends on sequence outcome
-      }
-    } catch (error: any) {
-      console.error('Failed to generate email drip sequence:', error);
-      toast({ title: 'Error', description: 'Failed to generate email drip sequence.', variant: 'destructive' });
-    }
+    router.push(`/campaign/email-drip?emails=${encodeURIComponent(prospectEmailForDrip)}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername)}`);
   };
 
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 md:p-8">
         <Card className="mb-6 shadow-lg drop-shadow-xl">
             <CardHeader>
                 <CardTitle className="text-2xl font-bold text-primary">Prospect Journey Visualizer</CardTitle>
@@ -385,7 +303,7 @@ export default function CampaignPage() {
       <Card className="shadow-xl drop-shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-primary">Campaign Automation Hub</CardTitle>
-          <CardDescription>Orchestrate your outreach across LinkedIn, Email, and more.</CardDescription>
+          <CardDescription>Orchestrate your outreach across LinkedIn, Email, WhatsApp, and more.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid md:grid-cols-2 gap-4">
@@ -394,8 +312,7 @@ export default function CampaignPage() {
               <Select onValueChange={value => {
                   setPlatform(value as 'linkedin' | 'twitter' | 'email' | 'whatsapp');
                   setIsLinkedInOutreachActive(value === 'linkedin' && !!linkedinProfile);
-                  setIsEmailDripTriggered(false); // Reset email drip if platform changes
-                  setCurrentProspectJourneyStage('Identified'); // Reset journey on platform change
+                  setCurrentProspectJourneyStage('Identified'); 
               }} defaultValue="linkedin">
                 <SelectTrigger id="platform"><SelectValue placeholder="Select a platform" /></SelectTrigger>
                 <SelectContent>
@@ -418,23 +335,23 @@ export default function CampaignPage() {
                 </div>
               </>
             )}
-           {/* Inputs for other platforms like Twitter username, direct Email address, WhatsApp number */}
+            {platform === 'email' && (
+              <div>
+                <Label htmlFor="directEmailAddress">Target Email Address</Label>
+                <Input id="directEmailAddress" type="email" value={emailAddress} onChange={e => {setEmailAddress(e.target.value); if(e.target.value) setCurrentProspectJourneyStage('EmailAddressCaptured');}} placeholder="prospect@example.com" />
+              </div>
+            )}
+            {/* Inputs for other platforms like Twitter username, WhatsApp number */}
              {platform === 'twitter' && (
               <div>
                 <Label htmlFor="twitterUsername">Twitter/X Username</Label>
                 <Input id="twitterUsername" value={twitterUsername} onChange={e => setTwitterUsername(e.target.value)} placeholder="@username" />
               </div>
             )}
-            {platform === 'email' && !isEmailDripTriggered && ( // Show only if direct email, not transitioned from LinkedIn
-              <div>
-                <Label htmlFor="directEmailAddress">Target Email Address</Label>
-                <Input id="directEmailAddress" type="email" value={emailAddress} onChange={e => setEmailAddress(e.target.value)} placeholder="prospect@example.com" />
-              </div>
-            )}
             {platform === 'whatsapp' && (
                  <div>
                     <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
-                    <Input id="whatsappNumber" type="tel" /* value={whatsappNumber} onChange={...} */ placeholder="+12345678900" />
+                    <Input id="whatsappNumber" type="tel" placeholder="+12345678900" />
                 </div>
             )}
           </div>
@@ -448,8 +365,13 @@ export default function CampaignPage() {
             <Label htmlFor="includeCallToAction">Attempt to include a Call to Action (e.g., request email, schedule call)</Label>
           </div>
 
+          {platform === 'email' && emailAddress && !prospectEmailForDrip && (
+             <Button onClick={() => router.push(`/campaign/email-drip?emails=${encodeURIComponent(emailAddress)}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername)}`)} className="w-full bg-green-500 hover:bg-green-600">
+                <Mail className="mr-2 h-4 w-4"/> Configure Email Drip for {emailAddress}
+             </Button>
+          )}
 
-          {/* LinkedIn Outreach Section */}
+
           {platform === 'linkedin' && linkedinProfile && isLinkedInOutreachActive && (
             <Card className="mt-4 border-primary">
               <CardHeader>
@@ -485,7 +407,7 @@ export default function CampaignPage() {
                 </div>
                 {suggestedNextObjective === 'transition_to_email' && prospectEmailForDrip && (
                     <Button onClick={handleTransitionToEmail} className="mt-3 w-full bg-green-600 hover:bg-green-700">
-                        <Mail className="mr-2 h-4 w-4"/> Transition to Email Drip for {prospectEmailForDrip}
+                        <Mail className="mr-2 h-4 w-4"/> Configure Email Drip for {prospectEmailForDrip}
                     </Button>
                 )}
                  {platform === 'linkedin' && (suggestedNextObjective === 'schedule_call' || currentObjective === 'schedule_call') && (
@@ -495,66 +417,7 @@ export default function CampaignPage() {
             </Card>
           )}
           
-          {/* Email Drip Section - Shown when platform is 'email' OR when transitioned */}
-          {(platform === 'email' || isEmailDripTriggered) && (
-             <Card className="mt-4 border-green-500">
-              <CardHeader>
-                <CardTitle className="flex items-center"><Mail className="mr-2 h-6 w-6 text-green-600"/> Email Drip Campaign Configuration</CardTitle>
-                <CardDescription>
-                    {prospectEmailForDrip ? `Targeting: ${prospectEmailForDrip}` : "Enter target email address below if starting directly."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                 {!prospectEmailForDrip && (
-                    <div>
-                        <Label htmlFor="targetEmailForDrip">Target Email Address</Label>
-                        <Input id="targetEmailForDrip" type="email" value={emailAddress} onChange={e => { setEmailAddress(e.target.value); if (e.target.value) setCurrentProspectJourneyStage('EmailAddressCaptured'); }} placeholder="Enter prospect's email"/>
-                    </div>
-                 )}
-                <div>
-                  <Label htmlFor="emailDripPrompt">Email Drip Prompt/Goal</Label>
-                  <Textarea id="emailDripPrompt" value={emailDripPrompt} onChange={e => setEmailDripPrompt(e.target.value)} placeholder="E.g., Follow up on our LinkedIn chat, offer a demo for product X." />
-                </div>
-                <div>
-                  <Label htmlFor="numEmailDripSteps">Number of Emails in Drip</Label>
-                  <Input type="number" id="numEmailDripSteps" value={numEmailDripSteps} onChange={e => setNumEmailDripSteps(Number(e.target.value))} min="1" max="7" />
-                </div>
-                <Button onClick={handleGenerateEmailDripSequence} className="w-full bg-green-600 hover:bg-green-700">
-                  <BotMessageSquare className="mr-2 h-4 w-4"/> Generate Email Drip Sequence
-                </Button>
-                {generatedEmailDripSequence && (
-                  <div className="mt-4">
-                    <Label className="text-md font-semibold">Generated Email Drip:</Label>
-                    <div className="border rounded-md max-h-60 overflow-y-auto">
-                      <Table>
-                        <TableHeader><TableRow><TableHead className="w-[80px]">Step</TableHead><TableHead>Email Content</TableHead></TableRow></TableHeader>
-                        <TableBody>
-                          {generatedEmailDripSequence.sequence.map((step, index) => (
-                            <TableRow key={index}><TableCell className="font-medium">{index + 1}</TableCell><TableCell className="whitespace-pre-wrap text-sm">{step}</TableCell></TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                     {/* Simulate sending emails and update journey */}
-                     <Button onClick={() => {
-                        toast({title: "Email Drip Sent (Simulated)", description: `Simulated sending ${numEmailDripSteps} emails.`});
-                        //setCurrentProspectJourneyStage('LeadQualified'); // Or some other stage after drip
-                        if(emailDripPrompt.toLowerCase().includes("schedule") || emailDripPrompt.toLowerCase().includes("call") || emailDripPrompt.toLowerCase().includes("demo")){
-                             setCurrentProspectJourneyStage('CallScheduled');
-                        }
-                     }} className="mt-3 w-full">Send Email Drip (Simulated)</Button>
-                  </div>
-                )}
-                 {generatedEmailDripSequence && (suggestedNextObjective === 'schedule_call' || currentObjective === 'schedule_call' || emailDripPrompt.toLowerCase().includes("call")) && (
-                     <p className="mt-3 text-sm text-green-600">Email sequence suggests a call. Use the Google Calendar integration below.</p>
-                 )}
-              </CardContent>
-            </Card>
-          )}
-
-
-          {/* Fallback for other platforms - manual script generation */}
-          {platform !== 'linkedin' && !isEmailDripTriggered && (
+          {platform !== 'linkedin' && platform !== 'email' && (
              <Card className="mt-4">
                 <CardHeader>
                     <CardTitle>Generate Script for {platform.charAt(0).toUpperCase() + platform.slice(1)}</CardTitle>
@@ -562,18 +425,12 @@ export default function CampaignPage() {
                 </CardHeader>
                 <CardContent>
                     <Button onClick={async () => {
-                       if (platform === 'whatsapp' && !prospectEmailForDrip.includes('@')) { // Basic check, ideally you'd have a dedicated WhatsApp number field
-                            // Assuming for WhatsApp we might transition after LinkedIn/Email, so prospectEmailForDrip might hold email or phone
-                            // This logic needs refinement based on how WhatsApp contact is captured
-                            toast({title: "WhatsApp Number Needed", description: "Please ensure a phone number is available for WhatsApp outreach.", variant: "warning"});
-                            // return; // Or allow script generation anyway
-                       }
                        const input: GenerateOutreachScriptInput = {
                             platform: platform,
                             additionalContext: additionalContext,
                             ...(platform === 'twitter' && twitterProfile ? { twitterProfile: { id: twitterProfile.id, username: twitterProfile.username, name: twitterProfile.name } } : {}),
-                            ...(platform === 'email' && emailProfile ? { emailProfile: { email: emailProfile.email, provider: emailProfile.provider } } : {}),
-                            objective: 'general_follow_up', // Default for manual scripts
+                            // ...(platform === 'email' && emailProfile ? { emailProfile: { email: emailProfile.email, provider: emailProfile.provider } } : {}), // This part is for direct email, handled by drip page now
+                            objective: 'general_follow_up', 
                         };
                         try {
                             const result = await generateOutreachScript(input);
@@ -646,18 +503,20 @@ export default function CampaignPage() {
         </CardContent>
       </Card>
       <div className="flex justify-between mt-6">
-        <Link href="/" passHref><Button variant="outline">Back to Dashboard</Button></Link>
-        {(currentMessage || generatedEmailDripSequence) && (
-          <Link href={`/compliance/check?stage=${currentProspectJourneyStage}`} passHref><Button>Next: Check Compliance</Button></Link>
+        <Button variant="outline" onClick={() => router.push('/')}> <HomeIcon className="mr-2 h-4 w-4" /> Back to Dashboard</Button>
+        {(currentProspectJourneyStage === 'EmailStep3Sent' || currentProspectJourneyStage === 'LinkedInFollowUp2' || currentMessage) && ( // Example conditions
+          <Link href={`/compliance/check?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || campaignName)}`} passHref>
+            <Button>Next: Check Compliance <ChevronRight className="ml-2 h-4 w-4" /></Button>
+          </Link>
         )}
          {currentProspectJourneyStage === 'CallCompleted' && (
-             <Link href={`/risk-lead-visualization?stage=${currentProspectJourneyStage}`} passHref>
-                 <Button variant="default">View Risk & Lead Visualization</Button>
+             <Link href={`/risk-lead-visualization?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || campaignName)}`} passHref>
+                 <Button variant="default">View Risk & Lead Visualization <ChevronRight className="ml-2 h-4 w-4" /></Button>
              </Link>
          )}
           {(currentProspectJourneyStage === 'CallScheduled' || currentProspectJourneyStage === 'AICallInProgress') && (
-            <Link href={`/call/approve?stage=${currentProspectJourneyStage}`} passHref>
-                <Button>Manage AI Call</Button>
+            <Link href={`/call/approve?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || campaignName)}`} passHref>
+                <Button>Manage AI Call <ChevronRight className="ml-2 h-4 w-4" /></Button>
             </Link>
         )}
       </div>
