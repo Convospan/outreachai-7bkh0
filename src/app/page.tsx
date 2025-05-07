@@ -29,7 +29,11 @@ export default function Home() {
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
             <h1 className="font-semibold">
-              <a href="/" className="hover:text-primary-orange transition-colors">CONVOSPAN AI</a>
+              <Link href="/" className="hover:text-primary transition-colors">
+                <span className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
+                  CONVOSPAN AI
+                </span>
+              </Link>
             </h1>
             <div className="max-sm:hidden" aria-hidden="true">·</div>
             <p>AI Outreach Platform</p>
@@ -51,23 +55,19 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="relative z-10 text-center bg-accent bg-opacity-80 p-8 rounded-xl text-primary-foreground shadow-2xl drop-shadow-lg"
           >
-            <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-              Struggling with Lead Generation?
-            </h1>
-            <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto">
-              ConvoSpan AI uses AI to automate your outreach, generate more qualified leads, and help you close deals faster.
-              Stop manual prospecting, start scaling your sales.
+            <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with <strong>ConvoSpan AI</strong>!</h1>
+            <p className="text-lg mb-8 max-w-2xl mx-auto">
+              I am here to skyrocket your lead generation by turning digital outreach into real world wins with AI magic. With <strong>ConvoSpan AI</strong>, we make spanning conversations across multiple channels effortless.
             </p>
             <Link href="/pricing" passHref>
-              <Button variant="secondary" size="lg" className="text-lg py-3 px-8">
-                Create Your Free Account & Double Connections
+              <Button variant="secondary" size="lg">
+                Start for Free Today!
               </Button>
             </Link>
-            <p className="mt-3 text-sm">No credit card needed for your 7-day trial!</p>
           </motion.div>
         </section>
 
-        {/* Pain Point / Solution Section */}
+        {/* Easy Prospecting Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -76,16 +76,15 @@ export default function Home() {
             viewport={{ once: true }}
             className="p-6 bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 drop-shadow-md"
           >
-            <PhoneCall className="h-16 w-16 text-primary mb-6 mx-auto" />
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4">Tired of Manual Outreach That Doesn't Scale?</h2>
-            <p className="text-lg md:text-xl mb-6 max-w-3xl mx-auto text-muted-foreground">
-              ConvoSpan AI automates personalized messages and AI-powered calls across LinkedIn, Twitter/X, and email.
-              Focus on closing deals, not on tedious prospecting tasks.
+            <PhoneCall className="h-12 w-12 text-primary mb-4 mx-auto" />
+            <h2 className="text-3xl font-semibold mb-4">Let <strong>ConvoSpan AI</strong> Handle Your Prospecting—It&apos;s Super Easy!</h2>
+            <p className="text-lg mb-6 max-w-3xl mx-auto text-muted-foreground">
+              <strong>ConvoSpan AI</strong> sends personalized messages and AI calls across platforms with ease! I make spanning those initial conversations effortless.
             </p>
           </motion.div>
         </section>
 
-        {/* Multi-Channel Benefits Section */}
+        {/* Multi-Channel Magic Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto bg-background rounded-xl shadow-sm drop-shadow-md">
           <motion.div
             initial={{ opacity: 0 }}
@@ -94,11 +93,11 @@ export default function Home() {
             viewport={{ once: true }}
             className="p-6"
           >
-            <h2 className="text-3xl md:text-4xl font-semibold mb-6 text-center">Maximize Your Reach, Multiply Your Results</h2>
-            <p className="text-lg md:text-xl mb-8 text-center max-w-3xl mx-auto text-muted-foreground">
-              Don't limit your potential. ConvoSpan AI leverages LinkedIn, Twitter/X, email, and AI calls with intelligent sequences to connect you with more prospects, more effectively.
+            <h2 className="text-3xl font-semibold mb-6 text-center">Double Your Chances with <strong>ConvoSpan AI</strong>&apos;s Multi-Channel Magic</h2>
+            <p className="text-lg mb-8 text-center max-w-3xl mx-auto text-muted-foreground">
+              <strong>ConvoSpan AI</strong> uses AI to mix LinkedIn, Twitter/X, email, and AI calls, truly spanning your outreach and picking perfect sequences for you!
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               <motion.div
                 className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-md flex flex-col items-center text-center"
                 whileHover={{ scale: 1.03 }}
@@ -106,7 +105,7 @@ export default function Home() {
               >
                 <Workflow className="h-10 w-10 text-primary mb-3" />
                 <h3 className="text-xl font-semibold mb-2">Intelligent Automation</h3>
-                <p className="text-muted-foreground">AI crafts and deploys outreach so you can focus on strategy.</p>
+                <p className="text-muted-foreground">AI crafts and deploys outreach so you can focus on strategy. <strong>ConvoSpan AI</strong> helps you span the gap between manual work and smart automation.</p>
               </motion.div>
               <motion.div
                 className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-md flex flex-col items-center text-center"
@@ -115,7 +114,7 @@ export default function Home() {
               >
                 <TrendingUp className="h-10 w-10 text-primary mb-3" />
                 <h3 className="text-xl font-semibold mb-2">Data-Driven Insights</h3>
-                <p className="text-muted-foreground">Track performance and optimize campaigns for better ROI.</p>
+                <p className="text-muted-foreground">Track performance and optimize campaigns for better ROI with <strong>ConvoSpan AI</strong>.</p>
               </motion.div>
               <motion.div
                 className="bg-card p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 drop-shadow-md flex flex-col items-center text-center"
@@ -124,7 +123,7 @@ export default function Home() {
               >
                 <Settings className="h-10 w-10 text-primary mb-3" />
                 <h3 className="text-xl font-semibold mb-2">Scalable Solutions</h3>
-                <p className="text-muted-foreground">From solo entrepreneurs to sales teams, we grow with you.</p>
+                <p className="text-muted-foreground">From solo entrepreneurs to sales teams, <strong>ConvoSpan AI</strong> grows with you, helping you span new markets.</p>
               </motion.div>
             </div>
           </motion.div>
@@ -132,7 +131,8 @@ export default function Home() {
 
         {/* How it Works Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
-           <h3 className="text-3xl md:text-4xl font-semibold mb-10 text-center">Your Path to Automated Outreach Success</h3>
+           <h3 className="text-3xl md:text-4xl font-semibold mb-2 text-center">How <strong>ConvoSpan AI</strong> Works Its Magic</h3>
+           <p className="text-lg text-muted-foreground mb-10 text-center">See how <strong>ConvoSpan AI</strong> makes it simple to span conversations from first contact to closed deal.</p>
            <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Arrow placeholders - adjusted positioning and added more */}
               <div className="hidden lg:block absolute top-1/2 left-1/4 transform -translate-y-1/2 -translate-x-4 text-4xl text-muted-foreground opacity-50">&#8594;</div>
@@ -150,8 +150,8 @@ export default function Home() {
                    <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                      <Rocket className="h-8 w-8" />
                    </div>
-                   <h4 className="text-xl font-semibold mb-2">Step 1: Sign Up & Explore with Me</h4>
-                   <p className="text-muted-foreground text-sm text-center">Hey! Let’s get you started—sign up for free with ConvoSpan AI (no credit card needed for a 7-day trial!). Once you’re in, I’ll show you around my easy dashboard where you can see all the cool tools I’ve got for reaching out on LinkedIn, Twitter/X, and email.</p>
+                   <h4 className="text-xl font-semibold mb-2">Step 1: Sign Up & Explore with <strong>ConvoSpan AI</strong></h4>
+                   <p className="text-muted-foreground text-sm text-center">Hey! Let’s get you started—sign up for free with <strong>ConvoSpan AI</strong> (no credit card needed for a 7-day trial!). Once you’re in, I’ll show you around my easy dashboard where you can see all the cool tools I’ve got for reaching out on LinkedIn, Twitter/X, and email.</p>
                     <Button variant="link" size="sm" className="mt-4 text-primary">Explore Features</Button>
                </motion.div>
 
@@ -163,8 +163,8 @@ export default function Home() {
                     <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                         <Target className="h-8 w-8" />
                     </div>
-                   <h4 className="text-xl font-semibold mb-2">Step 2: Plan Your Outreach Together</h4>
-                   <p className="text-muted-foreground text-sm text-center">I’ll help you pick your audience! Tell me who you want to connect with—add their profiles or let me suggest leads. We’ll create a simple plan with personalized messages and AI call scripts, all set up in a few clicks. It’s like planning a fun chat party!</p>
+                   <h4 className="text-xl font-semibold mb-2">Step 2: Plan Your Outreach with <strong>ConvoSpan AI</strong></h4>
+                   <p className="text-muted-foreground text-sm text-center">Using <strong>ConvoSpan AI</strong>&apos;s planning tools, I’ll help you pick your audience! Tell me who you want to connect with—add their profiles or let me suggest leads. We’ll create a simple plan with personalized messages and AI call scripts, all set up in a few clicks. It’s like planning a fun chat party!</p>
                    <Button variant="link" size="sm" className="mt-4 text-primary">Plan Your Campaign</Button>
                </motion.div>
 
@@ -176,8 +176,8 @@ export default function Home() {
                    <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                         <BrainCircuit className="h-8 w-8" />
                    </div>
-                   <h4 className="text-xl font-semibold mb-2">Step 3: Build & Test with My AI Magic</h4>
-                    <p className="text-muted-foreground text-sm text-center">Now, let’s make it perfect! I’ll use my AI to craft smart messages and let my virtual AI caller practice the scripts for you. You can tweak the words or approve them—I’ll even run a quick trial call to make sure my voice sounds friendly and ready to go!</p>
+                   <h4 className="text-xl font-semibold mb-2">Step 3: Build & Test with <strong>ConvoSpan AI</strong>&apos;s Magic</h4>
+                    <p className="text-muted-foreground text-sm text-center">Now, let’s make it perfect! Let <strong>ConvoSpan AI</strong>&apos;s AI magic craft smart messages and let my virtual AI caller practice the scripts for you. You can tweak the words or approve them—I’ll even run a quick trial call to make sure my voice sounds friendly and ready to go!</p>
                     <Button variant="link" size="sm" className="mt-4 text-primary">See AI in Action</Button>
                </motion.div>
 
@@ -195,8 +195,8 @@ export default function Home() {
                      <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                          <Bot className="h-8 w-8" />
                      </div>
-                     <h4 className="text-xl font-semibold mb-2">Step 4: Meet My Virtual AI Caller</h4>
-                      <p className="text-muted-foreground text-sm text-center">Say hi to my virtual AI caller! This smart assistant can make phone calls for you, chatting with your leads using the scripts we made. You just approve the call plan, and I’ll let my AI take over—talking naturally across platforms to build those connections!</p>
+                     <h4 className="text-xl font-semibold mb-2">Step 4: Meet <strong>ConvoSpan AI</strong>&apos;s Virtual Caller</h4>
+                      <p className="text-muted-foreground text-sm text-center">Say hi to <strong>ConvoSpan AI</strong>&apos;s virtual AI caller! This smart assistant can make phone calls for you, chatting with your leads using the scripts we made. You just approve the call plan, and I’ll let my AI take over—talking naturally across platforms to build those connections!</p>
                       <Button variant="link" size="sm" className="mt-4 text-primary">Meet Your AI Agent</Button>
                  </motion.div>
 
@@ -208,8 +208,8 @@ export default function Home() {
                      <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                          <Rocket className="h-8 w-8" />
                      </div>
-                     <h4 className="text-xl font-semibold mb-2">Step 5: Launch with a Click</h4>
-                     <p className="text-muted-foreground text-sm text-center">Ready to shine? Hit the launch button with me, and I’ll start sending messages and letting my virtual AI caller make those calls across LinkedIn, Twitter/X, and email. I’ll handle the timing and follow-ups, so you can relax while I work my magic!</p>
+                     <h4 className="text-xl font-semibold mb-2">Step 5: Launch with <strong>ConvoSpan AI</strong></h4>
+                     <p className="text-muted-foreground text-sm text-center">Ready to shine? Hit the launch button with me, and <strong>ConvoSpan AI</strong> will start sending messages and letting my virtual AI caller make those calls across LinkedIn, Twitter/X, and email. I’ll handle the timing and follow-ups, so you can relax while I work my magic!</p>
                       <Button variant="link" size="sm" className="mt-4 text-primary">Launch Your Campaign</Button>
                  </motion.div>
 
@@ -221,8 +221,8 @@ export default function Home() {
                      <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                          <LineChart className="h-8 w-8" />
                     </div>
-                     <h4 className="text-xl font-semibold mb-2">Step 6: Watch & Tweak with Me</h4>
-                     <p className="text-muted-foreground text-sm text-center">Let’s see how it’s going! I’ll show you a dashboard with real-time updates—who’s replying, who’s interested, and how my virtual AI caller is doing. We can adjust the plan together if needed, keeping everything on track for the best results.</p>
+                     <h4 className="text-xl font-semibold mb-2">Step 6: Watch & Tweak with <strong>ConvoSpan AI</strong></h4>
+                     <p className="text-muted-foreground text-sm text-center">Let’s see how it’s going! <strong>ConvoSpan AI</strong>&apos;s dashboard gives you real-time updates—who’s replying, who’s interested, and how my virtual AI caller is doing. We can adjust the plan together if needed, keeping everything on track for the best results.</p>
                       <Button variant="link" size="sm" className="mt-4 text-primary">View Dashboard</Button>
                  </motion.div>
 
@@ -239,8 +239,8 @@ export default function Home() {
                     <div className="bg-primary text-primary-foreground rounded-full p-4 mb-4 shadow-md">
                         <CheckCircle className="h-8 w-8" />
                     </div>
-                     <h4 className="text-xl font-semibold mb-2">Step 7: Celebrate Your Results</h4>
-                     <p className="text-muted-foreground text-sm text-center">Yay, we did it! Check out the graphs and numbers I’ve put together—more connections, better leads, and real-world impact thanks to my virtual AI caller. I’ll help you review what worked and plan our next big move!</p>
+                     <h4 className="text-xl font-semibold mb-2">Step 7: Celebrate Your Results with <strong>ConvoSpan AI</strong></h4>
+                     <p className="text-muted-foreground text-sm text-center">Yay, we did it! Check out the graphs and numbers I’ve put together—more connections, better leads, and real-world impact thanks to <strong>ConvoSpan AI</strong>&apos;s ability to span conversations effectively. I’ll help you review what worked and plan our next big move!</p>
                     <Button variant="link" size="sm" className="mt-4 text-primary">See Success Stories</Button>
                  </motion.div>
            </div>
@@ -257,9 +257,9 @@ export default function Home() {
              className="p-6 bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 drop-shadow-md"
           >
              <TrendingUp className="h-12 w-12 text-primary mb-4 mx-auto" />
-            <h2 className="text-3xl font-semibold mb-4">Keep Track of Leads with Me—Simple and Fun!</h2>
+            <h2 className="text-3xl font-semibold mb-4">Keep Track of Leads with <strong>ConvoSpan AI</strong>—Simple and Fun!</h2>
             <p className="text-lg mb-6 max-w-3xl mx-auto text-muted-foreground">
-              My dashboard organizes everything for your success!
+              <strong>ConvoSpan AI</strong>&apos;s dashboard organizes everything for your success!
             </p>
           </motion.div>
         </section>
@@ -274,7 +274,7 @@ export default function Home() {
             className="text-center p-6"
           >
              <CircleDollarSign className="h-12 w-12 text-primary mb-4 mx-auto" />
-            <h2 className="text-3xl font-semibold mb-6">Choose a Plan That Fits Us!</h2>
+            <h2 className="text-3xl font-semibold mb-6">Choose a <strong>ConvoSpan AI</strong> Plan That Fits Us!</h2>
             <p className="text-lg mb-8 max-w-3xl mx-auto text-muted-foreground">
               Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!
             </p>
