@@ -11,8 +11,8 @@ import {
 } from '@/components/ui/card';
 import {Label} from '@/components/ui/label';
 import {Textarea} from '@/components/ui/textarea';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
+import {Button}from '@/components/ui/button';
+import {Input}from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -20,17 +20,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {toast} from '@/hooks/use-toast';
+import {toast}from '@/hooks/use-toast';
 import { initiateSarvamCall } from '@/services/sarvam';
 import Link from 'next/link';
-import { Phone, Bot, ChevronRight, HomeIcon, Loader2 } from 'lucide-react';
+import { Phone, Bot, ChevronRight, HomeIcon, Loader2, ShieldCheck, Edit, PlayCircle, CalendarPlus, PhoneOutgoing, CheckCircle, UserCheck, LinkedinIcon, Send, MessageSquare, Mail, BotMessageSquare } from 'lucide-react';
+import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
 
-// Define available Sarvam AI models/voices - this would ideally come from Sarvam or config
 const SARVAM_MODELS = [
   { id: 'sarvam-default-voice', name: 'Sarvam Default Voice (General)' },
   { id: 'sarvam-professional-male', name: 'Sarvam Professional Male' },
   { id: 'sarvam-friendly-female', name: 'Sarvam Friendly Female' },
-  // Add more models as available/needed
+];
+
+const prospectJourneyStages: ProspectStage[] = [
+  { id: 'Identified', name: 'Identified', icon: <UserCheck className="h-4 w-4" /> },
+  { id: 'LinkedInConnected', name: 'LinkedIn Connected', icon: <LinkedinIcon className="h-4 w-4" /> },
+  { id: 'LinkedInIntroSent', name: 'Intro Message Sent', icon: <Send className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp1', name: 'Follow-up 1 Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp2', name: 'Follow-up 2 Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> },
+  { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> },
+  { id: 'ComplianceChecked', name: 'Compliance Checked', icon: <ShieldCheck className="h-4 w-4" /> },
+  { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> },
+  { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> },
+  { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> },
+  { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
+  { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
 ];
 
 function SelectSarvamModelContent() {
@@ -40,7 +55,6 @@ function SelectSarvamModelContent() {
   const [script, setScript] = useState('');
   const [callId, setCallId] = useState('');
   const [leadId, setLeadId] = useState('');
-  // Other params can be stored if needed for context or display
   const [campaignDetails, setCampaignDetails] = useState<any>({});
 
 
@@ -50,20 +64,24 @@ function SelectSarvamModelContent() {
   const [sarvamCallStatus, setSarvamCallStatus] = useState<string | null>(null);
   const [sarvamCallId, setSarvamCallId] = useState<string | null>(null);
 
+  const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>(
+    searchParams.get('stage') as ProspectStage['id'] || 'CallScriptReady'
+  );
+
   useEffect(() => {
     const scriptParam = searchParams.get('script');
     const callIdParam = searchParams.get('callId');
     const leadIdParam = searchParams.get('leadId');
+    const stageParam = searchParams.get('stage') as ProspectStage['id'];
     
     if (scriptParam) setScript(decodeURIComponent(scriptParam));
     if (callIdParam) setCallId(callIdParam);
     if (leadIdParam) setLeadId(leadIdParam);
+    if (stageParam) setCurrentProspectJourneyStage(stageParam);
 
-    // Store other params for context if needed
     setCampaignDetails({
         campaignName: searchParams.get('campaignName') ? decodeURIComponent(searchParams.get('campaignName')!) : '',
         productName: searchParams.get('productName') ? decodeURIComponent(searchParams.get('productName')!) : '',
-        // ... and so on for other params
     });
 
     if (!scriptParam || !callIdParam) {
@@ -89,16 +107,14 @@ function SelectSarvamModelContent() {
     setIsCalling(true);
     setSarvamCallStatus("Initiating call with Sarvam AI...");
     setSarvamCallId(null);
+    setCurrentProspectJourneyStage('AICallInProgress');
 
     try {
-      // In a real scenario, the 'modelId' might be passed to Sarvam
-      // For now, we are just logging it, as the `initiateSarvamCall` doesn't use it yet
       console.log("Selected Sarvam Model ID:", selectedModel); 
 
       const sarvamResult = await initiateSarvamCall({
         phoneNumber: targetPhoneNumber,
         script: script,
-        // Potentially add `modelId: selectedModel` if Sarvam SDK supports it
       });
 
       if (sarvamResult.status === 'initiated' && sarvamResult.callId) {
@@ -108,6 +124,8 @@ function SelectSarvamModelContent() {
           title: 'Call Initiated (Sarvam)',
           description: `Call to ${targetPhoneNumber} is being initiated via Sarvam. Call ID: ${sarvamResult.callId}`,
         });
+        // For simulation, immediately move to CallCompleted. In reality, this would be based on Sarvam webhooks or polling.
+        setCurrentProspectJourneyStage('CallCompleted'); 
       } else {
         setSarvamCallStatus(`Failed to initiate call: ${sarvamResult.message}`);
         toast({
@@ -115,6 +133,7 @@ function SelectSarvamModelContent() {
           description: sarvamResult.message || 'Could not initiate call via Sarvam.',
           variant: 'destructive',
         });
+         setCurrentProspectJourneyStage('CallScriptReady'); // Revert stage on failure
       }
     } catch (error: any) {
       console.error('Failed to initiate Sarvam call:', error);
@@ -124,6 +143,7 @@ function SelectSarvamModelContent() {
         description: 'Failed to initiate call via Sarvam.',
         variant: 'destructive',
       });
+       setCurrentProspectJourneyStage('CallScriptReady'); // Revert stage on failure
     } finally {
       setIsCalling(false);
     }
@@ -140,9 +160,18 @@ function SelectSarvamModelContent() {
 
   return (
     <div className="container mx-auto p-4">
+      <Card className="mb-6 shadow-lg drop-shadow-xl">
+            <CardHeader>
+                <CardTitle className="text-2xl font-bold text-primary">Prospect Journey Visualizer</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ProspectJourneyVisualizer stages={prospectJourneyStages} currentStageId={currentProspectJourneyStage} />
+            </CardContent>
+        </Card>
+
       <Card className="shadow-xl drop-shadow-lg">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-primary">Select Sarvam AI Model & Initiate Call</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary">Select Sarvam AI Model &amp; Initiate Call</CardTitle>
           <CardDescription className="text-muted-foreground">
             Choose the Sarvam AI voice model for your call and provide the target phone number.
           </CardDescription>
@@ -183,13 +212,15 @@ function SelectSarvamModelContent() {
 
           <Button 
             onClick={handleInitiateCall} 
-            disabled={isCalling || !targetPhoneNumber || !selectedModel} 
+            disabled={isCalling || !targetPhoneNumber || !selectedModel || currentProspectJourneyStage !== 'CallScriptReady'} 
             className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white"
             size="lg"
           >
-            <Phone className="mr-2 h-5 w-5" />
+            {isCalling ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Phone className="mr-2 h-5 w-5" />}
             {isCalling ? 'Initiating Call...' : 'Initiate Call with Sarvam AI'}
           </Button>
+          {currentProspectJourneyStage !== 'CallScriptReady' && <p className="text-sm text-muted-foreground">Ensure script is ready before initiating call.</p>}
+
 
           {sarvamCallStatus && (
             <p className={`mt-4 text-sm font-medium ${sarvamCallId ? 'text-green-600' : 'text-destructive'}`}>{sarvamCallStatus}</p>
@@ -197,12 +228,11 @@ function SelectSarvamModelContent() {
         </CardContent>
       </Card>
       <div className="flex justify-between mt-8">
-        <Link href="/call/approve" passHref>
-          <Button variant="outline"> <Bot className="mr-2 h-4 w-4" />Back to Script Generation</Button>
-        </Link>
-        {sarvamCallId && ( 
-          <Link href={`/risk-lead-visualization?callId=${callId}&sarvamCallId=${sarvamCallId}`} passHref>
-            <Button>Next: Risk & Lead Visualization <ChevronRight className="ml-2 h-4 w-4" /></Button>
+        <Button variant="outline" onClick={() => router.back()}> <Bot className="mr-2 h-4 w-4" />Back to Script Approval</Button>
+        
+        {sarvamCallId && currentProspectJourneyStage === 'CallCompleted' && ( 
+          <Link href={`/risk-lead-visualization?callId=${callId}&sarvamCallId=${sarvamCallId}&stage=${currentProspectJourneyStage}`} passHref>
+            <Button>Next: Risk &amp; Lead Visualization <ChevronRight className="ml-2 h-4 w-4" /></Button>
           </Link>
         )}
          {!sarvamCallId && (
@@ -217,7 +247,12 @@ function SelectSarvamModelContent() {
 
 export default function SelectSarvamModelPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={
+            <div className="container mx-auto p-4 flex justify-center items-center min-h-[300px]">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                 <p className="ml-3 text-lg text-muted-foreground">Loading AI Model Selection...</p>
+            </div>
+        }>
             <SelectSarvamModelContent />
         </Suspense>
     )

@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Card,
   CardContent,
@@ -15,8 +15,8 @@ import {toast} from '@/hooks/use-toast';
 import {generateCallScript, GenerateCallScriptInput} from '@/server/generate-call-script';
 import {Input} from '@/components/ui/input';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Bot, ChevronRight, HomeIcon } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Bot, ChevronRight, HomeIcon, Loader2, ShieldCheck, Edit, PlayCircle, CalendarPlus, PhoneOutgoing, CheckCircle, UserCheck, LinkedinIcon, Send, MessageSquare, Mail, BotMessageSquare } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -24,9 +24,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
+
+const prospectJourneyStages: ProspectStage[] = [
+  { id: 'Identified', name: 'Identified', icon: <UserCheck className="h-4 w-4" /> },
+  { id: 'LinkedInConnected', name: 'LinkedIn Connected', icon: <LinkedinIcon className="h-4 w-4" /> },
+  { id: 'LinkedInIntroSent', name: 'Intro Message Sent', icon: <Send className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp1', name: 'Follow-up 1 Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp2', name: 'Follow-up 2 Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> },
+  { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> },
+  { id: 'ComplianceChecked', name: 'Compliance Checked', icon: <ShieldCheck className="h-4 w-4" /> },
+  { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> },
+  { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> },
+  { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> },
+  { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
+  { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
+];
 
 export default function CallScriptApprovalPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [script, setScript] = useState('');
   const [campaignName, setCampaignName] = useState('');
   const [productName, setProductName] = useState('');
@@ -36,11 +54,15 @@ export default function CallScriptApprovalPage() {
   const [industry, setIndustry] = useState('');
   const [connections, setConnections] = useState(0);
   const [subscriptionTier, setSubscriptionTier] = useState<'basic' | 'pro' | 'enterprise'>('basic');
-  const [usedCallCount, setUsedCallCount] = useState(0); // This might be fetched from user data
+  const [usedCallCount, setUsedCallCount] = useState(0); 
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [leadId, setLeadId] = useState('');
   const [callId, setCallId] = useState('');
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+
+  const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>(
+    searchParams.get('stage') as ProspectStage['id'] || 'ComplianceChecked' // Default or passed via query
+  );
 
   const handleGenerateScript = async () => {
     setIsGeneratingScript(true);
@@ -55,7 +77,6 @@ export default function CallScriptApprovalPage() {
       subscriptionTier,
       usedCallCount,
       leadId,
-      // preferredTone is part of schema but not used in UI, default will be applied
     };
 
     try {
@@ -74,6 +95,7 @@ export default function CallScriptApprovalPage() {
           title: 'Script Generated',
           description: 'AI call script has been successfully generated.',
         });
+        setCurrentProspectJourneyStage('CallScriptReady');
       } else {
          toast({
           title: 'Script Generation Failed',
@@ -102,7 +124,6 @@ export default function CallScriptApprovalPage() {
       });
       return;
     }
-    // Navigate to the new page, passing necessary data as query parameters
     const queryParams = new URLSearchParams({
       script: encodeURIComponent(script),
       callId,
@@ -115,12 +136,22 @@ export default function CallScriptApprovalPage() {
       industry: encodeURIComponent(industry),
       connections: connections.toString(),
       subscriptionTier,
+      stage: 'CallScriptReady', // Pass current stage for next page
     });
     router.push(`/call/select-sarvam-model?${queryParams.toString()}`);
   };
 
   return (
     <div className="container mx-auto p-4">
+      <Card className="mb-6 shadow-lg drop-shadow-xl">
+            <CardHeader>
+                <CardTitle className="text-2xl font-bold text-primary">Prospect Journey Visualizer</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ProspectJourneyVisualizer stages={prospectJourneyStages} currentStageId={currentProspectJourneyStage} />
+            </CardContent>
+        </Card>
+
       <Card className="shadow-xl drop-shadow-lg">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-primary">AI Call Script Generation</CardTitle>
@@ -177,10 +208,12 @@ export default function CallScriptApprovalPage() {
             <Textarea id="additionalContext" value={additionalContext} onChange={e => setAdditionalContext(e.target.value)} placeholder="Key pain points, recent company news, specific talking points..." />
           </div>
 
-          <Button onClick={handleGenerateScript} disabled={isGeneratingScript} className="w-full md:w-auto">
-            <Bot className="mr-2 h-5 w-5" />
+          <Button onClick={handleGenerateScript} disabled={isGeneratingScript || currentProspectJourneyStage !== 'ComplianceChecked'} className="w-full md:w-auto">
+            {isGeneratingScript ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Bot className="mr-2 h-5 w-5" />}
             {isGeneratingScript ? 'Generating Script...' : 'Generate AI Call Script'}
           </Button>
+          {currentProspectJourneyStage !== 'ComplianceChecked' && <p className="text-sm text-muted-foreground">Please complete compliance check before generating script.</p>}
+
 
           {script && (
             <div className="space-y-2 mt-6">
@@ -196,7 +229,7 @@ export default function CallScriptApprovalPage() {
             <p className="text-muted-foreground">Internal Call Record ID: {callId}</p>
           )}
 
-          {script && !quotaExceeded && (
+          {script && !quotaExceeded && currentProspectJourneyStage === 'CallScriptReady' && (
             <div className="mt-6 space-y-4">
               <Button 
                 onClick={handleProceedToModelSelection} 
@@ -211,10 +244,8 @@ export default function CallScriptApprovalPage() {
         </CardContent>
       </Card>
       <div className="flex justify-between mt-8">
-        <Link href="/" passHref>
-          <Button variant="outline"> <HomeIcon className="mr-2 h-4 w-4" />Back to Dashboard</Button>
-        </Link>
-        {script && !quotaExceeded && (
+        <Button variant="outline" onClick={() => router.back()}> <ShieldCheck className="mr-2 h-4 w-4" />Back to Compliance Check</Button>
+        {script && !quotaExceeded && currentProspectJourneyStage === 'CallScriptReady' && (
           <Button onClick={handleProceedToModelSelection}>
             Next: Select AI Model <ChevronRight className="ml-2 h-4 w-4" />
           </Button>

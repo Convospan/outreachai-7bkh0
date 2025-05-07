@@ -11,16 +11,35 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { useState, useEffect, Suspense } from 'react';
 import {summarizeOutreachPerformance, SummarizeOutreachPerformanceOutput} from '@/ai/flows/summarize-outreach-performance';
-import {generateCallScript as generateAICallScript} from '@/ai/flows/generate-call-script'; // Renamed to avoid conflict
+import {generateCallScript as generateAICallScript} from '@/ai/flows/generate-call-script'; 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from 'recharts';
-import {useSearchParams} from 'next/navigation';
-import { HomeIcon, Loader2, AlertTriangle } from "lucide-react";
+import {useSearchParams, useRouter}from 'next/navigation';
+import { HomeIcon, Loader2, AlertTriangle, BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle } from "lucide-react";
+import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
 
-// Define data types for chart data
+const prospectJourneyStages: ProspectStage[] = [
+  { id: 'Identified', name: 'Identified', icon: <UserCheck className="h-4 w-4" /> },
+  { id: 'LinkedInConnected', name: 'LinkedIn Connected', icon: <LinkedinIcon className="h-4 w-4" /> },
+  { id: 'LinkedInIntroSent', name: 'Intro Message Sent', icon: <Send className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp1', name: 'Follow-up 1 Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'LinkedInFollowUp2', name: 'Follow-up 2 Sent', icon: <MessageSquare className="h-4 w-4" /> },
+  { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> },
+  { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> },
+  { id: 'ComplianceChecked', name: 'Compliance Checked', icon: <ShieldCheck className="h-4 w-4" /> },
+  { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> },
+  { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> },
+  { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> },
+  { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
+  { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
+];
+
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF']; 
+
 interface CampaignRiskData {
     campaign: string;
     riskScore: number;
@@ -32,14 +51,13 @@ interface LeadRankingData {
 }
 
 interface HistoricalCampaignRiskEntry {
-    date: string; // e.g., "Jan '24", "Feb '24"
+    date: string; 
     averageRisk: number;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF']; // Example theme colors
 
 function RiskLeadVisualizationContent() {
-    // Placeholder data for campaign risk scores and lead prioritization
+    const router = useRouter();
     const campaignRiskScoresData: CampaignRiskData[] = [
         { campaign: "Campaign Alpha", riskScore: 75 },
         { campaign: "Campaign Beta", riskScore: 30 },
@@ -56,7 +74,6 @@ function RiskLeadVisualizationContent() {
         { lead: "Lead Prospect 5", ranking: 78 },
     ];
 
-    // Simulated historical data for average campaign risk
     const initialHistoricalRiskData: HistoricalCampaignRiskEntry[] = [
         { date: "Jan '24", averageRisk: 65 },
         { date: "Feb '24", averageRisk: 60 },
@@ -72,8 +89,8 @@ function RiskLeadVisualizationContent() {
 
     const [campaignScore, setCampaignScore] = useState<number | null>(null);
     const [callScript, setCallScript] = useState<string>('');
-    const [industry, setIndustry] = useState<string>('Technology'); //Default values
-    const [connections, setConnections] = useState<number>(500); //Default values
+    const [industry, setIndustry] = useState<string>('Technology'); 
+    const [connections, setConnections] = useState<number>(500); 
     const [reportContent, setReportContent] = useState<string | null>(null);
     const [tier, setTier] = useState<'basic' | 'pro' | 'enterprise'>('pro');
     const [messageResponses, setMessageResponses] = useState<string>('Great feedback, interested in learning more.');
@@ -82,23 +99,26 @@ function RiskLeadVisualizationContent() {
     const [trendForecast, setTrendForecast] = useState<string | undefined>(undefined);
     const [suggestCall, setSuggestCall] = useState<boolean>(false);
     const searchParams = useSearchParams();
-    const callId = searchParams.get('callId') ?? 'test-call-id-123'; // Default if not present
+    const callId = searchParams.get('callId') ?? 'test-call-id-123'; 
     const sarvamCallId = searchParams.get('sarvamCallId');
     const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email'>('linkedin');
     const [isLoadingScore, setIsLoadingScore] = useState(false);
     const [isLoadingScript, setIsLoadingScript] = useState(false);
 
+    const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>(
+      searchParams.get('stage') as ProspectStage['id'] || 'CallCompleted' // Default for this page
+    );
+
     const hasHighRiskCampaigns = campaignRiskScoresData.some(c => c.riskScore > 80);
 
 
-    // Placeholder function to simulate score generation (0-100)
     const generateCampaignScore = async () => {
         setIsLoadingScore(true);
         try {
             const input = {
-                responseRates: Math.random() * 0.5 + 0.2, // Simulate 20-70% response rates
-                complianceFlags: Math.random() > 0.8 ? 1 : 0, // 20% chance of compliance flag
-                campaignName: "Generated Campaign Insights", // Example value
+                responseRates: Math.random() * 0.5 + 0.2, 
+                complianceFlags: Math.random() > 0.8 ? 1 : 0, 
+                campaignName: "Generated Campaign Insights", 
                 connections: connections,
                 script: callScript || "Default script for scoring.",
                 tier: tier,
@@ -114,6 +134,9 @@ function RiskLeadVisualizationContent() {
             setSentimentScore(result.sentimentScore);
             setTrendForecast(result.trendForecast);
             setSuggestCall(result.suggestCall);
+            if(result.suggestCall && result.modelScore > 70) { // Example condition
+                 setCurrentProspectJourneyStage('LeadQualified');
+            }
         } catch (error: any) {
             console.error('Failed to generate campaign score:', error);
             setCampaignScore(null);
@@ -129,7 +152,6 @@ function RiskLeadVisualizationContent() {
     const generateCallScriptPlaceholder = async () => {
         setIsLoadingScript(true);
         try {
-            // In a real app, you might get these from a form or context
             const scriptInput = {
                 campaignName: "Dynamic Campaign X",
                 productName: "Our Innovative Solution",
@@ -139,13 +161,10 @@ function RiskLeadVisualizationContent() {
                 industry: industry,
                 connections: connections,
                 subscriptionTier: tier,
-                usedCallCount: 0, // Example
+                usedCallCount: 0, 
                 leadId: "lead-placeholder-id",
             };
-            // const result = await generateAICallScript(scriptInput);
-            // setCallScript(result.script);
-            // For placeholder:
-            await new Promise(resolve => setTimeout(resolve, 700)); // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 700)); 
             setCallScript(`AI Script: Hello, this is a generated script for ${industry} leads with ~${connections} connections. We'd love to discuss our solution.`);
         } catch (error: any) {
             console.error('Failed to generate call script:', error);
@@ -157,13 +176,21 @@ function RiskLeadVisualizationContent() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6 text-primary text-center">Campaign Risk & Lead Visualization</h1>
+            <Card className="mb-6 shadow-lg drop-shadow-xl">
+                <CardHeader>
+                    <CardTitle className="text-2xl font-bold text-primary">Prospect Journey Visualizer</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ProspectJourneyVisualizer stages={prospectJourneyStages} currentStageId={currentProspectJourneyStage} />
+                </CardContent>
+            </Card>
+
+            <h1 className="text-3xl font-bold mb-6 text-primary text-center">Campaign Risk &amp; Lead Visualization</h1>
             {callId && <p className="text-center text-muted-foreground mb-2">Internal Call ID: {callId}</p>}
             {sarvamCallId && <p className="text-center text-green-600 font-semibold mb-4">Sarvam AI Call ID: {sarvamCallId}</p>}
 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {/* Campaign Risk Assessment */}
                 <Card className="shadow-lg drop-shadow-md">
                     <CardHeader>
                         <CardTitle className="text-xl">Campaign Risk Assessment</CardTitle>
@@ -199,7 +226,6 @@ function RiskLeadVisualizationContent() {
                     </CardContent>
                 </Card>
 
-                {/* Lead Prioritization Ranking */}
                 <Card className="shadow-lg drop-shadow-md">
                     <CardHeader>
                         <CardTitle className="text-xl">Lead Prioritization Ranking</CardTitle>
@@ -220,7 +246,6 @@ function RiskLeadVisualizationContent() {
                 </Card>
             </div>
 
-            {/* Historical Campaign Risk Trend */}
             <Card className="mb-6 shadow-lg drop-shadow-md">
                 <CardHeader>
                     <CardTitle className="text-xl">Historical Campaign Risk Trend</CardTitle>
@@ -253,8 +278,6 @@ function RiskLeadVisualizationContent() {
                 </CardContent>
             </Card>
 
-
-             {/* Campaign Score & Insights Section */}
             <Card className="mb-6 shadow-lg drop-shadow-md">
                 <CardHeader>
                     <CardTitle className="text-xl">Campaign Insights Generation</CardTitle>
@@ -311,7 +334,7 @@ function RiskLeadVisualizationContent() {
                     </div>
                     <Button onClick={generateCampaignScore} className="w-full md:w-auto" disabled={isLoadingScore}>
                         {isLoadingScore && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Generate Campaign Score & Insights
+                        Generate Campaign Score &amp; Insights
                     </Button>
                     {campaignScore !== null && (
                         <div className="mt-4 space-y-2 p-4 border rounded-md bg-muted/50">
@@ -325,7 +348,6 @@ function RiskLeadVisualizationContent() {
                 </CardContent>
             </Card>
 
-            {/* Call Script Generation Placeholder */}
             <Card className="shadow-lg drop-shadow-md">
                 <CardHeader>
                     <CardTitle className="text-xl">AI Call Script (Reference)</CardTitle>
@@ -352,9 +374,7 @@ function RiskLeadVisualizationContent() {
                 </CardContent>
             </Card>
             <div className="flex justify-between mt-8">
-                <Link href="/call/select-sarvam-model" passHref>
-                    <Button variant="outline">Back to AI Model Selection</Button>
-                </Link>
+                <Button variant="outline" onClick={() => router.back()}>Back to AI Model Selection</Button>
                  <Link href="/" passHref>
                     <Button variant="outline"><HomeIcon className="mr-2 h-4 w-4"/>Back to Dashboard</Button>
                 </Link>
@@ -375,4 +395,3 @@ export default function RiskLeadVisualizationPage() {
         </Suspense>
     )
 }
-
