@@ -8,12 +8,12 @@ import { z } from 'genkit';
 import axios from 'axios';
 
 const SendEmailInputSchema = z.object({
-  to: z.string().email().describe('The recipient\'s email address.'),
+  to: z.string().email().describe("The recipient's email address."),
   subject: z.string().describe('The subject of the email.'),
   htmlBody: z.string().describe('The HTML content of the email.'),
   textBody: z.string().optional().describe('The plain text content of the email (recommended).'),
-  fromEmail: z.string().email().optional().describe('The sender\'s email address. Defaults to system config if not provided.'),
-  fromName: z.string().optional().describe('The sender\'s name. Defaults to system config if not provided.'),
+  fromEmail: z.string().email().optional().describe("The sender's email address. Defaults to system config if not provided."),
+  fromName: z.string().optional().describe("The sender's name. Defaults to system config if not provided."),
 });
 
 const SendEmailOutputSchema = z.object({
