@@ -5,18 +5,18 @@ import { z } from 'zod';
 
 const UserUpdateSchema = z.object({
   email: z.string().email().optional(),
-  tier: z.enum(['free', 'basic', 'pro', 'enterprise']).optional(),
+  tier: z.enum(['free', 'connect_explore', 'engage_grow', 'outreach_pro', 'scale_impact']).optional(),
 });
 
-interface RouteContext { params: { userId: string } }
-
-export async function GET(req: NextRequest, context: RouteContext) {
+// Corrected context type for App Router
+export async function GET(req: NextRequest, context: { params: { userId: string } }) {
   const userId = context.params.userId;
   try {
     const userData = await read('users', userId);
     if (!userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+    // Ensure all accessed fields exist on userData or provide fallbacks
     const { email, tier, createdAt } = userData;
     return NextResponse.json({ id: userId, email, tier, createdAt }, { status: 200 });
   } catch (error: any) {
@@ -25,7 +25,8 @@ export async function GET(req: NextRequest, context: RouteContext) {
   }
 }
 
-export async function PUT(req: NextRequest, context: RouteContext) {
+// Corrected context type for App Router
+export async function PUT(req: NextRequest, context: { params: { userId: string } }) {
   const userId = context.params.userId;
   try {
     const body = await req.json();
