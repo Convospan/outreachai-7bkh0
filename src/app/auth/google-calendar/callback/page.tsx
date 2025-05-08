@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { createOAuth2Client, getGoogleCalendarTokensFromCode } from '@/services/google-calendar'; // Assuming this path
+import { createOAuth2Client, getGoogleCalendarTokensFromCode } from '@/services/google-calendar'; 
 
 export default function GoogleCalendarCallbackPage() {
   const router = useRouter();
@@ -13,37 +13,42 @@ export default function GoogleCalendarCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       const code = searchParams.get('code');
+      const errorParam = searchParams.get('error');
+
+      if (errorParam) {
+        console.error('Google Calendar authorization error from URL:', errorParam);
+        toast({
+          title: 'Google Calendar Authorization Denied',
+          description: `Authorization was not granted. Error: ${errorParam}. Please try again.`,
+          variant: 'destructive',
+        });
+        router.push('/campaign'); // Redirect back
+        return;
+      }
 
       if (code) {
         try {
-          // It's generally better to handle token exchange on the server-side
-          // But for simplicity in this example, we'll do it client-side.
-          // In a real app, you'd send the 'code' to your backend,
-          // which would then exchange it for tokens and store them securely.
-
-          const oauth2Client = await createOAuth2Client(); // Recreate or get a pre-configured client
+          const oauth2Client = await createOAuth2Client(); 
           const tokens = await getGoogleCalendarTokensFromCode(code, oauth2Client);
 
           if (tokens) {
-            // Store tokens securely (e.g., in localStorage, or better, send to backend to store with user session)
             localStorage.setItem('googleCalendarTokens', JSON.stringify(tokens));
             toast({
               title: 'Google Calendar Authorized',
               description: 'Successfully connected to Google Calendar.',
             });
-            // Redirect to the campaign page or wherever the user was before
             router.push('/campaign');
           } else {
-            throw new Error('Failed to obtain tokens from Google.');
+            throw new Error('Failed to obtain tokens from Google. The token response was empty.');
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error handling Google Calendar callback:', error);
           toast({
             title: 'Google Calendar Authorization Failed',
-            description: 'Could not complete Google Calendar authorization. Please try again.',
+            description: error.message || 'Could not complete Google Calendar authorization. Please try again.',
             variant: 'destructive',
           });
-          router.push('/campaign'); // Redirect back even on error
+          router.push('/campaign'); 
         }
       } else {
         toast({
@@ -51,7 +56,7 @@ export default function GoogleCalendarCallbackPage() {
           description: 'No authorization code found. Please try again.',
           variant: 'destructive',
         });
-        router.push('/campaign'); // Redirect back
+        router.push('/campaign'); 
       }
     };
 

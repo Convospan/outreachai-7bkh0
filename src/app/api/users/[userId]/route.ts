@@ -8,7 +8,9 @@ const UserUpdateSchema = z.object({
   tier: z.enum(['free', 'basic', 'pro', 'enterprise']).optional(),
 });
 
-export async function GET(req: NextRequest, context: { params: Record<string, any> }) {
+interface RouteContext { params: { userId: string } }
+
+export async function GET(req: NextRequest, context: RouteContext) {
   const userId = context.params.userId;
   try {
     const userData = await read('users', userId);
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest, context: { params: Record<string, an
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: Record<string, any> }) {
+export async function PUT(req: NextRequest, context: RouteContext) {
   const userId = context.params.userId;
   try {
     const body = await req.json();

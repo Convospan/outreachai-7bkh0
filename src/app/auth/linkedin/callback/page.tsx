@@ -28,7 +28,7 @@ export default function LinkedInCallbackPage() {
 
   useEffect(() => {
     const code = searchParams.get('code');
-    const state = searchParams.get('state'); // Optional: for CSRF protection
+    const state = searchParams.get('state'); 
 
     if (code) {
       const exchangeTokenAndFetchData = async () => {
@@ -45,35 +45,40 @@ export default function LinkedInCallbackPage() {
           });
 
           if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Failed to exchange token: ${response.statusText}`);
+            let errorData;
+            try {
+              errorData = await response.json();
+            } catch (parseError) {
+              // If parsing JSON fails, use the status text
+              throw new Error(`Failed to exchange token: ${response.statusText} (Could not parse error response)`);
+            }
+            console.error('LinkedIn exchange token API error:', errorData);
+            throw new Error(errorData.error || errorData.message || `Failed to exchange token: ${response.statusText}`);
           }
 
           const data = await response.json();
+          if (data.error) { // Handle cases where API returns 200 but with an error payload
+            throw new Error(data.error.message || data.error || 'Error received from LinkedIn API during token exchange.');
+          }
+
           setProfileData(data.profile);
-          // Securely store data.profile and data.accessToken (e.g., in HttpOnly cookie or session storage if short-lived)
-          // For demo purposes, we're just displaying it.
-          // In a real app, you might store the access token server-side associated with the user's session.
           localStorage.setItem('linkedInProfile', JSON.stringify(data.profile));
-          // Storing access token in localStorage is NOT recommended for production.
-          // localStorage.setItem('linkedInAccessToken', data.accessToken); 
-
-
+          
           toast({
             title: 'LinkedIn Connected!',
             description: 'Successfully fetched your LinkedIn profile.',
           });
-           // Redirect to campaign creation or dashboard after a short delay
            setTimeout(() => {
-            router.push('/campaign/create'); // Or '/dashboard' or wherever appropriate
+            router.push('/campaign/create'); 
           }, 2000);
 
         } catch (err: any) {
           console.error('LinkedIn callback error:', err);
-          setError(err.message || 'An unexpected error occurred.');
+          const errorMessage = err.message || 'An unexpected error occurred during LinkedIn authorization.';
+          setError(errorMessage);
           toast({
             title: 'LinkedIn Connection Failed',
-            description: err.message || 'Could not complete LinkedIn authorization.',
+            description: errorMessage,
             variant: 'destructive',
           });
         } finally {
@@ -85,21 +90,22 @@ export default function LinkedInCallbackPage() {
     } else {
       const errorParam = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
+      const userDenied = errorParam === 'user_cancelled_login' || errorParam === 'user_cancelled_authorize';
+      
+      let errorMessage = 'Invalid callback: No authorization code found.';
       if (errorParam) {
-        setError(errorDescription || errorParam || 'LinkedIn authorization was denied or failed.');
-        toast({
-          title: 'LinkedIn Authorization Error',
-          description: errorDescription || errorParam || 'Authorization failed.',
-          variant: 'destructive',
-        });
-      } else {
-        setError('Invalid callback: No authorization code found.');
-         toast({
-          title: 'LinkedIn Authorization Error',
-          description: 'No authorization code found. Please try again.',
-          variant: 'destructive',
-        });
+        errorMessage = errorDescription || errorParam;
+        if (userDenied) {
+          errorMessage = "LinkedIn authorization was cancelled.";
+        }
       }
+      
+      setError(errorMessage);
+      toast({
+        title: userDenied ? 'LinkedIn Authorization Cancelled' : 'LinkedIn Authorization Error',
+        description: errorMessage,
+        variant: userDenied ? 'default' : 'destructive',
+      });
       setIsLoading(false);
     }
   }, [searchParams, router, toast]);

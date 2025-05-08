@@ -1,11 +1,11 @@
 'use server';
 import {NextRequest, NextResponse} from 'next/server';
-import {db} from '@/lib/firebaseServer'; // Assuming db is your Firestore instance
+import {db} from '@/lib/firebaseServer'; 
 import {z} from 'zod';
 
 const LoginSchema = z.object({
   email: z.string().email(),
-  password: z.string(), // In a real app, you'd compare a hashed password
+  password: z.string(), 
 });
 
 export async function POST(req: NextRequest) {
@@ -19,8 +19,6 @@ export async function POST(req: NextRequest) {
 
     const {email, password} = validationResult.data;
 
-    // Placeholder for actual user lookup and password verification.
-    // This is NOT secure. In a real app, use Firebase Authentication SDK.
     const usersRef = db.collection('users');
     const snapshot = await usersRef.where('email', '==', email).limit(1).get();
 
@@ -31,16 +29,31 @@ export async function POST(req: NextRequest) {
     const userDoc = snapshot.docs[0];
     const userData = userDoc.data();
 
-    // Placeholder password check. DO NOT use this in production.
-    // if (userData.password !== password) {
+    // IMPORTANT: This is a placeholder password check. 
+    // In a real production app, use Firebase Authentication SDK for secure password handling.
+    // Firebase Auth handles password hashing and comparison securely.
+    // Storing and comparing plain text or even self-hashed passwords here is NOT secure.
+    // if (userData.password !== password) { // Example of INSECURE plain text comparison
     //   return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     // }
-    // For now, we'll assume if email exists, login is successful for skipped API integration
+    // For this simulation, we'll assume if the email exists, login is successful.
 
-    // Placeholder for actual session management (e.g., JWT or cookie)
-    return NextResponse.json({message: 'Login successful', userId: userDoc.id, user: {email: userData.email, tier: userData.tier}}, {status: 200});
+    // Placeholder for actual session management (e.g., JWT or cookie through Firebase Admin SDK or custom solution)
+    // For now, returning basic user info.
+    return NextResponse.json({
+        message: 'Login successful (Simulated)', 
+        userId: userDoc.id, 
+        user: {
+            email: userData.email, 
+            tier: userData.tier,
+            // DO NOT return sensitive info like password hashes here
+        }
+    }, {status: 200});
+
   } catch (error: any) {
-    console.error('Login error:', error);
-    return NextResponse.json({error: 'Failed to login', details: error.message}, {status: 500});
+    console.error('Login API error:', error);
+    // Avoid leaking detailed error messages to the client in production
+    const errorMessage = process.env.NODE_ENV === 'development' ? error.message : 'Failed to login due to an internal error.';
+    return NextResponse.json({error: 'Login failed', details: errorMessage}, {status: 500});
   }
 }

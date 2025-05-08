@@ -1,0 +1,24 @@
+[1mdiff --git a/src/app/api/users/[userId]/route.ts b/src/app/api/users/[userId]/route.ts[m
+[1mindex fdc362f..ee866d2 100644[m
+[1m--- a/src/app/api/users/[userId]/route.ts[m
+[1m+++ b/src/app/api/users/[userId]/route.ts[m
+[36m@@ -8,7 +8,9 @@[m [mconst UserUpdateSchema = z.object({[m
+   tier: z.enum(['free', 'basic', 'pro', 'enterprise']).optional(),[m
+ });[m
+ [m
+[31m-export async function GET(req: NextRequest, context: { params: Record<string, any> }) {[m
+[32m+[m[32minterface RouteContext { params: { userId: string } }[m
+[32m+[m
+[32m+[m[32mexport async function GET(req: NextRequest, context: RouteContext) {[m
+   const userId = context.params.userId;[m
+   try {[m
+     const userData = await read('users', userId);[m
+[36m@@ -23,7 +25,7 @@[m [mexport async function GET(req: NextRequest, context: { params: Record<string, an[m
+   }[m
+ }[m
+ [m
+[31m-export async function PUT(req: NextRequest, context: { params: Record<string, any> }) {[m
+[32m+[m[32mexport async function PUT(req: NextRequest, context: RouteContext) {[m
+   const userId = context.params.userId;[m
+   try {[m
+     const body = await req.json();[m
