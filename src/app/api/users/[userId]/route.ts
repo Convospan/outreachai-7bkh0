@@ -9,8 +9,8 @@ const UserUpdateSchema = z.object({
 });
 
 // Corrected context type for App Router
-export async function GET(req: NextRequest, context: { params: { userId: string } }) {
-  const userId = context.params.userId;
+export async function GET(req: NextRequest, { params }: { params: { userId: string } }) {
+  const userId = params.userId; // Access the dynamic userId from params
   try {
     const userData = await read('users', userId);
     if (!userData) {
@@ -26,8 +26,8 @@ export async function GET(req: NextRequest, context: { params: { userId: string 
 }
 
 // Corrected context type for App Router
-export async function PUT(req: NextRequest, context: { params: { userId: string } }) {
-  const userId = context.params.userId;
+export async function PUT(req: NextRequest, { params }: { params: { userId: string } }) {
+  const userId = params.userId;
   try {
     const body = await req.json();
     const validationResult = UserUpdateSchema.safeParse(body);
