@@ -3,10 +3,10 @@ name: Firebase Deployment
 on:
   push:
     branches:
-      - master
+      - master # Consider changing to 'main' if that's your primary branch
   pull_request:
     branches:
-      - master
+      - master # Consider changing to 'main' if that's your primary branch
 
 jobs:
   build-and-deploy:
@@ -24,12 +24,15 @@ jobs:
         run: npm install
 
       - name: Build
+        env: # Ensure all build-time environment variables are available if needed by Next.js build
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }} # Example, add others if your build needs them
+          # Add other NEXT_PUBLIC_ variables here if your build process requires them
         run: npm run build
 
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_OUTREACHAI_7BKH0 }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_OUTREACHAI_7BKH0 }}' # Ensure this secret contains the JSON key
           channelId: live
           projectId: outreachai-7bkh0
