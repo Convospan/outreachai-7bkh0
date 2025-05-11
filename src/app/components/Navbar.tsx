@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -78,6 +79,9 @@ const Navbar = () => {
               <DropdownMenuItem asChild>
                   <Link href="/campaign" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Campaign Automation</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/campaign/email-drip" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Email Drip Campaigns</Link>
+              </DropdownMenuItem>
                <DropdownMenuItem asChild>
                   <Link href="/compliance/check" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Compliance Check</Link>
               </DropdownMenuItem>
@@ -92,10 +96,31 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <div className="h-5 w-[1px] bg-border"></div>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <Link href="/sign-in" passHref>
+              <Button variant="ghost" className="text-foreground hover:bg-accent hover:text-accent-foreground px-3 py-2 text-sm font-medium">
+                Sign In
+              </Button>
+            </Link>
+          </SignedOut>
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center space-x-2">
+           <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <Link href="/sign-in" passHref>
+              <Button variant="ghost" size="sm">
+                Sign In
+              </Button>
+            </Link>
+          </SignedOut>
           <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle menu">
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
@@ -140,6 +165,9 @@ const Navbar = () => {
               <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
                   <Link href="/campaign" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Campaign Automation</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/campaign/email-drip" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Email Drip Campaigns</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
                   <Link href="/compliance/check" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Compliance Check</Link>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react'; // Added React import
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { CheckCircle } from 'lucide-react';
 
@@ -67,3 +67,4 @@ const ProspectJourneyVisualizer: React.FC<ProspectJourneyVisualizerProps> = ({
 };
 
 export default ProspectJourneyVisualizer;
+

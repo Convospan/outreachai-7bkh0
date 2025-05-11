@@ -14,7 +14,7 @@ import {
 import { Mail } from 'lucide-react';
 import Link from 'next/link';
 import type React from 'react';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation'; 
 
 // Simple SVG icon for Google
 const GoogleIcon = () => (
@@ -56,12 +56,11 @@ export function CreateAccountPopup({
 }) {
   const router = useRouter();
 
-  const handleAuthContinue = () => {
-    // Simulate successful account creation
+  const handleRedirectToSignUp = () => {
     if (onOpenChange) {
       onOpenChange(false); // Close the popup
     }
-    router.push('/pricing'); // Redirect to pricing page
+    router.push('/sign-up'); // Redirect to Clerk's sign-up page
   };
 
   return (
@@ -77,10 +76,11 @@ export function CreateAccountPopup({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
+          {/* Buttons now redirect to the main sign-up page where Clerk handles providers */}
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleAuthContinue}
+            onClick={handleRedirectToSignUp}
           >
             <GoogleIcon />
             Continue with Google
@@ -88,7 +88,7 @@ export function CreateAccountPopup({
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleAuthContinue}
+            onClick={handleRedirectToSignUp}
           >
             <MicrosoftIcon />
             Continue with Microsoft
@@ -96,7 +96,7 @@ export function CreateAccountPopup({
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleAuthContinue}
+            onClick={handleRedirectToSignUp}
           >
              <FacebookIcon />
             Continue with Facebook
@@ -104,7 +104,7 @@ export function CreateAccountPopup({
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleAuthContinue}
+            onClick={handleRedirectToSignUp}
           >
             <Mail className="mr-2 h-5 w-5" />
             Continue with Email
@@ -116,7 +116,7 @@ export function CreateAccountPopup({
             <Link href="/terms-of-service" className="underline hover:text-primary">
               Terms of Service
             </Link>
-            . If you sign up with Google or Microsoft, you will join our Community Program and you agree to our{' '}
+            . If you sign up, you will join our Community Program and you agree to our{' '}
             <Link href="/community-terms" className="underline hover:text-primary">
               Community Program Terms
             </Link>
