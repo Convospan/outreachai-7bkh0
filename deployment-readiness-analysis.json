@@ -2,27 +2,48 @@
 {
   "projectName": "outreachai-7bkh0",
   "deploymentTarget": "Firebase Hosting",
-  "overallReadiness": "Blocked - Critical API Integrations Pending & Environment Verification Needed",
+  "overallReadiness": "Blocked - Critical Google Calendar Credentials Missing & API Implementations Pending",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "The application build is now more likely to succeed due to provided Firebase client-side environment variables. However, critical API integrations (LinkedIn, SendPulse, Sarvam, Google Calendar) are still pending full implementation and testing. Provided API keys need to be verified during runtime.",
+  "summary": "The application has environment variables provided for most services. However, critical Google Calendar OAuth credentials (Client ID and Secret) are still missing (empty strings in .env). Additionally, core API integrations for LinkedIn, SendPulse, Sarvam, and Google Calendar require implementation of actual API call logic beyond initial setup or OAuth flows. Firebase App Check status needs verification. Security rules and basic database operations are in place but require thorough testing.",
   "criticalBlockers": [
     {
-      "id": "missingFirebaseEnvVars",
-      "description": "Firebase client-side initialization requires essential NEXT_PUBLIC_FIREBASE_... environment variables. Values have been provided but need verification during build and runtime to ensure the Firebase SDK connects correctly.",
-      "status": "In Progress (Values Provided)",
+      "id": "missingGoogleCalendarOAuthCredentials",
+      "description": "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are empty. These are essential for Google Calendar integration to function. The application cannot be fully functional without these.",
+      "status": "Blocked (Credentials Missing)",
       "resolutionSteps": [
-        "Verify that the '.env.local' (or '.env') file in the project root contains all the provided NEXT_PUBLIC_FIREBASE_... variables.",
+        "Obtain the Google Client ID and Client Secret from the Google Cloud Console for your OAuth 2.0 client configured for Google Calendar API access.",
+        "Set these values for GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env.local file and in your deployment environment's secrets/configuration.",
+        "Ensure GOOGLE_CALENDAR_REDIRECT_URI is correctly configured in both your .env file and the Google Cloud Console."
+      ],
+      "affectedFiles": ["src/services/google-calendar.ts", "src/app/campaign/page.tsx", ".env"]
+    },
+    {
+      "id": "firebaseClientEnvVars",
+      "description": "Firebase client-side initialization requires essential NEXT_PUBLIC_FIREBASE_... environment variables. Values have been provided but need verification during build and runtime to ensure the Firebase SDK connects correctly.",
+      "status": "In Progress (Values Provided, Needs Runtime Verification)",
+      "resolutionSteps": [
+        "Verify that the '.env.local' file in the project root contains all the provided NEXT_PUBLIC_FIREBASE_... variables with correct values.",
         "Ensure these variables are correctly configured in the Firebase Hosting environment settings if deploying, available during the `npm run build` process.",
-        "Double-check spelling, casing, and values of the environment variable names (must start with NEXT_PUBLIC_ to be exposed to the client).",
+        "Double-check spelling, casing, and values of the environment variable names.",
         "Restart the development server after making changes to '.env.local'.",
-        "Confirm that `FIREBASE_SERVICE_ACCOUNT_KEY` is correctly set up for server-side operations (e.g., in GitHub Secrets for CI/CD or server environment)."
+        "Test Firebase functionality (e.g., auth, Firestore reads/writes if basic auth is implemented) after deployment."
       ],
       "affectedFiles": ["src/lib/firebase.ts", "src/app/layout.tsx", ".env"]
     },
     {
-      "id": "missingGenkitApiKey",
+      "id": "firebaseServerEnvVars",
+      "description": "Firebase server-side operations (e.g., using firebase-admin in API routes or Genkit flows) require FIREBASE_SERVICE_ACCOUNT_KEY. Value has been provided but needs runtime verification.",
+      "status": "In Progress (Value Provided, Needs Runtime Verification)",
+      "resolutionSteps": [
+        "Ensure FIREBASE_SERVICE_ACCOUNT_KEY is correctly set as a JSON string in '.env.local' for local development.",
+        "For deployment: Configure this key as a secret/environment variable in your Firebase Hosting environment (or Cloud Functions environment if applicable)."
+      ],
+      "affectedFiles": ["src/lib/firebaseServer.ts", "any API route or Genkit flow using firebase-admin", ".env"]
+    },
+    {
+      "id": "genkitApiKey",
       "description": "The GOOGLE_GENAI_API_KEY (and potentially GEMINI_API_KEY) is required for Genkit to interact with Google AI services. Values have been provided but need verification for AI-powered features to function.",
-      "status": "In Progress (Values Provided)",
+      "status": "In Progress (Values Provided, Needs Runtime Verification)",
       "resolutionSteps": [
         "Ensure GOOGLE_GENAI_API_KEY (and GEMINI_API_KEY if used separately) are correctly defined in '.env.local' for local development.",
         "For deployment: Configure these keys as secrets/environment variables in your Firebase Hosting environment (or Cloud Functions if Genkit flows run server-side)."
@@ -33,76 +54,101 @@
   "pendingImplementationForFullFunctionality": [
     {
       "id": "linkedInApiIntegration",
-      "description": "Full LinkedIn integration (fetching detailed profiles, sending messages, retrieving conversation history) requires implementing actual API calls beyond the OAuth flow. API keys (Client ID, Client Secret) have been provided.",
+      "description": "Full LinkedIn integration (fetching detailed profiles, sending messages, retrieving conversation history) requires implementing actual API calls beyond the OAuth flow. OAuth credentials have been provided, but the service logic in 'src/services/linkedin.ts' mostly contains placeholders.",
       "status": "Pending Implementation",
       "resolutionSteps": [
-        "Verify `NEXT_PUBLIC_LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` are correctly set and accessible.",
-        "Replace mock data/functions in 'src/services/linkedin.ts' with actual 'axios' or 'fetch' calls to LinkedIn API endpoints using the provided credentials.",
-        "Handle API rate limits and error responses from LinkedIn.",
-        "Thoroughly test the OAuth flow and API data retrieval."
+        "Verify `NEXT_PUBLIC_LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, and `NEXT_PUBLIC_LINKEDIN_REDIRECT_URI` are correctly set and accessible.",
+        "Replace mock data/functions in 'src/services/linkedin.ts' with actual 'axios' or 'fetch' calls to LinkedIn API endpoints using the obtained OAuth access token.",
+        "Implement robust error handling for LinkedIn API responses and rate limits.",
+        "Thoroughly test the OAuth flow and API data retrieval/posting."
       ],
       "affectedFiles": ["src/services/linkedin.ts", "src/app/api/linkedin/exchange-token/route.ts", "src/app/campaign/page.tsx", ".env"]
     },
     {
       "id": "sendpulseApiIntegration",
-      "description": "Full SendPulse email sending functionality relies on correct API key setup and implementation of the Genkit tool. API keys (Client ID, Client Secret, Base URL) have been provided.",
+      "description": "Full SendPulse email sending functionality relies on correct API key setup and the Genkit tool. API credentials have been provided, but the actual sending logic within flows needs to be tested end-to-end.",
       "status": "Pending Implementation",
       "resolutionSteps": [
-        "Verify `SENDPULSE_CLIENT_ID`, `SENDPULSE_CLIENT_SECRET`, and `SENDPULSE_API_BASE_URL` are correctly set in environment variables (server-side).",
-        "Thoroughly test the 'sendEmailWithSendPulse' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with the provided credentials.",
-        "Implement robust error handling for SendPulse API responses."
+        "Verify `SENDPULSE_CLIENT_ID`, `SENDPULSE_CLIENT_SECRET`, and `SENDPULSE_API_BASE_URL` are correctly set in server-side environment variables.",
+        "Thoroughly test the 'sendEmail' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with the provided credentials to send actual emails.",
+        "Implement robust error handling for SendPulse API responses within the tool and calling flows."
       ],
       "affectedFiles": ["src/ai/tools/sendEmail.ts", "any flow using this tool", ".env"]
     },
     {
       "id": "sarvamApiIntegration",
-      "description": "Sarvam AI calling agent integration requires the SARVAM_API_KEY and correct implementation of the Sarvam SDK. API key has been provided.",
+      "description": "Sarvam AI calling agent integration requires the SARVAM_API_KEY and correct implementation of the Sarvam SDK for call creation. API key has been provided, but the call initiation logic in 'src/services/sarvam.ts' needs end-to-end testing.",
       "status": "Pending Implementation",
       "resolutionSteps": [
-        "Ensure `SARVAM_API_KEY` is correctly set as an environment variable (server-side).",
+        "Ensure `SARVAM_API_KEY` is correctly set as a server-side environment variable.",
         "Verify the SarvamAI SDK usage in 'src/services/sarvam.ts' matches the official SDK documentation for call creation using the provided key.",
         "Implement proper error handling and status tracking for calls made via Sarvam."
       ],
       "affectedFiles": ["src/services/sarvam.ts", "src/app/call/select-sarvam-model/page.tsx", ".env"]
     },
     {
-      "id": "googleCalendarIntegration",
-      "description": "Full Google Calendar/Meet integration requires correct OAuth setup and API calls for event creation. OAuth credentials (Client ID, Client Secret, Redirect URI) have been provided, but Client ID and Secret are currently empty strings and need actual values.",
-      "status": "Pending Implementation (Credentials Incomplete)",
+      "id": "googleCalendarActualApiUsage",
+      "description": "Google Calendar integration requires API calls for event creation using the obtained OAuth tokens. The OAuth flow is partially set up but the actual event creation logic in 'src/services/google-calendar.ts' needs to be fully tested after credentials are provided.",
+      "status": "Pending Implementation (Blocked by Credentials)",
       "resolutionSteps": [
-        "Obtain and set actual values for `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in environment variables.",
-        "Ensure `GOOGLE_CALENDAR_REDIRECT_URI` is correctly set.",
-        "Thoroughly test the event creation logic in 'src/services/google-calendar.ts' with valid credentials.",
+        "Once GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are provided, thoroughly test the event creation logic in 'src/services/google-calendar.ts' with valid OAuth tokens.",
         "Handle token refresh scenarios for long-lived access."
       ],
       "affectedFiles": ["src/services/google-calendar.ts", "src/app/campaign/page.tsx", ".env"]
     },
     {
       "id": "comprehensiveErrorHandling",
-      "description": "Implement robust error handling and logging across the application (client-side, API routes, Genkit flows).",
+      "description": "Implement robust error handling and user-friendly feedback mechanisms across the application (client-side, API routes, Genkit flows).",
       "status": "Pending",
       "resolutionSteps": [
-        "Add try-catch blocks in API routes and Genkit flows.",
-        "Provide user-friendly error messages on the client-side.",
-        "Consider implementing a centralized logging solution for server-side errors."
+        "Add try-catch blocks in API routes and Genkit flows, returning appropriate HTTP status codes and error messages.",
+        "Provide user-friendly error messages on the client-side using toasts or dedicated error components.",
+        "Consider implementing a centralized logging solution for server-side errors for easier debugging post-deployment."
       ]
     }
   ],
-  "completedOrBypassedChecks": [
+  "completedOrRequiresVerification": [
     {
       "id": "firebaseAppCheck",
-      "description": "Firebase App Check (reCAPTCHA) setup has been attempted. `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` has been provided. Further testing is required to ensure it's fully functional and not causing runtime errors.",
-      "status": "In Progress (Needs Verification)",
-      "resolutionSteps": ["Verify `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` is correct and active.", "Ensure the domain is authorized in Google Cloud Console for the reCAPTCHA key.", "Test App Check functionality thoroughly post-deployment to identify and fix any 'appCheck/recaptcha-error' issues."]
+      "description": "Firebase App Check (reCAPTCHA) setup was attempted but previously caused errors. It might be currently disabled or needs verification if re-enabled with the provided `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`.",
+      "status": "In Progress (Needs Verification if enabled, or Disabled)",
+      "resolutionSteps": [
+        "If App Check is intended to be active: Verify `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` is correct and the corresponding reCAPTCHA Enterprise key in Google Cloud Console is active for the deployment domains (`outreachai-7bkh0.web.app`, `convospan.com`).",
+        "Ensure the domain is authorized in Google Cloud Console for the reCAPTCHA key.",
+        "Test App Check functionality thoroughly post-deployment to identify and fix any 'appCheck/recaptcha-error' issues. This might involve checking browser console logs on the deployed site."
+      ],
+      "affectedFiles": ["src/lib/firebase.ts", ".env"]
+    },
+    {
+      "id": "firebaseSecurityRules",
+      "description": "Firebase Security Rules have been implemented for collections like users, campaigns, leads, etc. These rules define access control to Firestore data.",
+      "status": "Implemented (Needs Thorough Testing)",
+      "resolutionSteps": [
+        "Use the Firebase Emulator Suite locally to test security rules against various user authentication states and data access patterns.",
+        "Review rules for edge cases and potential vulnerabilities (e.g., ensuring users can only access their own data).",
+        "Perform manual tests on the deployed application to confirm rules are enforced as expected."
+      ],
+      "affectedFiles": ["firestore.rules"]
+    },
+    {
+      "id": "firebaseDatabaseOperations",
+      "description": "Basic CRUD (Create, Read, Update, Delete) operations for Firestore collections have been implemented in `firebaseServer.ts` and are likely used in API routes.",
+      "status": "Implemented (Needs Thorough Testing)",
+      "resolutionSteps": [
+        "Test all API endpoints that interact with Firestore to ensure data is being created, read, updated, and deleted correctly.",
+        "Verify data integrity and consistency after operations.",
+        "Check for any unhandled errors during database interactions."
+      ],
+      "affectedFiles": ["src/lib/firebaseServer.ts", "src/app/api/**/route.ts"]
     }
   ],
   "recommendations": [
-    "CRITICAL: Verify all provided environment variables are correct and accessible during build and runtime to ensure Firebase and Genkit core functionality.",
-    "CRITICAL: Obtain and configure valid `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` for Google Calendar integration.",
-    "PRIORITY: Implement the actual API call logic for LinkedIn, SendPulse, Sarvam, and Google Calendar to replace mock/simulated functionality.",
-    "Implement comprehensive Firebase Security Rules and test them thoroughly.",
-    "Conduct end-to-end testing of all user flows (signup, login, campaign creation, outreach, calling, etc.).",
-    "Thoroughly test Firebase App Check post-deployment to resolve any 'appCheck/recaptcha-error' and ensure backend resources are protected."
+    "CRITICAL: Obtain and configure valid `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` for Google Calendar integration. This is a major blocker.",
+    "PRIORITY: Implement the actual API call logic for LinkedIn, SendPulse, Sarvam, and Google Calendar (once credentials are set) to replace mock/simulated functionality.",
+    "Verify all provided environment variables are correct and accessible during build and runtime to ensure Firebase and other services function as expected.",
+    "Thoroughly test Firebase Security Rules using the emulator and manual testing.",
+    "Conduct end-to-end testing of all user flows (signup, login, campaign creation, outreach, calling, etc.) once API integrations are complete.",
+    "If Firebase App Check is re-enabled, meticulously test its functionality post-deployment to resolve any 'appCheck/recaptcha-error' and ensure backend resources are protected."
   ]
 }
 
