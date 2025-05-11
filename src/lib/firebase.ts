@@ -1,7 +1,8 @@
+// src/lib/firebase.ts
 'use client';
 
 import type { FirebaseApp } from 'firebase/app';
-import { initializeApp, getApps } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
 const firebaseConfig = {
@@ -11,41 +12,43 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional but good to have
 };
 
 let app: FirebaseApp | undefined;
 let appCheckInitialized = false;
 
-export function initializeFirebase() {
+export function initializeFirebase(): FirebaseApp | null {
   if (typeof window !== 'undefined') {
     if (!getApps().length) {
       const missingKeys = Object.entries(firebaseConfig)
-        .filter(([key, value]) => !value && key !== 'measurementId')
+        .filter(([key, value]) => !value && key !== 'measurementId') // measurementId is optional
         .map(([key]) => key);
 
       if (missingKeys.length > 0) {
         console.error(
-          `🔴 Missing Firebase environment variables: ${missingKeys.join(', ')}. ` +
-          `Please check your .env file or environment configuration. Firebase will not be initialized.`
+          `🔴 Critical Error: Missing Firebase environment variables: ${missingKeys.join(', ')}. ` +
+          `Please ensure all NEXT_PUBLIC_FIREBASE_... variables are correctly set in your .env file or environment configuration. Firebase will NOT be initialized.`
         );
-        return;
+        return null; // Critical error, do not proceed
       }
 
       try {
         app = initializeApp(firebaseConfig);
-        console.log('🟢 Firebase initialized successfully');
+        console.log('🟢 Firebase initialized successfully. Project ID:', firebaseConfig.projectId);
 
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
         if (!recaptchaSiteKey) {
-          console.error(
-            "🔴 Missing NEXT_PUBLIC_RECAPTCHA_SITE_KEY environment variable. " +
-            "Firebase App Check will not be initialized. This is required for App Check."
+          console.warn(
+            "🟡 WARNING: NEXT_PUBLIC_RECAPTCHA_SITE_KEY environment variable is missing. " +
+            "Firebase App Check will NOT be initialized. This is crucial for protecting your backend resources."
           );
         } else {
-          console.log(`🟠 Attempting to initialize App Check with reCAPTCHA site key starting with: ${recaptchaSiteKey.substring(0, 10)}...`);
+          console.log(`🟠 Attempting to initialize App Check with reCAPTCHA site key (masked): ${recaptchaSiteKey.substring(0, 6)}...****`);
           
-          if (app && (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN === undefined && !appCheckInitialized) {
+          if ((self as any).FIREBASE_APPCHECK_DEBUG_TOKEN !== undefined) {
+            console.warn('🟡 Firebase App Check debug token is set. Real App Check provider will not be used. For production, remove the debug token.');
+          } else if (!appCheckInitialized) { // Check if already initialized
             try {
               initializeAppCheck(app, {
                   provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
@@ -55,40 +58,43 @@ export function initializeFirebase() {
               console.log('🟢 Firebase App Check initialized with reCAPTCHA Enterprise.');
             } catch (appCheckError: any) {
               console.error("🔴 Firebase App Check initialization FAILED:", appCheckError);
-              console.error("AppCheck Error Name:", appCheckError.name);
-              console.error("AppCheck Error Message:", appCheckError.message);
-              if (appCheckError.code === 'appCheck/recaptcha-error' || (appCheckError.message && appCheckError.message.includes('ReCAPTCHA'))) {
+              if (appCheckError.name === 'FirebaseError' && appCheckError.code === 'appCheck/recaptcha-error') {
                    console.error(
-                    "🚨 TROUBLESHOOTING Firebase App Check (reCAPTCHA error):\n" +
-                    "1. VERIFY KEY: Ensure NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your .env file is correct (currently starts with: " + recaptchaSiteKey.substring(0,10) + "...).\n" +
-                    "2. DOMAIN AUTHORIZATION: The current domain (" + window.location.hostname + ") MUST be added to the allowed domains for this reCAPTCHA key in Google Cloud Console (Security > reCAPTCHA Enterprise).\n" +
-                    "3. API ENABLED: Make sure the 'reCAPTCHA Enterprise API' is enabled for your Google Cloud project '" + (firebaseConfig.projectId || 'YOUR_PROJECT_ID') + "'.\n" +
-                    "4. BILLING: Confirm billing is enabled for your Google Cloud project. reCAPTCHA Enterprise might have usage costs.\n" +
-                    "5. EXTENSIONS: Disable ad blockers or browser extensions that might interfere with reCAPTCHA.\n" +
-                    "6. DEBUG TOKEN: If you previously used an App Check debug token for local testing, ensure it's removed for production or when testing the real reCAPTCHA flow."
+                    "🚨🚨🚨 TROUBLESHOOTING Firebase App Check (appCheck/recaptcha-error): 🚨🚨🚨\n" +
+                    "This usually means a configuration issue with your reCAPTCHA Enterprise setup in Google Cloud Console or your environment variables.\n" +
+                    "Please verify the following:\n" +
+                    "1. ✅ VERIFY SITE KEY VALUE: Ensure `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` in your .env file is EXACTLY correct for your Firebase project. Current key starts with: " + recaptchaSiteKey.substring(0,10) + "...\n" +
+                    "2. ✅ DOMAIN AUTHORIZATION: The current domain (`" + window.location.hostname + "`) MUST be added to the 'Allowed domains' for THIS reCAPTCHA key in Google Cloud Console (IAM & Admin > Security > reCAPTCHA Enterprise > Your Key Settings).\n" +
+                    "3. ✅ API ENABLED: Make sure the 'reCAPTCHA Enterprise API' is ENABLED for your Google Cloud project '" + (firebaseConfig.projectId || 'YOUR_PROJECT_ID') + "'.\n" +
+                    "4. ✅ BILLING ENABLED: Confirm billing is enabled for your Google Cloud project. reCAPTCHA Enterprise usage might incur costs.\n" +
+                    "5. ✅ BROWSER EXTENSIONS: Temporarily disable ad blockers or browser extensions that might interfere with reCAPTCHA loading.\n" +
+                    "6. ✅ DEBUG TOKEN: If you previously used an App Check debug token for local testing, ensure it's removed for production or when testing the real reCAPTCHA flow (check console for debug token messages)."
                   );
               } else {
                  console.error(
-                  "🚨 An unexpected error occurred during App Check initialization. Check the console for more details."
+                  "🚨 An unexpected error occurred during App Check initialization. Check the console for more details from the App Check SDK."
                  );
               }
             }
-          } else if (appCheckInitialized) {
-              console.warn('🟡 Firebase App Check already initialized.');
-          } else if ((self as any).FIREBASE_APPCHECK_DEBUG_TOKEN !== undefined) {
-              console.warn('🟡 Firebase App Check debug token is set. Real App Check provider will not be used. For production, remove the debug token.');
+          } else {
+              console.log('🟡 Firebase App Check already initialized in this session.');
           }
         }
       } catch (initError) {
-        console.error("🔴 Firebase core initialization failed:", initError);
-        app = undefined;
+        console.error("🔴 Firebase core initialization FAILED:", initError);
+        app = undefined; // Ensure app is undefined on failure
+        return null;
       }
     } else {
-      app = getApps()[0];
-      if (app && !appCheckInitialized && (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN === undefined) {
+      app = getApp(); // Get existing app instance
+      // Attempt App Check initialization if not done yet and no debug token
+      if (!appCheckInitialized && (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN === undefined) {
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
         if (recaptchaSiteKey) {
           try {
+            // Check if App Check is already initialized for this app instance
+            // This is a bit tricky as initializeAppCheck throws if already initialized for the *same app instance and provider*.
+            // For simplicity, we rely on the appCheckInitialized flag.
             initializeAppCheck(app, {
               provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
               isTokenAutoRefreshEnabled: true,
@@ -96,13 +102,14 @@ export function initializeFirebase() {
             appCheckInitialized = true;
             console.log('🟢 Firebase App Check initialized on subsequent load.');
           } catch (appCheckError : any) {
-             if (appCheckError.message && appCheckError.message.includes('app-check/already-initialized')) {
-                 console.warn('🟡 Firebase App Check already initialized on subsequent load.');
-                 appCheckInitialized = true;
-             } else if (appCheckError.code === 'appCheck/recaptcha-error' || (appCheckError.message && appCheckError.message.includes('ReCAPTCHA'))) {
-                 console.error("🔴 Firebase App Check initialization FAILED (reCAPTCHA error) on subsequent load. Current domain: " + window.location.hostname + ". See detailed troubleshooting steps above.");
+             if (appCheckError.message && (appCheckError.message.includes('app-check/already-initialized') || appCheckError.code === 'app-check/already-initialized')) {
+                 // This error means it was already initialized for this app instance in this session.
+                 console.warn('🟡 Firebase App Check already initialized (detected on subsequent load).');
+                 appCheckInitialized = true; // Ensure flag is set
+             } else if (appCheckError.name === 'FirebaseError' && appCheckError.code === 'appCheck/recaptcha-error') {
+                 console.error("🔴 Firebase App Check initialization FAILED (reCAPTCHA error) on subsequent load. Current domain: `" + window.location.hostname + "`. See detailed troubleshooting steps above.");
              } else {
-                console.error("🔴 Firebase App Check initialization FAILED on subsequent load:", appCheckError);
+                console.error("🔴 Firebase App Check initialization FAILED on subsequent load with an unexpected error:", appCheckError);
              }
           }
         } else {
@@ -110,14 +117,27 @@ export function initializeFirebase() {
         }
       }
     }
+  } else {
+    // Server-side or non-browser environment
+    console.log("Firebase initialization skipped (server-side or non-browser environment).");
+    return null;
   }
+  return app || null;
 }
 
 export const getFirebaseApp = (): FirebaseApp | null => {
-  if (typeof window === 'undefined') return null; 
+  if (typeof window === 'undefined') {
+    console.warn("getFirebaseApp called in a non-browser environment. Returning null.");
+    return null;
+  }
 
   if (!app || getApps().length === 0) {
-    initializeFirebase();
+    return initializeFirebase(); // This will handle initialization and return the app or null
   }
-  return app || null;
+  return app; // Return the already initialized app
+};
+
+// Optional: Function to check App Check status if needed elsewhere
+export const isAppCheckInitialized = (): boolean => {
+  return appCheckInitialized;
 };
