@@ -6,16 +6,14 @@ import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import {siteConfig} from "@/config/site";
-import { initializeFirebase } from '@/lib/firebase';
+// import { initializeFirebase } from '@/lib/firebase'; // This was commented out
+import { getFirebaseApp } from '@/lib/firebase'; // Switched to getFirebaseApp
 import { useEffect, useState } from 'react';
-import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkProvider } from '@clerk/nextjs'; // Correct import
 import { usePathname } from 'next/navigation';
 
 
-// export const metadata: Metadata = { // Cannot export metadata from client component
-//     title: siteConfig.name,
-//     description: siteConfig.description,
-// };
+// Metadata is in src/app/metadata.ts
 
 export default function RootLayout({
   children,
@@ -29,14 +27,14 @@ export default function RootLayout({
 
     useEffect(() => {
       if (typeof window !== 'undefined' && !isInitialized) {
-        initializeFirebase(); // Initialize Firebase
+        getFirebaseApp(); // Initialize Firebase
         setIsInitialized(true);
       }
     }, [isInitialized]);
 
   // The ClerkProvider should ideally get the publishableKey from process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   // If this is not working, it means the environment variable is not set correctly or not accessible.
-  // The error "Publishable key not valid" points to the VALUE of the key being wrong.
+  // The error "Publishable key not valid" points to the VALUE of the key being wrong or the variable not being loaded.
   return (
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en">
@@ -59,3 +57,4 @@ export default function RootLayout({
     </ClerkProvider>
   );
 }
+
