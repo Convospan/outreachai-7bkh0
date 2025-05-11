@@ -12,7 +12,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional for Analytics
 };
 
 let app: FirebaseApp | undefined;
@@ -21,15 +21,24 @@ let app: FirebaseApp | undefined;
 export function initializeFirebase(): FirebaseApp | null {
   if (typeof window !== 'undefined') {
     if (!getApps().length) {
-      const missingKeys = Object.entries(firebaseConfig)
-        .filter(([key, value]) => !value && key !== 'measurementId')
-        .map(([key]) => key);
+      // Check for missing essential Firebase config keys
+      const requiredKeys: (keyof typeof firebaseConfig)[] = [
+        'apiKey',
+        'authDomain',
+        'projectId',
+        'storageBucket',
+        'messagingSenderId',
+        'appId',
+      ];
+      const missingKeys = requiredKeys.filter(key => !firebaseConfig[key]);
 
       if (missingKeys.length > 0) {
         console.error(
-          `🔴 Critical Error: Missing Firebase environment variables: ${missingKeys.join(', ')}. ` +
-          `Please ensure all NEXT_PUBLIC_FIREBASE_... variables are correctly set in your .env file or environment configuration. Firebase will NOT be initialized.`
+          `🔴 Missing Firebase environment variables: ${missingKeys.join(', ')}. ` +
+          `Please check your .env file or environment configuration. Firebase will not be initialized.`
         );
+        // Optionally, you could throw an error here if Firebase is absolutely critical
+        // for the app to even start, but for now, just logging and returning null.
         return null;
       }
 
@@ -38,7 +47,7 @@ export function initializeFirebase(): FirebaseApp | null {
         console.log('🟢 Firebase initialized successfully. Project ID:', firebaseConfig.projectId);
 
         // --- App Check Initialization Start (Temporarily Disabled) ---
-        console.warn("🟡 SKIPPING Firebase App Check initialization for now.");
+        // console.warn("🟡 SKIPPING Firebase App Check initialization for now.");
         /*
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
         if (!recaptchaSiteKey) {
@@ -88,54 +97,30 @@ export function initializeFirebase(): FirebaseApp | null {
 
       } catch (initError) {
         console.error("🔴 Firebase core initialization FAILED:", initError);
-        app = undefined;
+        app = undefined; // Ensure app is undefined if initialization fails
         return null;
       }
     } else {
       app = getApp();
-      console.log('🟡 Firebase App Check initialization skipped on subsequent load (App Check temporarily disabled).');
-      // --- App Check Subsequent Load Logic Start (Temporarily Disabled) ---
-      /*
-      if (!appCheckInitialized && (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN === undefined) {
-        const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-        if (recaptchaSiteKey) {
-          try {
-            initializeAppCheck(app, {
-              provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
-              isTokenAutoRefreshEnabled: true,
-            });
-            appCheckInitialized = true;
-            console.log('🟢 Firebase App Check initialized on subsequent load.');
-          } catch (appCheckError : any) {
-             if (appCheckError.message && (appCheckError.message.includes('app-check/already-initialized') || appCheckError.code === 'app-check/already-initialized')) {
-                 console.warn('🟡 Firebase App Check already initialized (detected on subsequent load).');
-                 appCheckInitialized = true;
-             } else if (appCheckError.name === 'FirebaseError' && appCheckError.code === 'appCheck/recaptcha-error') {
-                 console.error("🔴 Firebase App Check initialization FAILED (reCAPTCHA error) on subsequent load. Current domain: `" + window.location.hostname + "`. See detailed troubleshooting steps above.");
-             } else {
-                console.error("🔴 Firebase App Check initialization FAILED on subsequent load with an unexpected error:", appCheckError);
-             }
-          }
-        } else {
-            console.warn("🟡 NEXT_PUBLIC_RECAPTCHA_SITE_KEY missing on subsequent load. App Check not initialized.");
-        }
-      }
-      */
-      // --- App Check Subsequent Load Logic End (Temporarily Disabled) ---
+      // App Check subsequently load logic - currently disabled as per above
+      // console.log('🟡 Firebase App Check initialization skipped on subsequent load (App Check temporarily disabled).');
     }
   } else {
-    console.log("Firebase initialization skipped (server-side or non-browser environment). App Check not applicable here.");
+    // Server-side or non-browser environment
+    // console.log("Firebase client initialization skipped (server-side or non-browser environment).");
     return null;
   }
-  return app || null;
+  return app || null; // Return the initialized app or null if issues occurred
 }
 
 export const getFirebaseApp = (): FirebaseApp | null => {
   if (typeof window === 'undefined') {
-    console.warn("getFirebaseApp called in a non-browser environment. Returning null.");
+    // console.warn("getFirebaseApp called in a non-browser environment. Returning null.");
     return null;
   }
 
+  // Ensure app is initialized if it hasn't been already.
+  // This handles cases where getFirebaseApp might be called before RootLayout's useEffect runs.
   if (!app || getApps().length === 0) {
     return initializeFirebase();
   }
