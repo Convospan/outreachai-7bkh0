@@ -1,3 +1,4 @@
+
 /**
  * Represents a LinkedIn profile.
  */
@@ -57,8 +58,8 @@ export interface OAuthConfiguration {
  * Client ID and Redirect URI are public, Client Secret is server-side only.
  */
 export async function getLinkedInOAuthConfig(): Promise<OAuthConfiguration> {
-  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
-  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '78390mtb4x6bnd';
+  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || 'WPL_AP1.oLC30bEBnic3YUVE.1vCHkQ==';
   const redirectUri = process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || 
                       (typeof window !== 'undefined' ? `${window.location.origin}/auth/linkedin/callback` : 'https://outreachai-7bkh0.web.app/auth/linkedin/callback');
 
@@ -67,9 +68,8 @@ export async function getLinkedInOAuthConfig(): Promise<OAuthConfiguration> {
     throw new Error('LinkedIn OAuth configuration is incomplete (Client ID or Redirect URI missing).');
   }
    if (!clientSecret && typeof window === 'undefined') { 
-    console.error('LinkedIn Client Secret is missing. Ensure LINKEDIN_CLIENT_SECRET is set in server environment variables.');
+    console.warn('LinkedIn Client Secret is missing. Ensure LINKEDIN_CLIENT_SECRET is set in server environment variables. This is required for token exchange.');
   }
-
 
   return {
     clientId,
@@ -92,8 +92,8 @@ interface LinkedInProfileAPIResponse {
   profilePicture?: {
     'displayImage~': {
       elements: Array<{
-        identifiers: Array<{identifier: string}>;
-        artifact?: string; // Can also be used for full image URL
+        identifiers: Array<{identifier: string; mediaType: string;}>;
+        artifact?: string; 
       }>;
     };
   };
@@ -122,52 +122,40 @@ export async function getLinkedInProfileByToken(accessToken: string): Promise<Li
   console.log("Attempting to fetch LinkedIn profile with token:", accessToken.substring(0,10) + "...");
   
   try {
-    // Fetch basic profile data
     const profileApiUrl = 'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams),headline(localized,preferredLocale))';
     const profileResponse = await axios.get<LinkedInProfileAPIResponse>(profileApiUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'X-Restli-Protocol-Version': '2.0.0', 
-        'LinkedIn-Version': '202308', // Use a recent, stable API version
+        'LinkedIn-Version': '202401', // Use a recent, stable API version
       },
     });
     const profileData = profileResponse.data;
 
-    // Fetch email address
     const emailApiUrl = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))';
     const emailResponse = await axios.get<LinkedInEmailAPIResponse>(emailApiUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'X-Restli-Protocol-Version': '2.0.0',
-        'LinkedIn-Version': '202308',
+        'LinkedIn-Version': '202401',
       },
     });
     const email = emailResponse.data.elements?.[0]?.['handle~']?.emailAddress || null;
     
-    // Construct the profile URL (usually you construct this from the ID or it might be available in other endpoints)
     const profileUrl = `https://www.linkedin.com/in/${profileData.id}`; 
     
-    // Extract profile picture URL - LinkedIn API for profile pictures can be tricky.
-    // The 'displayImage~' object often contains multiple sizes.
-    // The 'artifact' field or an element in 'identifiers' might provide the full URL.
-    // This is a common way to try and get it, but may need adjustment based on actual response.
     let profilePictureUrl: string | null = null;
     const pictureElements = profileData.profilePicture?.['displayImage~']?.elements;
     if (pictureElements && pictureElements.length > 0) {
-        // Prefer 'artifact' if available as it's often the direct image URL
-        if (pictureElements[0].artifact) {
-            profilePictureUrl = pictureElements[0].artifact;
-        } else if (pictureElements[0].identifiers && pictureElements[0].identifiers.length > 0) {
-            profilePictureUrl = pictureElements[0].identifiers[0].identifier;
-        }
+        const preferredIdentifier = pictureElements[0].identifiers?.find(id => id.mediaType === 'image/png') || pictureElements[0].identifiers?.[0];
+        profilePictureUrl = preferredIdentifier?.identifier || pictureElements[0].artifact || null;
     }
-
 
     return {
       id: profileData.id,
-      firstName: profileData.firstName?.localized?.[profileData.firstName?.preferredLocale.language || 'en_US'] || '',
-      lastName: profileData.lastName?.localized?.[profileData.lastName?.preferredLocale.language || 'en_US'] || '',
-      headline: profileData.headline?.localized?.[profileData.headline?.preferredLocale.language || 'en_US'] || 'N/A',
+      firstName: profileData.firstName?.localized?.[profileData.firstName?.preferredLocale?.language + '_' + profileData.firstName?.preferredLocale?.country || 'en_US'] || Object.values(profileData.firstName?.localized || {})[0] || '',
+      lastName: profileData.lastName?.localized?.[profileData.lastName?.preferredLocale?.language + '_' + profileData.lastName?.preferredLocale?.country || 'en_US'] || Object.values(profileData.lastName?.localized || {})[0] || '',
+      headline: profileData.headline?.localized?.[profileData.headline?.preferredLocale?.language + '_' + profileData.headline?.preferredLocale?.country || 'en_US'] || Object.values(profileData.headline?.localized || {})[0] || 'N/A',
       profileUrl: profileUrl,
       email: email,
       profilePictureUrl: profilePictureUrl,
@@ -183,132 +171,136 @@ export async function getLinkedInProfileByToken(accessToken: string): Promise<Li
 }
 
 /**
- * Sends a LinkedIn message.
- * IMPORTANT: LinkedIn's UGS (Unified Messaging Service) API is complex and requires specific approvals and setup.
- * This function provides a conceptual placeholder for how such an API call might be structured.
- * You'll need to consult LinkedIn's official UGS documentation for the correct endpoints and request bodies.
- * @param conversationUrn The URN of the conversation to send the message to (e.g., urn:li:fs_conversation:...).
- * @param message The message content object (structure depends on UGS API).
+ * Sends a LinkedIn message using the UGS (Unified Messaging Service) API.
+ * IMPORTANT: This is a complex API. This function provides a structured attempt
+ * but WILL LIKELY REQUIRE ADJUSTMENTS based on specific LinkedIn partnership approvals
+ * and the exact UGS API version and event types you are permitted to use.
+ * @param recipientUrn The URN of the recipient member (e.g., urn:li:person:xxxx).
+ * @param messageText The text of the message to send.
  * @param accessToken The OAuth access token for authentication.
  * @returns A promise that resolves with the API response.
  */
-export async function sendLinkedInMessage(conversationUrn: string, message: object, accessToken: string): Promise<{success: boolean; data?: any; error?: string}> {
-  console.log(`Attempting to send LinkedIn message to conversation ${conversationUrn} using token ${accessToken.substring(0,5)}...`);
+export async function sendLinkedInMessage(recipientUrn: string, messageText: string, accessToken: string): Promise<{success: boolean; data?: any; error?: string}> {
+  console.log(`Attempting to send LinkedIn message to ${recipientUrn} using token ${accessToken.substring(0,5)}...`);
   
-  // Hypothetical endpoint and request body. Replace with actual LinkedIn UGS API details.
-  const sendMessageApiUrl = `https://api.linkedin.com/rest/messages`; // Or /rest/conversations/{conversationUrn}/events
+  const sendMessageApiUrl = `https://api.linkedin.com/v2/messages`; // Common endpoint for UGS
 
   try {
-    const response = await axios.post(sendMessageApiUrl, {
-      // Example UGS message body structure - THIS WILL LIKELY NEED TO CHANGE
-      // Based on actual LinkedIn UGS API.
+    // This request body structure is based on common UGS patterns but needs verification
+    // with LinkedIn's official documentation for the specific UGS event type you are using.
+    const requestBody = {
+      "recipients": [recipientUrn],
       "message": {
         "body": {
-          "text": (message as any).text // Assuming message object has a text property
-        }
+          "text": messageText
+        },
+        // "renderContent": { // Optional: for rich content like cards
+        //   "com.linkedin.voyager.messaging.render.ነባርRenderableMessage": {
+        //     "renderableUrns": [] 
+        //   }
+        // }
       },
-      "recipients": [
-        conversationUrn // Or the participant URNs within a conversation
-      ],
-      // Other UGS specific fields like `originUrn`, `conversationContext` might be needed.
-    }, {
+      // You might need to specify `origin` or other context fields
+      // "originToken": "YOUR_ORIGIN_TOKEN_IF_APPLICABLE" 
+    };
+
+    const response = await axios.post(sendMessageApiUrl, requestBody, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'X-Restli-Protocol-Version': '2.0.0', // Or specific version for UGS
-        'LinkedIn-Version': '202401', // Use the latest relevant API version for UGS
+        'X-Restli-Protocol-Version': '2.0.0', 
+        'LinkedIn-Version': '202403', // Use a very recent API version for UGS
         'Content-Type': 'application/json'
       }
     });
-    console.log("LinkedIn message sent successfully:", response.data);
+    console.log("LinkedIn message sent successfully via UGS:", response.data);
+    // The actual ID or confirmation might be in a different part of the response,
+    // e.g., a location header or a specific ID field.
     return { success: true, data: response.data };
   } catch (error: any) {
-    console.error("Error sending LinkedIn message:", error.response?.data || error.message);
+    console.error("Error sending LinkedIn message via UGS:", error.response?.data || error.message);
      if (axios.isAxiosError(error) && error.response) {
-        return { success: false, error: `LinkedIn API error (${error.response.status}): ${error.response.data?.message || error.message}` };
+        return { success: false, error: `LinkedIn UGS API error (${error.response.status}): ${error.response.data?.message || error.message}` };
     }
-    return { success: false, error: `Failed to send LinkedIn message: ${error.message}` };
+    return { success: false, error: `Failed to send LinkedIn message via UGS: ${error.message}` };
   }
 }
 
-interface LinkedInMessage {
+
+interface LinkedInMessageAPI {
   id: string;
-  senderUrn: string; // URN of the sender
-  text?: string; // Message text might be nested
-  timestamp: number; // Unix timestamp
-  // Other fields based on UGS event types
-}
-interface LinkedInConversationEvent {
-    "*elements": Array<{ // This structure can vary significantly
-        eventContent?: {
-            "com.linkedin.voyager.messaging.event.MessageEvent"?: {
-                attributedBody?: { text?: string };
-                body?: string; // Simpler structure
-                subject?: string;
-            }
-        };
-        from?: {
-            "com.linkedin.voyager.messaging.MessagingMember": {
-                miniProfile: {
-                    objectUrn: string; // Sender URN
-                    firstName: string;
-                    lastName: string;
-                }
-            }
-        };
-        id?: string;
-        createdAt?: number; // Timestamp
-    }>;
-    // Other metadata fields
+  sender?: string; // URN of the sender, e.g., "urn:li:person:xxxx"
+  body?: { text?: string };
+  message?: { body?: {text?: string}}; // UGS API structure varies
+  eventContent?: { // Another common UGS structure
+    "com.linkedin.voyager.messaging.event.MessageEvent"?: {
+      attributedBody?: { text?: string };
+      body?: string; 
+      subject?: string;
+    }
+  };
+  from?: { // Common for UGS
+    "com.linkedin.voyager.messaging.MessagingMember": {
+      miniProfile: {
+        objectUrn: string; // Sender URN
+      }
+    }
+  };
+  createdAt?: number; // Timestamp
+  timestamp?: number; // Alias for createdAt
 }
 
+interface LinkedInConversationEventAPI {
+  elements: LinkedInMessageAPI[];
+  // Other metadata fields
+}
 
 /**
  * Fetches LinkedIn messages for a given conversation URN.
- * IMPORTANT: This is a conceptual placeholder. You'll need to use the correct LinkedIn UGS API endpoints.
- * @param conversationUrn The URN of the conversation.
+ * This is a best-effort implementation and assumes a common UGS API pattern.
+ * @param conversationUrn The URN of the conversation (e.g., urn:li:fs_conversation:...).
  * @param accessToken The OAuth access token.
  * @param count Number of messages to fetch.
- * @param createdBeforeTimestamp Optional timestamp to fetch messages created before this point (for pagination).
- * @returns A promise that resolves to an array of LinkedInMessage objects.
+ * @param createdBeforeTimestamp Optional timestamp to fetch messages created before this point.
+ * @returns A promise that resolves to an array of message objects.
  */
 export async function fetchLinkedInMessages(
   conversationUrn: string, 
   accessToken: string,
   count: number = 20,
   createdBeforeTimestamp?: number
-): Promise<{success: boolean; messages?: LinkedInMessage[]; error?: string; rawData?: any}> {
+): Promise<{success: boolean; messages?: { id: string; senderUrn: string; text: string; timestamp: number; }[]; error?: string; rawData?: any}> {
   console.log(`Attempting to fetch messages for LinkedIn conversation ${conversationUrn} using token ${accessToken.substring(0,5)}...`);
   
-  // Hypothetical endpoint. Replace with actual LinkedIn UGS API details.
-  // Example: /rest/conversations/{conversationUrn}/events?q=messages&eventTypes=List(com.linkedin.voyager.messaging.event.MessageEvent)
-  let fetchMessagesApiUrl = `https://api.linkedin.com/rest/conversations/${conversationUrn}/events?q=byConversation&eventTypes=List(com.linkedin.voyager.messaging.event.MessageEvent)&count=${count}`;
+  // Common endpoint for fetching conversation events.
+  // Parameters might include `q=participants`, `types=MESSAGE`, etc.
+  let fetchMessagesApiUrl = `https://api.linkedin.com/v2/conversations/${conversationUrn}/events?count=${count}`;
   if (createdBeforeTimestamp) {
     fetchMessagesApiUrl += `&createdBefore=${createdBeforeTimestamp}`;
   }
 
   try {
-    const response = await axios.get<LinkedInConversationEvent>(fetchMessagesApiUrl, {
+    const response = await axios.get<LinkedInConversationEventAPI>(fetchMessagesApiUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'X-Restli-Protocol-Version': '2.0.0', 
-        'LinkedIn-Version': '202401', 
+        'LinkedIn-Version': '202403', 
         'Content-Type': 'application/json'
       }
     });
 
-    // Transform response.data.elements into LinkedInMessage[] structure
-    // This is highly dependent on the actual API response structure from LinkedIn UGS
-    const messages: LinkedInMessage[] = (response.data["*elements"] || []).map((event: any) => {
+    const messages = response.data.elements?.map((event: LinkedInMessageAPI) => {
         const messageEvent = event.eventContent?.["com.linkedin.voyager.messaging.event.MessageEvent"];
+        const text = messageEvent?.attributedBody?.text || messageEvent?.body || event.body?.text || event.message?.body?.text || "";
+        const senderUrn = event.from?.["com.linkedin.voyager.messaging.MessagingMember"]?.miniProfile?.objectUrn || event.sender || 'unknown-sender';
         return {
-            id: event.id || `sim_msg_${Math.random()}`,
-            senderUrn: event.from?.["com.linkedin.voyager.messaging.MessagingMember"]?.miniProfile?.objectUrn || 'unknown-sender',
-            text: messageEvent?.attributedBody?.text || messageEvent?.body || "No text content",
-            timestamp: event.createdAt || Date.now(),
+            id: event.id || `msg_${Math.random().toString(36).substr(2, 9)}`,
+            senderUrn: senderUrn,
+            text: text,
+            timestamp: event.createdAt || event.timestamp || Date.now(),
         };
-    }).filter(msg => msg.id && msg.timestamp); // Basic validation
+    }).filter(msg => msg.text); // Filter out events that aren't parseable messages
 
-    console.log("LinkedIn messages fetched successfully:", messages.length > 0 ? messages[0] : "No messages found/parsed.");
+    console.log("LinkedIn messages fetched successfully:", messages?.length || 0);
     return { success: true, messages, rawData: response.data };
 
   } catch (error: any) {
@@ -319,91 +311,3 @@ export async function fetchLinkedInMessages(
     return { success: false, error: `Failed to fetch LinkedIn messages: ${error.message}` };
   }
 }
-
-```
-    </content>
-  </change>
-  <change>
-    <file>src/app/api/linkedin/exchange-token/route.ts</file>
-    <description>Updated the LinkedIn token exchange route to use the enhanced `getLinkedInProfileByToken` service function for fetching profile data. Improved error handling and logging for robustness during the OAuth callback and profile data retrieval process.</description>
-    <content><![CDATA[
-'use server';
-
-import {NextRequest, NextResponse} from 'next/server';
-import axios from 'axios';
-import {getLinkedInOAuthConfig, getLinkedInProfileByToken} from '@/services/linkedin'; // Using getLinkedInProfileByToken
-
-interface LinkedInTokenResponse {
-  access_token: string;
-  expires_in: number;
-  scope: string;
-  token_type: string;
-  id_token?: string; 
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const {code, state: receivedState} = body; // Assuming state might be used for CSRF
-
-    if (!code) {
-      return NextResponse.json({error: 'Authorization code is missing'}, {status: 400});
-    }
-
-    const oauthConfig = await getLinkedInOAuthConfig(); 
-
-    if (!oauthConfig.clientSecret) {
-      console.error('LINKEDIN_CLIENT_SECRET is not configured on the server.');
-      return NextResponse.json({ error: 'Server configuration error: LinkedIn client secret missing.' }, { status: 500 });
-    }
-
-    const tokenUrl = 'https://www.linkedin.com/oauth/v2/accessToken';
-    const params = new URLSearchParams();
-    params.append('grant_type', 'authorization_code');
-    params.append('code', code as string);
-    params.append('redirect_uri', oauthConfig.redirectUri); 
-    params.append('client_id', oauthConfig.clientId);
-    params.append('client_secret', oauthConfig.clientSecret);
-
-    let accessToken: string;
-    try {
-      const tokenResponse = await axios.post<LinkedInTokenResponse>(tokenUrl, params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-      accessToken = tokenResponse.data.access_token;
-      console.log("LinkedIn Access Token obtained successfully.");
-    } catch (tokenError: any) {
-      console.error('Error exchanging LinkedIn code for token:', tokenError.response?.data || tokenError.message);
-      const errorMessage = tokenError.response?.data?.error_description || tokenError.response?.data?.error || tokenError.message || 'Failed to exchange authorization code with LinkedIn.';
-      const status = tokenError.response?.status || 500;
-      return NextResponse.json({error: errorMessage, details: tokenError.response?.data }, {status});
-    }
-    
-    let userProfile: any;
-    try {
-      // Use the service function to get profile data
-      userProfile = await getLinkedInProfileByToken(accessToken);
-      console.log("LinkedIn User Profile fetched successfully:", userProfile);
-    } catch (profileError: any) {
-      console.error('Error fetching LinkedIn profile data using service:', profileError.message);
-      // profileError might already be an Error instance from the service
-      const errorMessage = profileError.message || 'Failed to fetch profile data from LinkedIn.';
-      // Status might not be available if it's a generic error from the service
-      const status = (profileError.isAxiosError && profileError.response?.status) || 500;
-      return NextResponse.json({error: errorMessage, details: (profileError.isAxiosError && profileError.response?.data) || profileError.toString() }, {status});
-    }
-
-    // TODO: Store the accessToken and profileData securely, associated with the user's session/account
-    // This part is application-specific. For example, update user document in Firestore.
-    // e.g., await db.collection('users').doc(auth.userId).update({ linkedInAccessToken: accessToken, linkedInProfile: userProfile });
-
-    return NextResponse.json({profile: userProfile, accessToken}, {status: 200});
-
-  } catch (error: any) {
-    console.error('General error in LinkedIn callback handler:', error.message);
-    return NextResponse.json({error: 'An unexpected error occurred during LinkedIn authentication.', details: error.message }, {status: 500});
-  }
-}
-
