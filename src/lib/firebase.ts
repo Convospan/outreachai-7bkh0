@@ -3,7 +3,7 @@
 
 import type { FirebaseApp } from 'firebase/app';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check"; // App Check temporarily disabled
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,17 +12,17 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional but good to have
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 let app: FirebaseApp | undefined;
-let appCheckInitialized = false;
+// let appCheckInitialized = false; // App Check temporarily disabled
 
 export function initializeFirebase(): FirebaseApp | null {
   if (typeof window !== 'undefined') {
     if (!getApps().length) {
       const missingKeys = Object.entries(firebaseConfig)
-        .filter(([key, value]) => !value && key !== 'measurementId') // measurementId is optional
+        .filter(([key, value]) => !value && key !== 'measurementId')
         .map(([key]) => key);
 
       if (missingKeys.length > 0) {
@@ -30,13 +30,16 @@ export function initializeFirebase(): FirebaseApp | null {
           `🔴 Critical Error: Missing Firebase environment variables: ${missingKeys.join(', ')}. ` +
           `Please ensure all NEXT_PUBLIC_FIREBASE_... variables are correctly set in your .env file or environment configuration. Firebase will NOT be initialized.`
         );
-        return null; // Critical error, do not proceed
+        return null;
       }
 
       try {
         app = initializeApp(firebaseConfig);
         console.log('🟢 Firebase initialized successfully. Project ID:', firebaseConfig.projectId);
 
+        // --- App Check Initialization Start (Temporarily Disabled) ---
+        console.warn("🟡 SKIPPING Firebase App Check initialization for now.");
+        /*
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
         if (!recaptchaSiteKey) {
           console.warn(
@@ -48,7 +51,7 @@ export function initializeFirebase(): FirebaseApp | null {
           
           if ((self as any).FIREBASE_APPCHECK_DEBUG_TOKEN !== undefined) {
             console.warn('🟡 Firebase App Check debug token is set. Real App Check provider will not be used. For production, remove the debug token.');
-          } else if (!appCheckInitialized) { // Check if already initialized
+          } else if (!appCheckInitialized) {
             try {
               initializeAppCheck(app, {
                   provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
@@ -80,21 +83,23 @@ export function initializeFirebase(): FirebaseApp | null {
               console.log('🟡 Firebase App Check already initialized in this session.');
           }
         }
+        */
+        // --- App Check Initialization End (Temporarily Disabled) ---
+
       } catch (initError) {
         console.error("🔴 Firebase core initialization FAILED:", initError);
-        app = undefined; // Ensure app is undefined on failure
+        app = undefined;
         return null;
       }
     } else {
-      app = getApp(); // Get existing app instance
-      // Attempt App Check initialization if not done yet and no debug token
+      app = getApp();
+      console.log('🟡 Firebase App Check initialization skipped on subsequent load (App Check temporarily disabled).');
+      // --- App Check Subsequent Load Logic Start (Temporarily Disabled) ---
+      /*
       if (!appCheckInitialized && (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN === undefined) {
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
         if (recaptchaSiteKey) {
           try {
-            // Check if App Check is already initialized for this app instance
-            // This is a bit tricky as initializeAppCheck throws if already initialized for the *same app instance and provider*.
-            // For simplicity, we rely on the appCheckInitialized flag.
             initializeAppCheck(app, {
               provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
               isTokenAutoRefreshEnabled: true,
@@ -103,9 +108,8 @@ export function initializeFirebase(): FirebaseApp | null {
             console.log('🟢 Firebase App Check initialized on subsequent load.');
           } catch (appCheckError : any) {
              if (appCheckError.message && (appCheckError.message.includes('app-check/already-initialized') || appCheckError.code === 'app-check/already-initialized')) {
-                 // This error means it was already initialized for this app instance in this session.
                  console.warn('🟡 Firebase App Check already initialized (detected on subsequent load).');
-                 appCheckInitialized = true; // Ensure flag is set
+                 appCheckInitialized = true;
              } else if (appCheckError.name === 'FirebaseError' && appCheckError.code === 'appCheck/recaptcha-error') {
                  console.error("🔴 Firebase App Check initialization FAILED (reCAPTCHA error) on subsequent load. Current domain: `" + window.location.hostname + "`. See detailed troubleshooting steps above.");
              } else {
@@ -116,10 +120,11 @@ export function initializeFirebase(): FirebaseApp | null {
             console.warn("🟡 NEXT_PUBLIC_RECAPTCHA_SITE_KEY missing on subsequent load. App Check not initialized.");
         }
       }
+      */
+      // --- App Check Subsequent Load Logic End (Temporarily Disabled) ---
     }
   } else {
-    // Server-side or non-browser environment
-    console.log("Firebase initialization skipped (server-side or non-browser environment).");
+    console.log("Firebase initialization skipped (server-side or non-browser environment). App Check not applicable here.");
     return null;
   }
   return app || null;
@@ -132,12 +137,13 @@ export const getFirebaseApp = (): FirebaseApp | null => {
   }
 
   if (!app || getApps().length === 0) {
-    return initializeFirebase(); // This will handle initialization and return the app or null
+    return initializeFirebase();
   }
-  return app; // Return the already initialized app
+  return app;
 };
 
-// Optional: Function to check App Check status if needed elsewhere
+/* // App Check temporarily disabled
 export const isAppCheckInitialized = (): boolean => {
   return appCheckInitialized;
 };
+*/
