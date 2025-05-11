@@ -94,31 +94,6 @@
       "description": "Firebase App Check (reCAPTCHA) setup has been attempted. `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` has been provided. Further testing is required to ensure it's fully functional and not causing runtime errors.",
       "status": "In Progress (Needs Verification)",
       "resolutionSteps": ["Verify `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` is correct and active.", "Ensure the domain is authorized in Google Cloud Console for the reCAPTCHA key.", "Test App Check functionality thoroughly post-deployment to identify and fix any 'appCheck/recaptcha-error' issues."]
-    },
-    {
-      "id": "npmDependencyConflicts",
-      "description": "Previous npm dependency conflicts (e.g., ESLint, Firebase versions) were addressed by updating package.json.",
-      "status": "Complete"
-    },
-    {
-      "id": "typeScriptErrors",
-      "description": "Previously identified TypeScript type errors (e.g., in API route handlers) have been fixed.",
-      "status": "Complete"
-    },
-    {
-      "id": "clientComponentDirectiveIssues",
-      "description": "Issues related to 'use client' directive and metadata exports have been resolved.",
-      "status": "Complete"
-    },
-    {
-      "id": "tailwindCssConfig",
-      "description": "Tailwind CSS configuration issues (e.g., missing base styles, custom class definitions) have been addressed.",
-      "status": "Complete"
-    },
-    {
-      "id": "githubSourceIntegrationRemoved",
-      "description": "Direct GitHub integration for source code management within Firebase Functions has been removed as per request.",
-      "status": "Complete (By User Request)"
     }
   ],
   "recommendations": [
