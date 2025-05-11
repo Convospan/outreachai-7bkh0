@@ -9,7 +9,7 @@ interface LinkedInTokenResponse {
   expires_in: number;
   scope: string;
   token_type: string;
-  id_token?: string; // If OpenID Connect scopes are used
+  id_token?: string; 
 }
 
 interface LinkedInProfileResponse {
@@ -53,7 +53,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({error: 'Authorization code is missing'}, {status: 400});
     }
 
-    const oauthConfig = await getLinkedInOAuthConfig();
+    // Fetch OAuth config. getLinkedInOAuthConfig() should now ensure clientSecret is only available server-side.
+    const oauthConfig = await getLinkedInOAuthConfig(); 
+
+    if (!oauthConfig.clientSecret) {
+      // This check is crucial because clientSecret is required for token exchange.
+      console.error('LINKEDIN_CLIENT_SECRET is not configured on the server.');
+      return NextResponse.json({ error: 'Server configuration error: LinkedIn client secret missing.' }, { status: 500 });
+    }
+
     const tokenUrl = 'https://www.linkedin.com/oauth/v2/accessToken';
 
     const params = new URLSearchParams();
@@ -61,7 +69,7 @@ export async function POST(req: NextRequest) {
     params.append('code', code as string);
     params.append('redirect_uri', oauthConfig.redirectUri); 
     params.append('client_id', oauthConfig.clientId);
-    params.append('client_secret', oauthConfig.clientSecret);
+    params.append('client_secret', oauthConfig.clientSecret); // Now using the server-side secret
 
     let accessToken: string;
     try {
@@ -80,12 +88,13 @@ export async function POST(req: NextRequest) {
     
     let userProfile: any = {};
     try {
+      // Using projection to request specific fields to minimize data transfer and adhere to best practices
       const profileApiUrl = 'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams),headline(localized,preferredLocale))';
       const profileDataResponse = await axios.get<LinkedInProfileResponse>(profileApiUrl, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'X-Restli-Protocol-Version': '2.0.0', 
-          'LinkedIn-Version': '202308', 
+          'LinkedIn-Version': '202308', // Using a recent, stable API version
         },
       });
 
@@ -111,17 +120,18 @@ export async function POST(req: NextRequest) {
 
     } catch (profileError: any) {
       console.error('Error fetching LinkedIn profile data:', profileError.response?.data || profileError.message);
-      // Decide if you want to return an error or proceed with partial data / just the token
-      // For now, let's return an error if profile fetch fails
       const errorMessage = profileError.response?.data?.message || profileError.message || 'Failed to fetch profile data from LinkedIn.';
       const status = profileError.response?.status || 500;
       return NextResponse.json({error: errorMessage, details: profileError.response?.data }, {status});
     }
 
+    // TODO: Store the accessToken and profileData securely, associated with the user's session/account
+    // For example, update user document in Firestore with LinkedIn ID, access token (encrypted), etc.
+    // This part is application-specific.
+
     return NextResponse.json({profile: userProfile, accessToken}, {status: 200});
 
   } catch (error: any) {
-    // Catch any other unexpected errors during the overall process
     console.error('General error in LinkedIn callback handler:', error.message);
     return NextResponse.json({error: 'An unexpected error occurred during LinkedIn authentication.', details: error.message }, {status: 500});
   }

@@ -28,10 +28,7 @@ export interface LinkedInProfile {
  * @returns A promise that resolves to a LinkedInProfile object.
  */
 export async function getLinkedInProfile(username: string): Promise<LinkedInProfile> {
-  // This is a placeholder. Actual API calls would use an access token.
-  // See getLinkedInProfileByToken for a more realistic approach.
   console.warn('getLinkedInProfile by username is a placeholder. Use token-based fetching for actual data.');
-  // Simulate some variation for testing enrichment
   const isDetailed = Math.random() > 0.5;
   return {
     id: 'placeholder-id-for-' + username,
@@ -49,99 +46,141 @@ export async function getLinkedInProfile(username: string): Promise<LinkedInProf
  */
 export interface OAuthConfiguration {
   clientId: string;
-  clientSecret: string;
+  clientSecret: string; // This should only be used server-side
   redirectUri: string;
 }
 
 /**
  * Returns OAuth configuration.
- * Ensure these are set in your environment variables for security.
+ * Client ID and Redirect URI are public, Client Secret is server-side only.
  */
 export async function getLinkedInOAuthConfig(): Promise<OAuthConfiguration> {
-  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '78390mtb4x6bnd';
-  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || 'WPL_AP1.oLC30bEBnic3YUVE.1vCHkQ==';
-  const redirectUri = process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || (typeof window !== 'undefined' ? `${window.location.origin}/auth/linkedin/callback` : 'https://convospan.ai/auth/linkedin/callback');
+  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '78390mtb4x6bnd'; // Public
+  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || 'WPL_AP1.oLC30bEBnic3YUVE.1vCHkQ=='; // Server-side secret
+  const redirectUri = process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || 
+                      (typeof window !== 'undefined' ? `${window.location.origin}/auth/linkedin/callback` : 'https://convospan.ai/auth/linkedin/callback'); // Public
 
-
-  if (!clientId || !clientSecret || !redirectUri) {
-    console.error('LinkedIn OAuth configuration is incomplete. Check environment variables: NEXT_PUBLIC_LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, NEXT_PUBLIC_LINKEDIN_REDIRECT_URI');
-    throw new Error('LinkedIn OAuth configuration is incomplete.');
+  if (!clientId || !redirectUri) { // Client secret checked server-side
+    console.error('LinkedIn OAuth configuration is incomplete (Client ID or Redirect URI missing). Check environment variables: NEXT_PUBLIC_LINKEDIN_CLIENT_ID, NEXT_PUBLIC_LINKEDIN_REDIRECT_URI');
+    throw new Error('LinkedIn OAuth configuration is incomplete (Client ID or Redirect URI missing).');
   }
+   if (!clientSecret && typeof window === 'undefined') { // Check for client secret only on server
+    console.error('LinkedIn Client Secret is missing. Ensure LINKEDIN_CLIENT_SECRET is set in server environment variables.');
+    // Not throwing error here as this function might be called client-side where secret isn't needed.
+    // The API route (/api/linkedin/exchange-token) MUST check for clientSecret.
+  }
+
 
   return {
     clientId,
-    clientSecret,
+    clientSecret, // Will be empty string on client, actual value on server
     redirectUri,
   };
 }
 
 
 /**
- * Placeholder function to fetch LinkedIn profile data using an access token.
+ * Fetches LinkedIn profile data using an access token.
  * @param accessToken The LinkedIn access token.
  * @returns A promise that resolves to LinkedInProfile data.
  */
 export async function getLinkedInProfileByToken(accessToken: string): Promise<LinkedInProfile> {
-  // This is where you would make the actual API call to LinkedIn
-  // e.g., to https://api.linkedin.com/v2/me or other relevant endpoints
-  // using the accessToken in the Authorization header.
+  // IMPORTANT: This is a conceptual example. You need to use the correct LinkedIn API endpoint and structure.
+  // Common endpoints:
+  // - https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams),headline)
+  // - https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))
+  console.log("Attempting to fetch LinkedIn profile with token (conceptual):", accessToken.substring(0,10) + "...");
+  
+  // Placeholder for actual API call using axios or fetch
+  // Example structure (you'll need to adapt this based on LinkedIn's actual API)
+  /*
+  try {
+    const response = await axios.get('https://api.linkedin.com/v2/me', { // Replace with correct endpoint
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'X-Restli-Protocol-Version': '2.0.0', // Often required by LinkedIn
+        'LinkedIn-Version': '202308' // Specify API version
+      }
+    });
+    // Transform response.data into LinkedInProfile structure
+    return {
+      id: response.data.id,
+      firstName: response.data.firstName?.localized?.en_US, // Example, adjust to actual structure
+      lastName: response.data.lastName?.localized?.en_US,
+      headline: response.data.headline?.localized?.en_US,
+      profileUrl: `https://www.linkedin.com/in/${response.data.id}`, // Construct if not directly available
+      // ... fetch email and profile picture separately if needed
+    };
+  } catch (error) {
+    console.error("Error fetching LinkedIn profile:", error);
+    throw error; // Re-throw to be handled by caller
+  }
+  */
 
-  // For demonstration, returning mock data:
-  console.log("Fetching LinkedIn profile with token (mocked):", accessToken.substring(0,10) + "...");
+  // Returning mock data for now:
   return {
-    id: "mocked-linkedin-user-id",
-    firstName: "MockedFirst",
-    lastName: "MockedLast",
-    headline: "Mocked Professional Headline",
-    profileUrl: "https://www.linkedin.com/in/mockedprofile",
-    email: "mocked.user@example.com",
-    profilePictureUrl: "https://picsum.photos/200"
+    id: "mocked-linkedin-user-id-from-token",
+    firstName: "MockedTokenFirst",
+    lastName: "MockedTokenLast",
+    headline: "Mocked Professional Headline from Token",
+    profileUrl: "https://www.linkedin.com/in/mockedprofiletoken",
+    email: "mocked.token.user@example.com",
+    profilePictureUrl: "https://picsum.photos/seed/token/200"
   };
 }
 
 /**
- * Placeholder for sending a LinkedIn message.
- * @param profileId The ID of the LinkedIn profile to send the message to.
+ * Sends a LinkedIn message.
+ * @param profileId The ID of the LinkedIn profile to send the message to (URN format, e.g., urn:li:person:xxxx).
  * @param message The message content.
  * @param accessToken The OAuth access token for authentication.
  * @returns A promise that resolves when the message is sent (or simulates sending).
  */
 export async function sendLinkedInMessage(profileId: string, message: string, accessToken: string): Promise<{success: boolean; messageId?: string; error?: string}> {
-  console.log(`Simulating sending LinkedIn message to profile ${profileId}: "${message.substring(0, 50)}..." using token ${accessToken.substring(0,5)}...`);
-  // In a real application, this would involve an API call to LinkedIn's messaging API.
-  // e.g., POST /v2/messages
-  // Ensure you have the `w_messages` scope if you're using an older API or the appropriate scope for UGS (Unified Messaging Service).
-  // For now, simulate success.
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  console.log(`Simulating sending LinkedIn message to profile URN ${profileId}: "${message.substring(0, 50)}..." using token ${accessToken.substring(0,5)}...`);
+  // IMPORTANT: This is a conceptual example. LinkedIn's messaging API (UGS) is complex.
+  // You'd typically POST to an endpoint like /rest/messages with a specific request body.
+  /*
+  try {
+    const response = await axios.post('https://api.linkedin.com/rest/messages', { // Replace with correct UGS endpoint
+      recipients: [`urn:li:person:${profileId}`], // Or appropriate URN format
+      message: {
+        body: {
+          text: message
+        }
+      }
+      // ... other required fields for UGS
+    }, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'X-Restli-Protocol-Version': '2.0.0',
+        'LinkedIn-Version': '202308',
+        'Content-Type': 'application/json'
+      }
+    });
+    return { success: true, messageId: response.data.id }; // Adapt to actual response
+  } catch (error) {
+    console.error("Error sending LinkedIn message:", error);
+    return { success: false, error: error.message || "Failed to send message" };
+  }
+  */
+  await new Promise(resolve => setTimeout(resolve, 500)); 
   return { success: true, messageId: `sim_msg_${Date.now()}` };
 }
 
-/**
- * Placeholder for fetching LinkedIn messages for a given conversation/profile.
- * @param profileId The ID of the LinkedIn profile to fetch messages for.
- * @param accessToken The OAuth access token.
- * @param sinceTimestamp Optional timestamp to fetch messages since.
- * @returns A promise that resolves to an array of simulated message objects.
- */
 interface LinkedInMessage {
   id: string;
-  sender: 'user' | 'prospect'; // 'user' means ConvoSpan, 'prospect' means the LinkedIn contact
+  sender: 'user' | 'prospect'; 
   text: string;
   timestamp: Date;
 }
 export async function fetchLinkedInMessages(profileId: string, accessToken: string, sinceTimestamp?: number): Promise<LinkedInMessage[]> {
   console.log(`Simulating fetching LinkedIn messages for profile ${profileId} using token ${accessToken.substring(0,5)}...`);
-  // In a real application, this would involve an API call to LinkedIn's messaging API.
-  // e.g., GET /v2/conversations/{conversationId}/events or similar
-  // This is highly dependent on the specific LinkedIn API version and capabilities.
-  // For now, return a mock response or an empty array.
+  // IMPORTANT: This is conceptual. Fetching messages requires complex API calls to LinkedIn UGS.
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  // Simulate a new message from the prospect if not fetching since a specific time
   if (!sinceTimestamp) { 
-    return [
-      // { id: `sim_reply_${Date.now()}`, sender: 'prospect', text: "Thanks for connecting! I'm interested to learn more.", timestamp: new Date(Date.now() - 10000) },
-    ];
+    return [];
   }
   return [];
 }
