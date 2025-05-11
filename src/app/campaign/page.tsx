@@ -1,9 +1,10 @@
+
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import type {GenerateOutreachSequenceOutput} from '@/ai/flows/generate-outreach-sequence';
 import {generateOutreachScript, type GenerateOutreachScriptInput, type GenerateOutreachScriptOutput} from '@/ai/flows/generate-outreach-script';
-import {enrichLinkedInProfile, type EnrichLinkedInProfileInput} from '@/ai/flows/enrich-linkedin-profile'; // Corrected type import
+import {enrichLinkedInProfile, type EnrichLinkedInProfileInput} from '@/ai/flows/enrich-linkedin-profile'; 
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
@@ -19,18 +20,17 @@ import {
   createGoogleCalendarEvent,
   createOAuth2Client,
   getGoogleCalendarTokensFromCode,
-  generateGoogleCalendarAuthUrl, // Corrected import name
+  generateGoogleCalendarAuthUrl,
 } from '@/services/google-calendar';
 import type {LinkedInProfile} from '@/services/linkedin';
-import {getLinkedInProfile} from '@/services/linkedin';
+import {getLinkedInProfileByToken, sendLinkedInMessage, fetchLinkedInMessages } from '@/services/linkedin'; // Use getLinkedInProfileByToken
 import type {TwitterProfile} from '@/services/twitter';
-// import {getTwitterProfile} from '@/services/twitter'; // Assuming getTwitterProfile is available if needed
 import type {Auth} from 'googleapis';
 import Link from 'next/link';
-import {useEffect, useState} from 'react';
-import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle, ArrowLeft, HomeIcon, ChevronRight } from 'lucide-react';
+import {useEffect, useState, Suspense} from 'react';
+import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle, ArrowLeft, HomeIcon, ChevronRight, Loader2 } from 'lucide-react';
 import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 
 interface MessageTemplate {
@@ -61,27 +61,30 @@ const prospectJourneyStages: ProspectStage[] = [
 ];
 
 
-export default function CampaignPage() {
+function CampaignPageContent() {
   const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email' | 'whatsapp'>('linkedin');
   const [currentMessage, setCurrentMessage] = useState('');
-  const [linkedinUsername, setLinkedInUsername] = useState('');
+  const [linkedinUsername, setLinkedInUsername] = useState(''); // Might be used if manually entered, or derived
   const [twitterUsername, setTwitterUsername] = useState('');
-  const [emailAddress, setEmailAddress] = useState(''); // Used for email drip target
-  const [prospectEmailForDrip, setProspectEmailForDrip] = useState(''); // Email obtained from prospect
+  const [emailAddress, setEmailAddress] = useState(''); 
+  const [prospectEmailForDrip, setProspectEmailForDrip] = useState('');
 
   const [linkedinProfile, setLinkedInProfile] = useState<LinkedInProfile | null>(null);
   const [twitterProfile, setTwitterProfile] = useState<TwitterProfile | null>(null);
-  const [emailProfile, setEmailProfile] = useState<EmailProfile | null>(null); // For general email info if needed
+  const [emailProfile, setEmailProfile] = useState<EmailProfile | null>(null); 
 
   const [additionalContext, setAdditionalContext] = useState('');
   const {toast} = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // LinkedIn Conversation State
+
   const [linkedinConversation, setLinkedinConversation] = useState<ConversationMessage[]>([]);
   const [isLinkedInOutreachActive, setIsLinkedInOutreachActive] = useState(false);
   const [currentObjective, setCurrentObjective] = useState<GenerateOutreachScriptInput['objective']>('build_rapport');
   const [suggestedNextObjective, setSuggestedNextObjective] = useState<GenerateOutreachScriptOutput['suggestedNextObjective'] | undefined>(undefined);
+  const [isLoadingLinkedInData, setIsLoadingLinkedInData] = useState(false);
+  const [linkedInAccessToken, setLinkedInAccessToken] = useState<string | null>(null);
 
 
   const [companyName, setCompanyName] = useState('');
@@ -96,12 +99,18 @@ export default function CampaignPage() {
   const [calendarEventAttendees, setCalendarEventAttendees] = useState('');
   const [addGoogleMeet, setAddGoogleMeet] = useState(true);
 
-  // Prospect Journey State
   const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>('Identified');
-  const [leadId, setLeadId] = useState<string | null>(null); // To store lead ID if applicable
+  const [leadId, setLeadId] = useState<string | null>(null); 
 
 
   useEffect(() => {
+    // Attempt to get LinkedIn access token from localStorage or another source if OAuth flow was completed
+    const token = localStorage.getItem('linkedInAccessToken'); // Example: if stored after OAuth
+    if (token) {
+      setLinkedInAccessToken(token);
+    }
+
+    // Google Calendar Auth Client Init
     const initGoogleAuthClient = async () => {
       try {
         const client = await createOAuth2Client();
@@ -114,34 +123,40 @@ export default function CampaignPage() {
     initGoogleAuthClient();
   }, [toast]);
 
-  useEffect(() => {
-    const handleGoogleCallback = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      if (code && googleAuthClient && !isGoogleCalendarAuthorized) {
+ useEffect(() => {
+    const code = searchParams.get('code');
+    const state = searchParams.get('state'); // For Google, state is often used
+
+    // Google Calendar Callback Handling
+    if (code && googleAuthClient && !isGoogleCalendarAuthorized && state === localStorage.getItem('google_auth_state')) { // Verify state
+      localStorage.removeItem('google_auth_state'); // Clean up state
+      const handleGoogleCallback = async () => {
         try {
           const tokens = await getGoogleCalendarTokensFromCode(code, googleAuthClient);
           if (tokens) {
             googleAuthClient.setCredentials(tokens);
             setIsGoogleCalendarAuthorized(true);
             toast({ title: 'Google Calendar Authorized', description: 'Successfully connected to Google Calendar.' });
-            window.history.replaceState({}, document.title, window.location.pathname);
-             setCurrentProspectJourneyStage('CallScheduled'); // Update journey
+            // router.replace('/campaign'); // Clean URL
+             setCurrentProspectJourneyStage('CallScheduled'); 
           } else {
-            throw new Error('Failed to obtain tokens.');
+            throw new Error('Failed to obtain tokens from Google.');
           }
         } catch (error) {
           console.error('Error exchanging Google Calendar code for tokens:', error);
-          toast({ title: 'Google Calendar Authorization Failed', description: 'Could not authorize Google Calendar. Please try again.', variant: 'destructive' });
+          toast({ title: 'Google Calendar Authorization Failed', description: 'Could not authorize Google Calendar.', variant: 'destructive' });
         }
-      }
-    };
-    if (googleAuthClient) handleGoogleCallback();
-  }, [googleAuthClient, isGoogleCalendarAuthorized, toast]);
+      };
+      handleGoogleCallback();
+    }
+  }, [googleAuthClient, isGoogleCalendarAuthorized, toast, router, searchParams]);
+
 
   const handleGoogleCalendarAuthorize = async () => {
     if (googleAuthClient) {
-      const authUrl = await generateGoogleCalendarAuthUrl(googleAuthClient); // Changed this
+      const uniqueState = `google_auth_${Date.now()}`;
+      localStorage.setItem('google_auth_state', uniqueState); // Store state for verification
+      const authUrl = await generateGoogleCalendarAuthUrl(googleAuthClient, uniqueState);
       window.location.href = authUrl;
     } else {
       toast({ title: 'Google Calendar Error', description: 'Google Calendar client not initialized. Please refresh.', variant: 'destructive' });
@@ -171,7 +186,7 @@ export default function CampaignPage() {
         const createdEvent = await createGoogleCalendarEvent(eventDetails, googleAuthClient, addGoogleMeet);
         if (createdEvent) {
             toast({title: 'Event Scheduled!', description: `Event "${createdEvent.summary}" created. Check your Google Calendar.`});
-            setCurrentProspectJourneyStage('CallCompleted'); // Or a specific 'CallMade' stage
+            setCurrentProspectJourneyStage('CallCompleted');
             setCalendarEventSummary('');
             setCalendarEventDescription('');
             setCalendarEventStart('');
@@ -188,16 +203,17 @@ export default function CampaignPage() {
 
 
   useEffect(() => {
-    const fetchLinkedInProfileData = async () => {
-      if (platform === 'linkedin' && linkedinUsername) {
+    const fetchAndEnrichLinkedInProfile = async () => {
+      if (platform === 'linkedin' && linkedInAccessToken && !linkedinProfile) { // Fetch only if token exists and profile not yet fetched
+        setIsLoadingLinkedInData(true);
         setCurrentProspectJourneyStage('Identified');
         try {
-          const profile = await getLinkedInProfile(linkedinUsername); // Simpler initial fetch
-           setLeadId(profile.id); // Assuming profile.id can serve as a leadId
+          const profile = await getLinkedInProfileByToken(linkedInAccessToken);
+          setLeadId(profile.id); 
 
           const enrichInput: EnrichLinkedInProfileInput = {
-            name: profile.firstName || linkedinUsername,
-            company: companyName,
+            name: profile.firstName || profile.lastName || 'LinkedIn User', // Use available name parts
+            company: companyName, // User might provide this separately
             linkedinProfile: profile,
             additionalContext: additionalContext,
           };
@@ -205,34 +221,41 @@ export default function CampaignPage() {
           
           const finalProfile = {
             ...profile,
-            headline: enriched.enrichedProfile || profile.headline, // Update with enriched data
+            headline: enriched.enrichedProfile || profile.headline, 
           };
           setLinkedInProfile(finalProfile);
-          setCurrentProspectJourneyStage('LinkedInConnected');
           setIsLinkedInOutreachActive(true);
-          await handleSendLinkedInMessage(true, finalProfile); // Pass finalProfile
+          setCurrentProspectJourneyStage('LinkedInConnected');
+          await handleSendLinkedInMessage(true, finalProfile); // Send intro message
 
-        } catch (error) {
+        } catch (error: any) {
           console.error('Failed to fetch/enrich LinkedIn profile:', error);
-          toast({ title: 'Error', description: 'Failed to fetch LinkedIn profile.', variant: 'destructive' });
+          toast({ title: 'LinkedIn Profile Error', description: error.message || 'Failed to fetch LinkedIn profile.', variant: 'destructive' });
+          setLinkedInAccessToken(null); // Clear token on error to allow re-auth
+          localStorage.removeItem('linkedInAccessToken');
+        } finally {
+          setIsLoadingLinkedInData(false);
         }
-      } else {
-        setLinkedInProfile(null);
-        setIsLinkedInOutreachActive(false);
-        setLinkedinConversation([]);
-        setCurrentProspectJourneyStage('Identified');
+      } else if (platform === 'linkedin' && !linkedInAccessToken && !isLoadingLinkedInData) {
+        // Prompt user to connect LinkedIn if token is missing for LinkedIn platform
+        // This could be a toast or a more prominent UI element
+        // For now, let's assume user goes to /campaign/create/linkedin-auth if needed
       }
     };
 
-    if (platform === 'linkedin') fetchLinkedInProfileData();
-    // Other platform fetches would go here
-  }, [platform, linkedinUsername, companyName, additionalContext, toast]); // Removed handleSendLinkedInMessage
+    fetchAndEnrichLinkedInProfile();
+  }, [platform, linkedInAccessToken, companyName, additionalContext, toast]);
 
 
- const handleSendLinkedInMessage = async (isIntroductory = false, currentProfile?: LinkedInProfile | null) => {
-    const profileToUse = currentProfile || linkedinProfile;
+ const handleSendLinkedInMessage = async (isIntroductory = false, currentProfileParam?: LinkedInProfile | null) => {
+    const profileToUse = currentProfileParam || linkedinProfile;
     if (!profileToUse) {
-      toast({ title: "LinkedIn Profile Needed", description: "Please provide a LinkedIn username first.", variant: "destructive" });
+      toast({ title: "LinkedIn Profile Needed", description: "LinkedIn profile data is not available.", variant: "destructive" });
+      return;
+    }
+     if (!linkedInAccessToken) {
+      toast({ title: "LinkedIn Not Connected", description: "Please connect your LinkedIn account first.", variant: "destructive" });
+      // router.push('/campaign/create/linkedin-auth'); // Optionally redirect
       return;
     }
     
@@ -255,27 +278,52 @@ export default function CampaignPage() {
       const result = await generateOutreachScript(input);
       const aiMessage = result.script;
       setSuggestedNextObjective(result.suggestedNextObjective);
+      
+      // Simulate sending the message via LinkedIn API
+      const sendResult = await sendLinkedInMessage(profileToUse.id, aiMessage, linkedInAccessToken);
+      if (!sendResult.success) {
+          throw new Error(sendResult.error || "Failed to send LinkedIn message via API.");
+      }
+
       setLinkedinConversation(prev => [...prev, { sender: 'user', message: aiMessage, timestamp: new Date() }]);
       
-      setTimeout(() => {
-        const prospectReply = `Thanks for reaching out! This sounds interesting. My email is prospect${Math.floor(Math.random()*100)}@example.com.`;
-        setLinkedinConversation(prev => [...prev, { sender: 'prospect', message: prospectReply, timestamp: new Date() }]);
-        
-        const emailMatch = prospectReply.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
-        if (emailMatch && emailMatch.length > 0) {
-            setProspectEmailForDrip(emailMatch[0]);
-            toast({title: "Email Captured!", description: `Prospect's email ${emailMatch[0]} captured. Ready to start email drip.`});
-            setSuggestedNextObjective('transition_to_email');
-            setCurrentProspectJourneyStage('EmailAddressCaptured');
-        } else {
-            setCurrentObjective(result.suggestedNextObjective || 'continue_linkedin_chat');
+      // Simulate fetching prospect reply after a delay
+      setTimeout(async () => {
+        try {
+            // Fetch new messages since the last message timestamp or now
+            const lastTimestamp = linkedinConversation.length > 0 ? linkedinConversation[linkedinConversation.length-1].timestamp.getTime() : undefined;
+            const fetchedMessagesResult = await fetchLinkedInMessages(profileToUse.id, linkedInAccessToken!, lastTimestamp);
+            
+            if (fetchedMessagesResult.success && fetchedMessagesResult.messages && fetchedMessagesResult.messages.length > 0) {
+                const newProspectMessages = fetchedMessagesResult.messages
+                    .filter(msg => msg.senderUrn !== profileToUse.id) // Filter out our own messages if API returns them
+                    .map(msg => ({ sender: 'prospect' as 'user' | 'prospect', message: msg.text || "Prospect replied.", timestamp: new Date(msg.timestamp)}));
+                
+                if(newProspectMessages.length > 0){
+                    setLinkedinConversation(prev => [...prev, ...newProspectMessages]);
+                    const latestProspectReply = newProspectMessages[newProspectMessages.length -1].message;
+                    const emailMatch = latestProspectReply.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi);
+                    if (emailMatch && emailMatch.length > 0) {
+                        setProspectEmailForDrip(emailMatch[0]);
+                        toast({title: "Email Captured!", description: `Prospect's email ${emailMatch[0]} captured.`});
+                        setSuggestedNextObjective('transition_to_email');
+                        setCurrentProspectJourneyStage('EmailAddressCaptured');
+                    } else {
+                        setCurrentObjective(result.suggestedNextObjective || 'continue_linkedin_chat');
+                    }
+                }
+            } else if (fetchedMessagesResult.error) {
+                console.warn("Could not fetch prospect replies:", fetchedMessagesResult.error);
+            }
+        } catch (fetchError: any) {
+            console.error("Error fetching prospect messages:", fetchError.message);
         }
-      }, 2000 + Math.random() * 2000);
+      }, 3000 + Math.random() * 2000);
 
-      toast({ title: 'LinkedIn Message Sent (Simulated)', description: 'AI-generated message added to conversation.' });
-    } catch (error) {
+      toast({ title: 'LinkedIn Message Sent', description: 'AI-generated message sent via LinkedIn API.' });
+    } catch (error: any) {
       console.error('Failed to generate/send LinkedIn message:', error);
-      toast({ title: 'Error', description: 'Failed to process LinkedIn message.', variant: 'destructive' });
+      toast({ title: 'Error', description: error.message || 'Failed to process LinkedIn message.', variant: 'destructive' });
     }
   };
 
@@ -286,6 +334,10 @@ export default function CampaignPage() {
     }
     router.push(`/campaign/email-drip?emails=${encodeURIComponent(prospectEmailForDrip)}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername)}`);
   };
+
+  const handleConnectLinkedIn = () => {
+    router.push('/campaign/create/linkedin-auth');
+  }
 
 
   return (
@@ -325,10 +377,19 @@ export default function CampaignPage() {
             </div>
             {platform === 'linkedin' && (
               <>
-                <div>
-                  <Label htmlFor="linkedinUsername">LinkedIn Username/Profile URL</Label>
-                  <Input id="linkedinUsername" value={linkedinUsername} onChange={e => setLinkedInUsername(e.target.value)} placeholder="Enter LinkedIn username or profile URL" />
+               {!linkedInAccessToken && !isLoadingLinkedInData && (
+                <div className="md:col-span-2">
+                    <Button onClick={handleConnectLinkedIn} variant="outline" className="w-full">
+                        <LinkedinIcon className="mr-2 h-5 w-5" /> Connect LinkedIn Account
+                    </Button>
                 </div>
+                )}
+                {isLoadingLinkedInData && <div className="md:col-span-2 flex items-center justify-center p-4"><Loader2 className="h-8 w-8 animate-spin text-primary" /> <p className="ml-2">Loading LinkedIn Data...</p></div>}
+                {/* Input for username can be kept if user wants to manually type, but primary flow is via OAuth */}
+                {/* <div>
+                  <Label htmlFor="linkedinUsername">LinkedIn Username/Profile URL (Manual)</Label>
+                  <Input id="linkedinUsername" value={linkedinUsername} onChange={e => setLinkedInUsername(e.target.value)} placeholder="Enter LinkedIn username or profile URL" />
+                </div> */}
                 <div>
                   <Label htmlFor="companyName">Company Name (for enrichment)</Label>
                   <Input id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Enter Company Name" />
@@ -341,7 +402,6 @@ export default function CampaignPage() {
                 <Input id="directEmailAddress" type="email" value={emailAddress} onChange={e => {setEmailAddress(e.target.value); if(e.target.value) setCurrentProspectJourneyStage('EmailAddressCaptured');}} placeholder="prospect@example.com" />
               </div>
             )}
-            {/* Inputs for other platforms like Twitter username, WhatsApp number */}
              {platform === 'twitter' && (
               <div>
                 <Label htmlFor="twitterUsername">Twitter/X Username</Label>
@@ -388,7 +448,8 @@ export default function CampaignPage() {
                       </div>
                     </div>
                   ))}
-                   {linkedinConversation.length === 0 && <p className="text-muted-foreground text-center py-4">Introductory message will be generated...</p>}
+                   {linkedinConversation.length === 0 && !isLoadingLinkedInData && <p className="text-muted-foreground text-center py-4">Introductory message will be generated...</p>}
+                   {isLoadingLinkedInData && <div className="flex justify-center items-center py-4"><Loader2 className="h-6 w-6 animate-spin text-primary"/> <p className="ml-2">Loading intro message...</p></div>}
                 </div>
                  <div className="flex items-center gap-2">
                      <Select value={currentObjective} onValueChange={(val) => setCurrentObjective(val as GenerateOutreachScriptInput['objective'])}>
@@ -401,7 +462,7 @@ export default function CampaignPage() {
                             <SelectItem value="general_follow_up">General Follow-up</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button onClick={() => handleSendLinkedInMessage(false)} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={() => handleSendLinkedInMessage(false)} className="bg-blue-600 hover:bg-blue-700" disabled={isLoadingLinkedInData}>
                         <Send className="mr-2 h-4 w-4" /> Generate & Send Next LinkedIn Message
                     </Button>
                 </div>
@@ -429,7 +490,6 @@ export default function CampaignPage() {
                             platform: platform,
                             additionalContext: additionalContext,
                             ...(platform === 'twitter' && twitterProfile ? { twitterProfile: { id: twitterProfile.id, username: twitterProfile.username, name: twitterProfile.name } } : {}),
-                            // ...(platform === 'email' && emailProfile ? { emailProfile: { email: emailProfile.email, provider: emailProfile.provider } } : {}), // This part is for direct email, handled by drip page now
                             objective: 'general_follow_up', 
                         };
                         try {
@@ -504,22 +564,35 @@ export default function CampaignPage() {
       </Card>
       <div className="flex justify-between mt-6">
         <Button variant="outline" onClick={() => router.push('/')}> <HomeIcon className="mr-2 h-4 w-4" /> Back to Dashboard</Button>
-        {(currentProspectJourneyStage === 'EmailStep3Sent' || currentProspectJourneyStage === 'LinkedInFollowUp2' || currentMessage) && ( // Example conditions
-          <Link href={`/compliance/check?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || campaignName)}`} passHref>
+        {(currentProspectJourneyStage === 'EmailStep3Sent' || currentProspectJourneyStage === 'LinkedInFollowUp2' || currentMessage) && ( 
+          <Link href={`/compliance/check?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`} passHref>
             <Button>Next: Check Compliance <ChevronRight className="ml-2 h-4 w-4" /></Button>
           </Link>
         )}
          {currentProspectJourneyStage === 'CallCompleted' && (
-             <Link href={`/risk-lead-visualization?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || campaignName)}`} passHref>
+             <Link href={`/risk-lead-visualization?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`} passHref>
                  <Button variant="default">View Risk & Lead Visualization <ChevronRight className="ml-2 h-4 w-4" /></Button>
              </Link>
          )}
           {(currentProspectJourneyStage === 'CallScheduled' || currentProspectJourneyStage === 'AICallInProgress') && (
-            <Link href={`/call/approve?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || campaignName)}`} passHref>
+            <Link href={`/call/approve?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`} passHref>
                 <Button>Manage AI Call <ChevronRight className="ml-2 h-4 w-4" /></Button>
             </Link>
         )}
       </div>
     </div>
   );
+}
+
+export default function CampaignPage() {
+    return (
+        <Suspense fallback={
+            <div className="container mx-auto p-4 flex justify-center items-center min-h-[500px]">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="ml-3 text-lg text-muted-foreground">Loading Campaign Hub...</p>
+            </div>
+        }>
+            <CampaignPageContent />
+        </Suspense>
+    )
 }
