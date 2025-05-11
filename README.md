@@ -12,7 +12,7 @@ This project requires certain environment variables to be set up for Firebase in
     In the root directory of your project, create a new file named `.env.local`. This file will store your local environment variables and should **not** be committed to Git.
 
 2.  **Copy from Example:**
-    Copy the contents of `.env.local.example` (if it exists, or use the template below) into your newly created `.env.local` file.
+    Copy the contents of the template below into your newly created `.env.local` file.
 
 3.  **Populate Variables:**
     Replace the placeholder values in `.env.local` with your actual credentials and API keys.
@@ -32,8 +32,11 @@ This project requires certain environment variables to be set up for Firebase in
     # For production, it's highly recommended to set this as a secret in your deployment environment.
     FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", "project_id": "...", ...}'
 
-    # Google GenAI API Key (for Genkit)
+    # Google GenAI API Key (for Genkit - this is the primary key used by the application)
     GOOGLE_GENAI_API_KEY="YOUR_GOOGLE_GENAI_API_KEY"
+
+    # Additional Gemini API Key (if needed for specific, non-Genkit uses)
+    GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 
     # reCAPTCHA Enterprise Site Key (for Firebase App Check - Optional but Recommended)
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY="YOUR_RECAPTCHA_SITE_KEY"
@@ -52,7 +55,7 @@ This project requires certain environment variables to be set up for Firebase in
     SARVAM_API_KEY="YOUR_SARVAM_API_KEY"
 
     # SendPulse API
-    SENDPULSE_API_URL="https://api.sendpulse.com"
+    SENDPULSE_API_BASE_URL="https://api.sendpulse.com" # Note: Changed from SENDPULSE_API_URL
     SENDPULSE_CLIENT_ID="YOUR_SENDPULSE_CLIENT_ID"
     SENDPULSE_CLIENT_SECRET="YOUR_SENDPULSE_CLIENT_SECRET"
     DEFAULT_FROM_EMAIL="noreply@yourdomain.com"
@@ -63,7 +66,7 @@ This project requires certain environment variables to be set up for Firebase in
     ```
 
 4.  **Important Notes:**
-    *   Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Do not store sensitive secrets (like `LINKEDIN_CLIENT_SECRET`, `FIREBASE_SERVICE_ACCOUNT_KEY`) with this prefix if they are only needed server-side.
+    *   Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Do not store sensitive secrets (like `LINKEDIN_CLIENT_SECRET`, `FIREBASE_SERVICE_ACCOUNT_KEY`, `GEMINI_API_KEY`, `GOOGLE_GENAI_API_KEY`, `GOOGLE_CLIENT_SECRET`, `SARVAM_API_KEY`, `SENDPULSE_CLIENT_SECRET`) with this prefix if they are only needed server-side.
     *   For production deployments, these environment variables must be configured in your hosting provider's settings (e.g., Vercel, Netlify, Firebase Hosting environment configuration).
     *   Ensure your `.gitignore` file includes `.env.local` to prevent committing your local secrets.
 
