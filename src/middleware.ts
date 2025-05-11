@@ -1,11 +1,15 @@
-import { authMiddleware } from "@clerk/nextjs/server";
+import { type NextRequest, NextResponse } from 'next/server';
 
-// This example protects all routes including api/auth
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
-export default authMiddleware({
-  publicRoutes: ['/','/pricing','/about','/contact', "/sitemap.xml", "/community-terms", "/terms-of-service", "/privacy-policy", "/refund-policy", "/api/webhooks(.*)"],
-});
+export function middleware(request: NextRequest) {
+  // For now, allow all requests.
+  // Implement Firebase-based authentication checks here if needed.
+  // Example:
+  // const isAuthenticated = checkFirebaseAuthentication(request); // Your custom auth check
+  // if (!isAuthenticated && !request.nextUrl.pathname.startsWith('/public-route')) {
+  //   return NextResponse.redirect(new URL('/login', request.url));
+  // }
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],

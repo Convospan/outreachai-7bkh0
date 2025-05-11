@@ -45,8 +45,6 @@ jobs:
           SENDPULSE_CLIENT_SECRET: ${{ secrets.SENDPULSE_CLIENT_SECRET }}
           DEFAULT_FROM_EMAIL: ${{ secrets.DEFAULT_FROM_EMAIL }}
           DEFAULT_FROM_NAME: ${{ secrets.DEFAULT_FROM_NAME }}
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
         run: npm run build
 
       - name: Deploy to Firebase

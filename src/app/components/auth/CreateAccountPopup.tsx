@@ -14,7 +14,7 @@ import {
 import { Mail } from 'lucide-react';
 import Link from 'next/link';
 import type React from 'react';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 // Simple SVG icon for Google
 const GoogleIcon = () => (
@@ -56,11 +56,15 @@ export function CreateAccountPopup({
 }) {
   const router = useRouter();
 
-  const handleRedirectToSignUp = () => {
+  const handleFirebaseAuth = (provider: string) => {
+    // Placeholder for Firebase authentication logic
+    // e.g., signInWithPopup(auth, new GoogleAuthProvider());
+    alert(`Simulating sign-up with ${provider}`);
     if (onOpenChange) {
       onOpenChange(false); // Close the popup
     }
-    router.push('/sign-up'); // Redirect to Clerk's sign-up page
+    // Redirect to pricing or dashboard after simulated successful Firebase auth
+    router.push('/pricing'); 
   };
 
   return (
@@ -76,11 +80,10 @@ export function CreateAccountPopup({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          {/* Buttons now redirect to the main sign-up page where Clerk handles providers */}
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleRedirectToSignUp}
+            onClick={() => handleFirebaseAuth('Google')}
           >
             <GoogleIcon />
             Continue with Google
@@ -88,7 +91,7 @@ export function CreateAccountPopup({
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleRedirectToSignUp}
+            onClick={() => handleFirebaseAuth('Microsoft')}
           >
             <MicrosoftIcon />
             Continue with Microsoft
@@ -96,7 +99,7 @@ export function CreateAccountPopup({
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleRedirectToSignUp}
+            onClick={() => handleFirebaseAuth('Facebook')}
           >
              <FacebookIcon />
             Continue with Facebook
@@ -104,7 +107,7 @@ export function CreateAccountPopup({
           <Button 
             variant="outline" 
             className="w-full justify-center text-lg py-3 border-border hover:bg-accent/50"
-            onClick={handleRedirectToSignUp}
+            onClick={() => handleFirebaseAuth('Email')}
           >
             <Mail className="mr-2 h-5 w-5" />
             Continue with Email

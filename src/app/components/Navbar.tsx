@@ -12,15 +12,35 @@ import {
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { Menu, X, UserCircle } from 'lucide-react'; // Added UserCircle for placeholder
+import { useState, useEffect } from 'react';
+// import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs"; // Removed Clerk imports
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any | null>(null); // Placeholder for Firebase user state
+
+  // Placeholder for Firebase auth state listener
+  useEffect(() => {
+    // const auth = getAuth(getFirebaseApp()); // Assuming getAuth and getFirebaseApp are set up
+    // const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    //   setUser(currentUser);
+    // });
+    // return () => unsubscribe();
+    // For now, simulate a logged-in user for testing UI
+    // setUser({ email: "test@example.com" });
+  }, []);
+
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleSignOut = async () => {
+    // const auth = getAuth(getFirebaseApp());
+    // await signOut(auth);
+    // setUser(null);
+    alert("Sign out placeholder");
   };
 
   const navLinks = [
@@ -97,30 +117,36 @@ const Navbar = () => {
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="h-5 w-[1px] bg-border"></div>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <SignedOut>
+          {/* Firebase Auth Placeholder */}
+          {user ? (
+            <div className="flex items-center space-x-2">
+              <UserCircle className="h-6 w-6 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground hidden lg:inline">{user.email}</span>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
+            </div>
+          ) : (
             <Link href="/sign-in" passHref>
               <Button variant="ghost" className="text-foreground hover:bg-accent hover:text-accent-foreground px-3 py-2 text-sm font-medium">
                 Sign In
               </Button>
             </Link>
-          </SignedOut>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-2">
-           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <SignedOut>
+           {/* Firebase Auth Placeholder - Mobile */}
+           {user ? (
+             <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign Out">
+               <UserCircle className="h-6 w-6" />
+             </Button>
+           ) : (
             <Link href="/sign-in" passHref>
               <Button variant="ghost" size="sm">
                 Sign In
               </Button>
             </Link>
-          </SignedOut>
+           )}
           <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle menu">
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
