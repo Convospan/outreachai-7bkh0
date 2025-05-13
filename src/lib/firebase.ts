@@ -27,13 +27,13 @@ export function initializeFirebase(): FirebaseApp | null {
       'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
       'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
       'NEXT_PUBLIC_FIREBASE_APP_ID',
-      // measurementId is optional, so not checking it here
+      // measurementId is optional, so not checking it here explicitly for critical error
     ];
     const missingKeys = requiredEnvVars.filter(key => !process.env[key]);
 
     if (missingKeys.length > 0) {
       console.error(
-        `🔴 Critical Error: Missing Firebase environment variables: ${missingKeys.join(', ')}. ` +
+        `🔴 Critical Error: Missing Firebase client environment variables: ${missingKeys.join(', ')}. ` +
         `Please ensure all NEXT_PUBLIC_FIREBASE_... variables are correctly set in your .env file or environment configuration. Firebase will NOT be initialized.`
       );
       return null; // Critical error, do not proceed
@@ -95,3 +95,4 @@ export const getFirebaseApp = (): FirebaseApp | null => {
 // export const isAppCheckInitialized = (): boolean => { // Temporarily commented out
 //   return appCheckInitialized;
 // };
+

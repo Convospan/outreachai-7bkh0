@@ -39,8 +39,8 @@ jobs:
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
           NEXT_PUBLIC_LINKEDIN_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_LINKEDIN_CLIENT_ID }}
           NEXT_PUBLIC_LINKEDIN_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          # GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }} # Removed as per user request
+          # GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }} # Removed as per user request
           # GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }} # Removed as per user request
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Potentially redundant if GOOGLE_GENAI_API_KEY is used for Gemini
           SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
