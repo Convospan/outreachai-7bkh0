@@ -1,41 +1,44 @@
 // src/app/layout.tsx
 'use client';
 
-// import type { Metadata } from 'next/metadata'; // Metadata export removed due to 'use client'
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
-import {siteConfig} from "@/config/site";
+// siteConfig import might be used for title/description if metadata is handled differently
+// import {siteConfig} from "@/config/site";
 import { initializeFirebase } from '@/lib/firebase';
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation'; // Import usePathname
+import { usePathname } from 'next/navigation';
 
-// Metadata is now typically handled by a parent Server Component or a `generateMetadata` function in a Server Component.
-// For 'use client' layouts, you'd put <title> and <meta> tags directly in the <head>.
+// Metadata should be defined in a Server Component or src/app/metadata.ts
+// export const metadata: Metadata = {
+//   title: siteConfig.name,
+//   description: siteConfig.description,
+// };
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const pathname = usePathname(); // Use usePathname hook
+  const [isFirebaseInitialized, setIsFirebaseInitialized] = useState(false);
+  const pathname = usePathname();
   const isHomePage = pathname === '/';
 
-
-    useEffect(() => {
-      if (typeof window !== 'undefined' && !isInitialized) {
-        initializeFirebase(); // Initialize Firebase
-        setIsInitialized(true);
-      }
-    }, [isInitialized]);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !isFirebaseInitialized) {
+      initializeFirebase();
+      setIsFirebaseInitialized(true);
+    }
+  }, [isFirebaseInitialized]);
 
   return (
       <html lang="en">
         <head>
-          <title>{siteConfig.name}</title>
-          <meta name="description" content={siteConfig.description} />
+          {/* Dynamic title and meta tags can be set here if needed, or via next/head in child components */}
+          <title>ConvoSpan AI</title>
+          <meta name="description" content="AI-Powered Outreach Automation" />
           <link rel="icon" href="/favicon.ico" sizes="any" />
         </head>
         <body

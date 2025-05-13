@@ -41,8 +41,8 @@ jobs:
           NEXT_PUBLIC_LINKEDIN_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }} # Removed as per user request
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Potentially redundant if GOOGLE_GENAI_API_KEY is used for Gemini
           SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
           SENDPULSE_CLIENT_ID: ${{ secrets.SENDPULSE_CLIENT_ID }}
           SENDPULSE_CLIENT_SECRET: ${{ secrets.SENDPULSE_CLIENT_SECRET }}
@@ -50,6 +50,7 @@ jobs:
           DEFAULT_FROM_NAME: ${{ secrets.DEFAULT_FROM_NAME }}
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
           SENDPULSE_API_BASE_URL: ${{ secrets.SENDPULSE_API_BASE_URL }}
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON }} # For firebase-admin
         run: npm run build
 
       - name: Deploy to Firebase
