@@ -41,7 +41,8 @@ jobs:
           NEXT_PUBLIC_LINKEDIN_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          # GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }} # This was removed
+          GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
           SENDPULSE_CLIENT_ID: ${{ secrets.SENDPULSE_CLIENT_ID }}
           SENDPULSE_CLIENT_SECRET: ${{ secrets.SENDPULSE_CLIENT_SECRET }}
@@ -60,3 +61,4 @@ jobs:
           projectId: outreachai-7bkh0
         env:
              FIREBASE_CLI_PREVIEWS: hostingchannels
+
