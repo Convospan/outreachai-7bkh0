@@ -3,7 +3,7 @@
 
 import type { FirebaseApp } from 'firebase/app';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check"; // Temporarily commented out
+// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check"; // App Check currently disabled
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,11 +12,11 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Optional for Analytics
 };
 
 let app: FirebaseApp | undefined;
-// let appCheckInitialized = false; // Temporarily commented out
+// let appCheckInitialized = false; // App Check currently disabled
 
 export function initializeFirebase(): FirebaseApp | null {
   if (typeof window !== 'undefined') {
@@ -27,7 +27,8 @@ export function initializeFirebase(): FirebaseApp | null {
       'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
       'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
       'NEXT_PUBLIC_FIREBASE_APP_ID',
-      // measurementId is optional, so not checking it here explicitly for critical error
+      // measurementId is optional for core Firebase, but if you use Analytics, it becomes important.
+      // 'NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID', 
     ];
     const missingKeys = requiredEnvVars.filter(key => !process.env[key]);
 
@@ -44,7 +45,8 @@ export function initializeFirebase(): FirebaseApp | null {
         app = initializeApp(firebaseConfig);
         console.log('🟢 Firebase initialized successfully. Project ID:', firebaseConfig.projectId);
 
-        // Temporarily comment out App Check initialization to focus on core Firebase setup
+        // App Check is currently disabled to isolate other potential issues.
+        // To re-enable, ensure NEXT_PUBLIC_RECAPTCHA_SITE_KEY is set and uncomment below.
         /*
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
         if (!recaptchaSiteKey) {
@@ -52,27 +54,27 @@ export function initializeFirebase(): FirebaseApp | null {
             "🟡 WARNING: NEXT_PUBLIC_RECAPTCHA_SITE_KEY environment variable is missing. " +
             "Firebase App Check will NOT be initialized. This is crucial for protecting your backend resources."
           );
-        } else if (!appCheckInitialized) {
+        } else if (!appCheckInitialized) { // Check if already initialized
           try {
-            initializeAppCheck(app, {
+            initializeAppCheck(app!, { // Added non-null assertion operator assuming 'app' will be initialized
               provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
               isTokenAutoRefreshEnabled: true,
             });
             appCheckInitialized = true;
             console.log('🟢 Firebase App Check initialized with reCAPTCHA Enterprise.');
           } catch (appCheckError: any) {
-            console.error("🔴 Firebase App Check initialization FAILED:", appCheckError);
+            console.error("🔴 Firebase App Check initialization FAILED:", appCheckError.message || appCheckError);
           }
         }
         */
-      } catch (initError) {
-        console.error("🔴 Firebase core initialization FAILED:", initError);
-        app = undefined;
+      } catch (initError: any) {
+        console.error("🔴 Firebase core initialization FAILED:", initError.message || initError);
+        app = undefined; // Ensure app is undefined on failure
         return null;
       }
     } else {
       app = getApp();
-      // console.log('🟡 Firebase app already initialized.'); // Less verbose
+      // console.log('Firebase app already initialized.'); // Less verbose on subsequent calls
     }
   } else {
     // console.log("Firebase initialization skipped (server-side or non-browser environment).");
@@ -83,6 +85,8 @@ export function initializeFirebase(): FirebaseApp | null {
 
 export const getFirebaseApp = (): FirebaseApp | null => {
   if (typeof window === 'undefined') {
+    // This function is primarily for client-side use.
+    // Server-side Firebase (firebase-admin) is handled separately.
     // console.warn("getFirebaseApp called in a non-browser environment. Returning null.");
     return null;
   }
@@ -92,7 +96,6 @@ export const getFirebaseApp = (): FirebaseApp | null => {
   return app;
 };
 
-// export const isAppCheckInitialized = (): boolean => { // Temporarily commented out
+// export const isAppCheckInitialized = (): boolean => {
 //   return appCheckInitialized;
 // };
-
