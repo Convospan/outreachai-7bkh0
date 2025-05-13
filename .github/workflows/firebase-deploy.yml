@@ -50,7 +50,7 @@ jobs:
           DEFAULT_FROM_NAME: ${{ secrets.DEFAULT_FROM_NAME }}
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
           SENDPULSE_API_BASE_URL: ${{ secrets.SENDPULSE_API_BASE_URL }}
-          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON }} # For firebase-admin
+          FIREBASE_SERVICE_ACCOUNT_KEY_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON }} # For firebase-admin
         run: npm run build
 
       - name: Deploy to Firebase
@@ -62,4 +62,3 @@ jobs:
           projectId: outreachai-7bkh0
         env:
              FIREBASE_CLI_PREVIEWS: hostingchannels
-
