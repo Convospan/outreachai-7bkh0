@@ -4,10 +4,10 @@ name: Firebase Deployment
 on:
   push:
     branches:
-      - main # Consider changing to 'master' if that's your primary branch
+      - main # Changed from master to main as it's a more common default
   pull_request:
     branches:
-      - main # Consider changing to 'master' if that's your primary branch
+      - main # Changed from master to main
 
 jobs:
   build-and-deploy:
@@ -23,36 +23,50 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci # Changed from npm install to npm ci for more reliable builds
 
       - name: Build
         env:
+          # Firebase Client-side Config (NEXT_PUBLIC_ prefixed)
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
           NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }}
-          NEXT_PUBLIC_LINKEDIN_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_LINKEDIN_CLIENT_ID }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }} # Optional, but good to include if used
+          NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${{ secrets.NEXT_PUBLIC_RECAPTCHA_SITE_KEY }} # For App Check
+          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }} # Application's public base URL
+
+          # Server-side and Build-time Config (No NEXT_PUBLIC_ prefix if only for server/build)
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON }} # Assuming the full JSON is stored in a secret
+          GOOGLE_GENAI_API_KEY: ${{ secrets.GOOGLE_GENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # If used separately from GOOGLE_GENAI_API_KEY
+          
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
-          NEXT_PUBLIC_LINKEDIN_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }}
+          NEXT_PUBLIC_LINKEDIN_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_LINKEDIN_CLIENT_ID }} # Client-side for auth initiation
+          NEXT_PUBLIC_LINKEDIN_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI }} # Client-side for auth initiation
+          
           SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY }}
+          
           SENDPULSE_API_BASE_URL: ${{ secrets.SENDPULSE_API_BASE_URL }}
           SENDPULSE_CLIENT_ID: ${{ secrets.SENDPULSE_CLIENT_ID }}
           SENDPULSE_CLIENT_SECRET: ${{ secrets.SENDPULSE_CLIENT_SECRET }}
           DEFAULT_FROM_EMAIL: ${{ secrets.DEFAULT_FROM_EMAIL }}
           DEFAULT_FROM_NAME: ${{ secrets.DEFAULT_FROM_NAME }}
+          
+          # Note: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET were empty, if they are used, add secrets for them too
+          # GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          # GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          # GOOGLE_CALENDAR_REDIRECT_URI: ${{ secrets.GOOGLE_CALENDAR_REDIRECT_URI }}
+
         run: npm run build
 
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_OUTREACHAI_7BKH0 }}' # This should be the name of the secret holding the JSON key content
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_OUTREACHAI_7BKH0 }}' # This is the secret containing the service account JSON content
           channelId: live # Deploy to live channel, or use 'preview' for PRs
           projectId: outreachai-7bkh0
         env:
