@@ -27,9 +27,11 @@ export default function ModulesPage() {
        <footer className="bg-gray-950 text-white py-6 text-center">
           <p className="text-lg">
             © 2025 ConvoSpan.ai |{' '}
-            <a href="/contact" className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
-              Contact
-            </a>
+            <Link href="/contact" passHref>
+              <span className="underline text-primary-orange hover:text-opacity-80 transition duration-300">
+                Contact
+              </span>
+            </Link>
           </p>
         </footer>
     </div>

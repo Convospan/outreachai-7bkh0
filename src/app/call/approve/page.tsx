@@ -156,7 +156,7 @@ export default function CallScriptApprovalPage() {
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-primary">AI Call Script Generation</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Generate an AI-powered call script. You'll select the AI model and enter phone number on the next step.
+            Generate an AI-powered call script. You&apos;ll select the AI model and enter phone number on the next step.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -178,7 +178,7 @@ export default function CallScriptApprovalPage() {
               <Input id="callObjective" value={callObjective} onChange={e => setCallObjective(e.target.value)} placeholder="E.g., Schedule a Demo, Gather Information" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="industry">Target Lead's Industry</Label>
+              <Label htmlFor="industry">Target Lead&apos;s Industry</Label>
               <Input id="industry" value={industry} onChange={e => setIndustry(e.target.value)} placeholder="E.g., Software, Marketing, Healthcare" />
             </div>
             <div className="space-y-2">
@@ -186,7 +186,7 @@ export default function CallScriptApprovalPage() {
               <Input id="leadId" value={leadId} onChange={e => setLeadId(e.target.value)} placeholder="Enter Lead ID from CRM if available" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="connections">Lead's LinkedIn Connections (Approx.)</Label>
+              <Label htmlFor="connections">Lead&apos;s LinkedIn Connections (Approx.)</Label>
               <Input type="number" id="connections" value={connections} onChange={e => setConnections(Number(e.target.value))} placeholder="E.g., 500" />
             </div>
             <div className="space-y-2">

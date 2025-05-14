@@ -63,7 +63,7 @@ export default function LinkedInAuthPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-muted-foreground text-center">
-            By clicking "Connect with LinkedIn", you will be redirected to LinkedIn to authorize ConvoSpan AI to access your profile data. We request permissions to help you build effective outreach campaigns.
+            By clicking &quot;Connect with LinkedIn&quot;, you will be redirected to LinkedIn to authorize ConvoSpan AI to access your profile data. We request permissions to help you build effective outreach campaigns.
           </p>
           <Button
             onClick={handleLinkedInConnect}

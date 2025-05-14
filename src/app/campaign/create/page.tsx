@@ -102,20 +102,7 @@ export default function CampaignCreatePage() {
                     </div>
                 )}
 
-                <div className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 drop-shadow-md">
-                    <div className="flex items-center justify-center mb-4">
-                        <FileUp className="h-12 w-12 text-primary" />
-                    </div>
-                    <h2 className="text-2xl font-semibold text-center mb-3">Upload CSV File</h2>
-                    <p className="text-muted-foreground text-center mb-6">
-                        Upload a CSV file with your prospect list and campaign details.
-                    </p>
-                    <Link href="/campaign/create/upload-csv" passHref>
-                        <Button className="w-full" variant="outline">
-                           <FileUp className="mr-2 h-5 w-5" /> Upload CSV
-                        </Button>
-                    </Link>
-                </div>
+                {/* Removed: Upload CSV File */}
 
                 {/* Existing Module Links */}
                  <div className="bg-card p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1 drop-shadow-md">

@@ -176,7 +176,7 @@ export default function LinkedInProspectSearchClient() {
           <Card className="shadow-lg drop-shadow-md">
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground">
-                No prospects found. Try adjusting your filters or click "Search Prospects" to begin.
+                No prospects found. Try adjusting your filters or click &quot;Search Prospects&quot; to begin.
               </p>
             </CardContent>
           </Card>

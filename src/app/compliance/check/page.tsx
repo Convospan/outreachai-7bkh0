@@ -11,6 +11,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"; // Added import
 import { ComplianceStatus, checkCompliance } from '@/services/compliance';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -44,7 +45,7 @@ export default function ComplianceCheckPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>(
-    searchParams.get('stage') as ProspectStage['id'] || 'EmailDripInitiated' // Default if no stage passed
+    searchParams.get('stage') as ProspectStage['id'] || 'EmailDripInitiated' // Default or passed via query
   );
 
 
