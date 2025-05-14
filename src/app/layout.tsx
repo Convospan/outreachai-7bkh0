@@ -1,7 +1,7 @@
 // src/app/layout.tsx
 'use client';
 
-import type { Metadata } from 'next/metadata';
+import type { Metadata } from 'next/metadata'; // Keep for potential future use if some metadata is static
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
@@ -10,27 +10,23 @@ import { siteConfig } from "@/config/site";
 import { initializeFirebase, getFirebaseApp } from '@/lib/firebase';
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation'; // Added this import
+import { usePathname } from 'next/navigation';
 
-// Metadata should be defined in a Server Component or src/app/metadata.ts
-// For client components, metadata is typically handled via <Head> or next/head
-// This metadata object will be ignored in a 'use client' component.
-// export const metadata: Metadata = {
-//     title: siteConfig.name,
-//     description: siteConfig.description,
-// };
+// Metadata for client components is typically handled via <Head> or next/head.
+// Static metadata export is best done from a Server Component or src/app/metadata.ts.
+// We'll keep siteConfig for dynamic title/description in <head> below.
 
 export default function RootLayout({ children }: { children: React.ReactNode; }) {
   const [isFirebaseInitialized, setIsFirebaseInitialized] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const pathname = usePathname(); // This line was causing the error
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       if (!isFirebaseInitialized) {
         console.log("Attempting Firebase initialization in RootLayout...");
-        const app = initializeFirebase();
+        const app = initializeFirebase(); // This function now handles missing env vars gracefully
         if (app) {
           console.log("Firebase initialized successfully in RootLayout.");
           setIsFirebaseInitialized(true);
@@ -49,9 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
           setIsLoadingAuth(false); // Stop loading even if init fails
         }
       } else if (isFirebaseInitialized && isLoadingAuth) {
-        // This case handles scenarios like hot-reloads where isFirebaseInitialized might be true
-        // but we still need to set up the auth listener or confirm auth state.
-        const app = getFirebaseApp(); // Ensure app is retrieved if already initialized
+        const app = getFirebaseApp();
         if (app) {
             const auth = getAuth(app);
             const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -60,36 +54,36 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
             });
             return () => unsubscribe();
         } else {
-            // Should not happen if isFirebaseInitialized is true, but as a safeguard:
             console.error("🔴 Firebase was marked as initialized, but getFirebaseApp() returned null.");
             setIsLoadingAuth(false);
         }
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFirebaseInitialized]); // Removed isLoadingAuth from dependencies to avoid potential loops
-
-  if (isLoadingAuth && !isFirebaseInitialized) {
-    // Initial loading state before Firebase is attempted
-    return <div className="flex justify-center items-center min-h-screen bg-background text-foreground">Initializing Application...</div>;
-  }
+  }, [isFirebaseInitialized]);
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* For Client Components, manage title/meta tags using next/head or a similar solution if needed */}
         <title>{siteConfig.name}</title>
         <meta name="description" content={siteConfig.description} />
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body
         className="font-sans text-foreground antialiased bg-background min-h-screen flex flex-col"
-        suppressHydrationWarning
       >
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Toaster />
-        <Footer isHomePage={pathname === '/'} />
+        {isLoadingAuth || !isFirebaseInitialized ? (
+          <div className="flex-grow flex justify-center items-center min-h-screen bg-background text-foreground">
+            Initializing Application...
+          </div>
+        ) : (
+          <>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Toaster />
+            <Footer isHomePage={pathname === '/'} />
+          </>
+        )}
       </body>
     </html>
   );
