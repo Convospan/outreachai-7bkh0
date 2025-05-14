@@ -1,0 +1,54 @@
+[debug] [2025-05-14T22:38:59.444Z] ----------------------------------------------------------------------
+[debug] [2025-05-14T22:38:59.446Z] Command:       /nix/store/rbdrkcs5kkwpalxcd7c6bnm33lk2955n-nodejs-20.19.0/bin/node /nix/store/x1y0l2xj62jgmz6csprhhqzibvdggdpk-firebase-tools-14.3.1/lib/node_modules/firebase-tools/lib/bin/firebase.js init hosting
+[debug] [2025-05-14T22:38:59.447Z] CLI Version:   14.3.1
+[debug] [2025-05-14T22:38:59.447Z] Platform:      linux
+[debug] [2025-05-14T22:38:59.447Z] Node Version:  v20.19.0
+[debug] [2025-05-14T22:38:59.447Z] Time:          Wed May 14 2025 22:38:59 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-05-14T22:38:59.447Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-14T22:38:59.449Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-05-14T22:38:59.821Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-14T22:38:59.821Z] > authorizing via signed-in user (tewari.85@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/user/studio
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-05-14T22:38:59.825Z] Using project from CLI flag: slv-security-437612
+[debug] [2025-05-14T22:38:59.825Z] Checked if tokens are valid: false, expires at: 1744976173914
+[debug] [2025-05-14T22:38:59.825Z] Checked if tokens are valid: false, expires at: 1744976173914
+[debug] [2025-05-14T22:38:59.826Z] > refreshing access token with scopes: []
+[debug] [2025-05-14T22:38:59.826Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-05-14T22:38:59.827Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-14T22:38:59.909Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-05-14T22:38:59.910Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-14T22:38:59.924Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/slv-security-437612 [none]
+[debug] [2025-05-14T22:39:00.167Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-05-14T22:39:00.167Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-05-14T22:39:00.203Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/slv-security-437612 200
+[debug] [2025-05-14T22:39:00.203Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/slv-security-437612 {"projectId":"slv-security-437612","projectNumber":"1043707630881","displayName":"SLV Security","name":"projects/slv-security-437612","resources":{"hostingSite":"slv-security-437612"},"state":"ACTIVE","etag":"1_e325aee7-8ddd-4e35-aa1a-8cdb0e6ddda2"}
+[info] i  Using project slv-security-437612 (SLV Security) 
+[info] 
+=== Hosting Setup
+[debug] [2025-05-14T22:39:00.220Z] Checked if tokens are valid: true, expires at: 1747265938910
+[debug] [2025-05-14T22:39:00.223Z] Checked if tokens are valid: true, expires at: 1747265938910
+[debug] [2025-05-14T22:39:00.223Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/slv-security-437612 [none]
+[debug] [2025-05-14T22:39:00.465Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/slv-security-437612 200
+[debug] [2025-05-14T22:39:00.468Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/slv-security-437612 {"projectId":"slv-security-437612","projectNumber":"1043707630881","displayName":"SLV Security","name":"projects/slv-security-437612","resources":{"hostingSite":"slv-security-437612"},"state":"ACTIVE","etag":"1_e325aee7-8ddd-4e35-aa1a-8cdb0e6ddda2"}

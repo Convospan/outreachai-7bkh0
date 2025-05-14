@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 'use client';
 
 import type { Metadata } from 'next/metadata';
@@ -9,6 +10,7 @@ import { siteConfig } from "@/config/site";
 import { initializeFirebase, getFirebaseApp } from '@/lib/firebase';
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation'; // Added this import
 
 // Metadata should be defined in a Server Component or src/app/metadata.ts
 // For client components, metadata is typically handled via <Head> or next/head
@@ -22,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
   const [isFirebaseInitialized, setIsFirebaseInitialized] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const pathname = usePathname(); // To determine if it's the home page for the footer
+  const pathname = usePathname(); // This line was causing the error
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -49,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
       } else if (isFirebaseInitialized && isLoadingAuth) {
         // This case handles scenarios like hot-reloads where isFirebaseInitialized might be true
         // but we still need to set up the auth listener or confirm auth state.
-        const app = getFirebaseApp();
+        const app = getFirebaseApp(); // Ensure app is retrieved if already initialized
         if (app) {
             const auth = getAuth(app);
             const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -65,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFirebaseInitialized]); // Removed isLoadingAuth from dependencies to avoid potential loops if auth state changes rapidly
+  }, [isFirebaseInitialized]); // Removed isLoadingAuth from dependencies to avoid potential loops
 
   if (isLoadingAuth && !isFirebaseInitialized) {
     // Initial loading state before Firebase is attempted
@@ -84,7 +86,6 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
         className="font-sans text-foreground antialiased bg-background min-h-screen flex flex-col"
         suppressHydrationWarning
       >
-        {/* We can conditionally render Navbar/Footer based on auth state or loading state if needed */}
         <Navbar />
         <main className="flex-grow">{children}</main>
         <Toaster />
