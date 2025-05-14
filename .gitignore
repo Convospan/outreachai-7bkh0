@@ -25,7 +25,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # local env files
 .env.local
@@ -38,17 +42,18 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Firebase
-*.firebase.*
-*.firebaserc
+# Temp
+temp/
+tmp/
+
+# Firebase Emulators
 firebase-debug.log
-# Emulator local data
-/.firebase/emulators/
-firestore.rules.local # If you have local-only rules for emulators
-database.rules.local # If you have local-only rules for emulators
+firestore-debug.log
+ui-debug.log
+functions/functions.json # Added to ignore local function config
+database-debug.log # if using Realtime Database emulator
+pubsub-debug.log # if using PubSub emulator
+storage-debug.log # if using Storage emulator
 
-# Firebase Functions local config
-functions/functions.json
-
-# IDX specific
-.idx/
+# IDX
+.idx
