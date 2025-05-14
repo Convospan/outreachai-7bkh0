@@ -1,39 +1,30 @@
 'use client';
 
+// This page is no longer needed as Google Calendar integration has been removed.
+// You can delete this file or keep it as a placeholder if you might re-add GCal later.
+
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { createOAuth2Client, generateGoogleCalendarAuthUrl } from '@/services/google-calendar';
 
 export default function GoogleCalendarAuthPage() {
+  const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    const redirectToGoogleAuth = async () => {
-      try {
-        const oauth2Client = await createOAuth2Client();
-        const authUrl = await generateGoogleCalendarAuthUrl(oauth2Client); // Added await
-        window.location.href = authUrl;
-      } catch (error) {
-        console.error('Failed to initiate Google Calendar authorization:', error);
-        toast({
-          title: 'Google Calendar Authorization Error',
-          description: 'Could not start the Google Calendar authorization process. Please try again.',
-          variant: 'destructive',
-        });
-        // Optionally redirect back to a safe page or show an error message
-        // router.push('/campaign');
-      }
-    };
-
-    redirectToGoogleAuth();
-  }, [toast]);
+    toast({
+      title: 'Google Calendar Integration Removed',
+      description: 'The Google Calendar integration is currently not active.',
+      variant: 'default',
+    });
+    router.push('/campaign'); // Redirect back to a safe page
+  }, [router, toast]);
 
   return (
     <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold mb-4">Redirecting to Google Calendar Authorization...</h1>
-        <p className="text-muted-foreground">Please wait while we redirect you to Google to authorize calendar access.</p>
-        {/* You can add a loading spinner here */}
+        <h1 className="text-2xl font-semibold mb-4">Redirecting...</h1>
+        <p className="text-muted-foreground">Google Calendar integration is currently unavailable.</p>
       </div>
     </div>
   );

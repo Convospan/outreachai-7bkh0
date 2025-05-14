@@ -23,26 +23,6 @@ export interface LinkedInProfile {
 
 import axios from 'axios';
 
-/**
- * Asynchronously retrieves a LinkedIn profile by username (placeholder).
- * In a real scenario, you'd likely use an access token to fetch profile data.
- *
- * @param username The LinkedIn username.
- * @returns A promise that resolves to a LinkedInProfile object.
- */
-export async function getLinkedInProfile(username: string): Promise<LinkedInProfile> {
-  console.warn('getLinkedInProfile by username is a placeholder. Use token-based fetching for actual data.');
-  const isDetailed = Math.random() > 0.5;
-  return {
-    id: 'placeholder-id-for-' + username,
-    headline: isDetailed ? `Senior ${username.includes('Engineer') ? 'Software Engineer' : 'Marketer'} at Placeholder Solutions` : '',
-    profileUrl: isDetailed ? `https://www.linkedin.com/in/${username.toLowerCase().replace(/\s+/g, '-')}`: '',
-    firstName: username.split(' ')[0] || 'Alex',
-    lastName: username.split(' ').slice(1).join(' ') || 'Smith',
-    email: isDetailed ? `${username.toLowerCase().replace(/\s+/g, '.')}@example.com` : null,
-    profilePictureUrl: `https://picsum.photos/seed/${username}/200/200`
-  };
-}
 
 /**
  * Interface for OAuth configuration.

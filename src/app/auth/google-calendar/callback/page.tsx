@@ -1,74 +1,30 @@
 'use client';
 
+// This page is no longer needed as Google Calendar integration has been removed.
+// You can delete this file or keep it as a placeholder if you might re-add GCal later.
+
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { createOAuth2Client, getGoogleCalendarTokensFromCode } from '@/services/google-calendar'; 
 
 export default function GoogleCalendarCallbackPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
-    const handleCallback = async () => {
-      const code = searchParams.get('code');
-      const errorParam = searchParams.get('error');
-
-      if (errorParam) {
-        console.error('Google Calendar authorization error from URL:', errorParam);
-        toast({
-          title: 'Google Calendar Authorization Denied',
-          description: `Authorization was not granted. Error: ${errorParam}. Please try again.`,
-          variant: 'destructive',
-        });
-        router.push('/campaign'); // Redirect back
-        return;
-      }
-
-      if (code) {
-        try {
-          const oauth2Client = await createOAuth2Client(); 
-          const tokens = await getGoogleCalendarTokensFromCode(code, oauth2Client);
-
-          if (tokens) {
-            localStorage.setItem('googleCalendarTokens', JSON.stringify(tokens));
-            toast({
-              title: 'Google Calendar Authorized',
-              description: 'Successfully connected to Google Calendar.',
-            });
-            router.push('/campaign');
-          } else {
-            throw new Error('Failed to obtain tokens from Google. The token response was empty.');
-          }
-        } catch (error: any) {
-          console.error('Error handling Google Calendar callback:', error);
-          toast({
-            title: 'Google Calendar Authorization Failed',
-            description: error.message || 'Could not complete Google Calendar authorization. Please try again.',
-            variant: 'destructive',
-          });
-          router.push('/campaign'); 
-        }
-      } else {
-        toast({
-          title: 'Google Calendar Authorization Error',
-          description: 'No authorization code found. Please try again.',
-          variant: 'destructive',
-        });
-        router.push('/campaign'); 
-      }
-    };
-
-    handleCallback();
-  }, [router, searchParams, toast]);
+    toast({
+      title: 'Google Calendar Integration Removed',
+      description: 'The Google Calendar integration is currently not active.',
+      variant: 'default',
+    });
+    router.push('/campaign'); // Redirect back to a safe page
+  }, [router, toast]);
 
   return (
     <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold mb-4">Processing Google Calendar Authorization...</h1>
-        <p className="text-muted-foreground">Please wait while we connect your Google Calendar.</p>
-        {/* You can add a loading spinner here */}
+        <h1 className="text-2xl font-semibold mb-4">Google Calendar Integration</h1>
+        <p className="text-muted-foreground">This feature is currently unavailable.</p>
       </div>
     </div>
   );

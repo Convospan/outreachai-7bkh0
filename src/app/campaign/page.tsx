@@ -15,17 +15,17 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/c
 import {Textarea} from '@/components/ui/textarea';
 import {useToast} from '@/hooks/use-toast';
 import type {EmailProfile} from '@/services/email';
-import type {GoogleCalendarEvent} from '@/services/google-calendar';
-import {
-  createGoogleCalendarEvent,
-  createOAuth2Client,
-  getGoogleCalendarTokensFromCode,
-  generateGoogleCalendarAuthUrl,
-} from '@/services/google-calendar';
+// import type {GoogleCalendarEvent} from '@/services/google-calendar'; // Removed GCal
+// import {
+//   createGoogleCalendarEvent, // Removed GCal
+//   createOAuth2Client, // Removed GCal
+//   getGoogleCalendarTokensFromCode, // Removed GCal
+//   generateGoogleCalendarAuthUrl, // Removed GCal
+// } from '@/services/google-calendar'; // Removed GCal
 import type {LinkedInProfile} from '@/services/linkedin';
 import {getLinkedInProfileByToken, sendLinkedInMessage, fetchLinkedInMessages } from '@/services/linkedin'; // Use getLinkedInProfileByToken
 import type {TwitterProfile} from '@/services/twitter';
-import type {Auth} from 'googleapis';
+// import type {Auth} from 'googleapis'; // Removed GCal
 import Link from 'next/link';
 import {useEffect, useState, Suspense} from 'react';
 import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle, ArrowLeft, HomeIcon, ChevronRight, Loader2 } from 'lucide-react';
@@ -55,7 +55,7 @@ const prospectJourneyStages: ProspectStage[] = [
   { id: 'ComplianceChecked', name: 'Compliance Checked', icon: <ShieldCheck className="h-4 w-4" /> },
   { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> },
   { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> },
-  { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> },
+  // { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> }, // Removed GCal
   { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
   { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
 ];
@@ -64,7 +64,7 @@ const prospectJourneyStages: ProspectStage[] = [
 function CampaignPageContent() {
   const [platform, setPlatform] = useState<'linkedin' | 'twitter' | 'email' | 'whatsapp'>('linkedin');
   const [currentMessage, setCurrentMessage] = useState('');
-  const [linkedinUsername, setLinkedInUsername] = useState(''); // Might be used if manually entered, or derived
+  const [linkedinUsername, setLinkedInUsername] = useState(''); 
   const [twitterUsername, setTwitterUsername] = useState('');
   const [emailAddress, setEmailAddress] = useState(''); 
   const [prospectEmailForDrip, setProspectEmailForDrip] = useState('');
@@ -90,121 +90,45 @@ function CampaignPageContent() {
   const [companyName, setCompanyName] = useState('');
   const [includeCallToAction, setIncludeCallToAction] = useState(true);
 
-  const [googleAuthClient, setGoogleAuthClient] = useState<Auth.OAuth2Client | null>(null);
-  const [isGoogleCalendarAuthorized, setIsGoogleCalendarAuthorized] = useState(false);
-  const [calendarEventSummary, setCalendarEventSummary] = useState('');
-  const [calendarEventDescription, setCalendarEventDescription] = useState('');
-  const [calendarEventStart, setCalendarEventStart] = useState('');
-  const [calendarEventEnd, setCalendarEventEnd] = useState('');
-  const [calendarEventAttendees, setCalendarEventAttendees] = useState('');
-  const [addGoogleMeet, setAddGoogleMeet] = useState(true);
+  // Google Calendar state removed
+  // const [googleAuthClient, setGoogleAuthClient] = useState<Auth.OAuth2Client | null>(null);
+  // const [isGoogleCalendarAuthorized, setIsGoogleCalendarAuthorized] = useState(false);
+  // const [calendarEventSummary, setCalendarEventSummary] = useState('');
+  // const [calendarEventDescription, setCalendarEventDescription] = useState('');
+  // const [calendarEventStart, setCalendarEventStart] = useState('');
+  // const [calendarEventEnd, setCalendarEventEnd] = useState('');
+  // const [calendarEventAttendees, setCalendarEventAttendees] = useState('');
+  // const [addGoogleMeet, setAddGoogleMeet] = useState(true);
 
   const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>('Identified');
   const [leadId, setLeadId] = useState<string | null>(null); 
 
 
   useEffect(() => {
-    // Attempt to get LinkedIn access token from localStorage or another source if OAuth flow was completed
-    const token = localStorage.getItem('linkedInAccessToken'); // Example: if stored after OAuth
+    const token = localStorage.getItem('linkedInAccessToken'); 
     if (token) {
       setLinkedInAccessToken(token);
     }
 
-    // Google Calendar Auth Client Init
-    const initGoogleAuthClient = async () => {
-      try {
-        const client = await createOAuth2Client();
-        setGoogleAuthClient(client);
-      } catch (error) {
-        console.error('Failed to initialize Google Auth Client:', error);
-        toast({ title: 'Google Calendar Error', description: 'Could not initialize Google Calendar integration.', variant: 'destructive' });
-      }
-    };
-    initGoogleAuthClient();
+    // Google Calendar Auth Client Init REMOVED
+    // const initGoogleAuthClient = async () => { ... };
+    // initGoogleAuthClient();
   }, [toast]);
 
- useEffect(() => {
-    const code = searchParams.get('code');
-    const state = searchParams.get('state'); // For Google, state is often used
-
-    // Google Calendar Callback Handling
-    if (code && googleAuthClient && !isGoogleCalendarAuthorized && state === localStorage.getItem('google_auth_state')) { // Verify state
-      localStorage.removeItem('google_auth_state'); // Clean up state
-      const handleGoogleCallback = async () => {
-        try {
-          const tokens = await getGoogleCalendarTokensFromCode(code, googleAuthClient);
-          if (tokens) {
-            googleAuthClient.setCredentials(tokens);
-            setIsGoogleCalendarAuthorized(true);
-            toast({ title: 'Google Calendar Authorized', description: 'Successfully connected to Google Calendar.' });
-            // router.replace('/campaign'); // Clean URL
-             setCurrentProspectJourneyStage('CallScheduled'); 
-          } else {
-            throw new Error('Failed to obtain tokens from Google.');
-          }
-        } catch (error) {
-          console.error('Error exchanging Google Calendar code for tokens:', error);
-          toast({ title: 'Google Calendar Authorization Failed', description: 'Could not authorize Google Calendar.', variant: 'destructive' });
-        }
-      };
-      handleGoogleCallback();
-    }
-  }, [googleAuthClient, isGoogleCalendarAuthorized, toast, router, searchParams]);
+ // Google Calendar Callback Handling REMOVED
+ // useEffect(() => { ... }, [googleAuthClient, isGoogleCalendarAuthorized, toast, router, searchParams]);
 
 
-  const handleGoogleCalendarAuthorize = async () => {
-    if (googleAuthClient) {
-      const uniqueState = `google_auth_${Date.now()}`;
-      localStorage.setItem('google_auth_state', uniqueState); // Store state for verification
-      const authUrl = await generateGoogleCalendarAuthUrl(googleAuthClient, uniqueState);
-      window.location.href = authUrl;
-    } else {
-      toast({ title: 'Google Calendar Error', description: 'Google Calendar client not initialized. Please refresh.', variant: 'destructive' });
-    }
-  };
+  // Google Calendar Authorize function REMOVED
+  // const handleGoogleCalendarAuthorize = async () => { ... };
 
-  const handleScheduleGoogleCalendarEvent = async () => {
-    if (!isGoogleCalendarAuthorized || !googleAuthClient) {
-      toast({ title: 'Google Calendar Not Authorized', description: 'Please authorize Google Calendar access first.', variant: 'destructive' });
-      return;
-    }
-    if (!calendarEventSummary || !calendarEventStart || !calendarEventEnd) {
-      toast({title: 'Missing Event Details', description: 'Please provide summary, start, and end times.', variant: 'destructive'});
-      return;
-    }
-    const eventDetails: GoogleCalendarEvent = {
-        summary: calendarEventSummary,
-        description: calendarEventDescription,
-        start: { dateTime: new Date(calendarEventStart).toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-        end: { dateTime: new Date(calendarEventEnd).toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-        attendees: calendarEventAttendees.split(',').map(email => ({ email: email.trim() })).filter(att => att.email),
-        reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 30 }] },
-    };
-
-    try {
-        setCurrentProspectJourneyStage('CallScheduled');
-        const createdEvent = await createGoogleCalendarEvent(eventDetails, googleAuthClient, addGoogleMeet);
-        if (createdEvent) {
-            toast({title: 'Event Scheduled!', description: `Event "${createdEvent.summary}" created. Check your Google Calendar.`});
-            setCurrentProspectJourneyStage('CallCompleted');
-            setCalendarEventSummary('');
-            setCalendarEventDescription('');
-            setCalendarEventStart('');
-            setCalendarEventEnd('');
-            setCalendarEventAttendees('');
-        } else {
-            throw new Error('Failed to create event in Google Calendar.');
-        }
-    } catch (error: any) {
-        console.error('Failed to schedule Google Calendar event:', error);
-        toast({title: 'Scheduling Error', description: error.message || 'Could not schedule event.', variant: 'destructive'});
-    }
-  };
+  // Google Calendar Schedule Event function REMOVED
+  // const handleScheduleGoogleCalendarEvent = async () => { ... };
 
 
   useEffect(() => {
     const fetchAndEnrichLinkedInProfile = async () => {
-      if (platform === 'linkedin' && linkedInAccessToken && !linkedinProfile) { // Fetch only if token exists and profile not yet fetched
+      if (platform === 'linkedin' && linkedInAccessToken && !linkedinProfile) { 
         setIsLoadingLinkedInData(true);
         setCurrentProspectJourneyStage('Identified');
         try {
@@ -212,8 +136,8 @@ function CampaignPageContent() {
           setLeadId(profile.id); 
 
           const enrichInput: EnrichLinkedInProfileInput = {
-            name: profile.firstName || profile.lastName || 'LinkedIn User', // Use available name parts
-            company: companyName, // User might provide this separately
+            name: profile.firstName || profile.lastName || 'LinkedIn User', 
+            company: companyName, 
             linkedinProfile: profile,
             additionalContext: additionalContext,
           };
@@ -226,20 +150,18 @@ function CampaignPageContent() {
           setLinkedInProfile(finalProfile);
           setIsLinkedInOutreachActive(true);
           setCurrentProspectJourneyStage('LinkedInConnected');
-          await handleSendLinkedInMessage(true, finalProfile); // Send intro message
+          await handleSendLinkedInMessage(true, finalProfile); 
 
         } catch (error: any) {
           console.error('Failed to fetch/enrich LinkedIn profile:', error);
           toast({ title: 'LinkedIn Profile Error', description: error.message || 'Failed to fetch LinkedIn profile.', variant: 'destructive' });
-          setLinkedInAccessToken(null); // Clear token on error to allow re-auth
+          setLinkedInAccessToken(null); 
           localStorage.removeItem('linkedInAccessToken');
         } finally {
           setIsLoadingLinkedInData(false);
         }
       } else if (platform === 'linkedin' && !linkedInAccessToken && !isLoadingLinkedInData) {
-        // Prompt user to connect LinkedIn if token is missing for LinkedIn platform
-        // This could be a toast or a more prominent UI element
-        // For now, let's assume user goes to /campaign/create/linkedin-auth if needed
+        // User will be redirected via UI button if not connected
       }
     };
 
@@ -255,7 +177,6 @@ function CampaignPageContent() {
     }
      if (!linkedInAccessToken) {
       toast({ title: "LinkedIn Not Connected", description: "Please connect your LinkedIn account first.", variant: "destructive" });
-      // router.push('/campaign/create/linkedin-auth'); // Optionally redirect
       return;
     }
     
@@ -279,7 +200,6 @@ function CampaignPageContent() {
       const aiMessage = result.script;
       setSuggestedNextObjective(result.suggestedNextObjective);
       
-      // Simulate sending the message via LinkedIn API
       const sendResult = await sendLinkedInMessage(profileToUse.id, aiMessage, linkedInAccessToken);
       if (!sendResult.success) {
           throw new Error(sendResult.error || "Failed to send LinkedIn message via API.");
@@ -287,17 +207,14 @@ function CampaignPageContent() {
 
       setLinkedinConversation(prev => [...prev, { sender: 'user', message: aiMessage, timestamp: new Date() }]);
       
-      // Simulate fetching prospect reply after a delay
       setTimeout(async () => {
         try {
-            // Fetch new messages since the last message timestamp or now
             const lastTimestamp = linkedinConversation.length > 0 ? linkedinConversation[linkedinConversation.length-1].timestamp.getTime() : undefined;
-            const fetchedMessagesResult = await fetchLinkedInMessages(profileToUse.id, linkedInAccessToken!, lastTimestamp);
+            const fetchedMessagesResult = await fetchLinkedInMessages(profileToUse.id, linkedInAccessToken!, lastTimestamp); // Assuming fetchLinkedInMessages is adjusted
             
             if (fetchedMessagesResult.success && fetchedMessagesResult.messages && fetchedMessagesResult.messages.length > 0) {
                 const newProspectMessages = fetchedMessagesResult.messages
-                    .filter(msg => msg.senderUrn !== profileToUse.id) // Filter out our own messages if API returns them
-                    .map(msg => ({ sender: 'prospect' as 'user' | 'prospect', message: msg.text || "Prospect replied.", timestamp: new Date(msg.timestamp)}));
+                    .map(msg => ({ sender: 'prospect' as 'user' | 'prospect', message: msg.text || "Prospect replied.", timestamp: new Date(msg.timestamp)})); // Simplified sender logic
                 
                 if(newProspectMessages.length > 0){
                     setLinkedinConversation(prev => [...prev, ...newProspectMessages]);
@@ -385,11 +302,6 @@ function CampaignPageContent() {
                 </div>
                 )}
                 {isLoadingLinkedInData && <div className="md:col-span-2 flex items-center justify-center p-4"><Loader2 className="h-8 w-8 animate-spin text-primary" /> <p className="ml-2">Loading LinkedIn Data...</p></div>}
-                {/* Input for username can be kept if user wants to manually type, but primary flow is via OAuth */}
-                {/* <div>
-                  <Label htmlFor="linkedinUsername">LinkedIn Username/Profile URL (Manual)</Label>
-                  <Input id="linkedinUsername" value={linkedinUsername} onChange={e => setLinkedInUsername(e.target.value)} placeholder="Enter LinkedIn username or profile URL" />
-                </div> */}
                 <div>
                   <Label htmlFor="companyName">Company Name (for enrichment)</Label>
                   <Input id="companyName" value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Enter Company Name" />
@@ -472,7 +384,7 @@ function CampaignPageContent() {
                     </Button>
                 )}
                  {platform === 'linkedin' && (suggestedNextObjective === 'schedule_call' || currentObjective === 'schedule_call') && (
-                    <p className="mt-3 text-sm text-green-600">Prospect seems interested in a call! Use the Google Calendar integration below to schedule it.</p>
+                    <p className="mt-3 text-sm text-green-600">Prospect seems interested in a call! Use the call approval module to proceed.</p> 
                 )}
               </CardContent>
             </Card>
@@ -511,55 +423,16 @@ function CampaignPageContent() {
                         </div>
                     )}
                      {currentMessage && (suggestedNextObjective === 'schedule_call' || currentObjective === 'schedule_call') && (
-                        <p className="mt-3 text-sm text-green-600">Script suggests a call. Use Google Calendar integration below.</p>
+                        <p className="mt-3 text-sm text-green-600">Script suggests a call. Proceed to the call approval module.</p>
                     )}
                 </CardContent>
              </Card>
           )}
 
 
-          <Accordion type="single" collapsible className="w-full mt-6">
-            <AccordionItem value="google-calendar">
-              <AccordionTrigger className="text-base">
-                <div className="flex items-center"><CalendarPlus className="mr-2 h-5 w-5 text-primary"/>Schedule Google Calendar Event</div>
-              </AccordionTrigger>
-              <AccordionContent className="space-y-4 pt-3">
-                {!isGoogleCalendarAuthorized ? (
-                  <Button onClick={handleGoogleCalendarAuthorize} variant="outline">Authorize Google Calendar</Button>
-                ) : (
-                  <>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="eventSummary">Event Summary</Label>
-                            <Input id="eventSummary" value={calendarEventSummary} onChange={e => setCalendarEventSummary(e.target.value)} placeholder="Meeting with Prospect" />
-                        </div>
-                         <div>
-                            <Label htmlFor="eventAttendees">Attendees (comma-separated emails)</Label>
-                            <Input id="eventAttendees" value={calendarEventAttendees} onChange={e => setCalendarEventAttendees(e.target.value)} placeholder="prospect@example.com, you@example.com" />
-                        </div>
-                        <div>
-                            <Label htmlFor="eventStart">Start Date & Time</Label>
-                            <Input id="eventStart" type="datetime-local" value={calendarEventStart} onChange={e => setCalendarEventStart(e.target.value)} />
-                        </div>
-                        <div>
-                            <Label htmlFor="eventEnd">End Date & Time</Label>
-                            <Input id="eventEnd" type="datetime-local" value={calendarEventEnd} onChange={e => setCalendarEventEnd(e.target.value)} />
-                        </div>
-                    </div>
-                     <div>
-                        <Label htmlFor="eventDescription">Event Description (Optional)</Label>
-                        <Textarea id="eventDescription" value={calendarEventDescription} onChange={e => setCalendarEventDescription(e.target.value)} placeholder="Discuss project X, follow up on recent conversation..." />
-                    </div>
-                     <div className="flex items-center space-x-2">
-                      <Checkbox id="addGoogleMeet" checked={addGoogleMeet} onCheckedChange={(checked) => setAddGoogleMeet(checked as boolean)} />
-                      <Label htmlFor="addGoogleMeet">Add Google Meet Link</Label>
-                    </div>
-                    <Button onClick={handleScheduleGoogleCalendarEvent}>Schedule Event</Button>
-                  </>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          {/* Google Calendar Accordion REMOVED */}
+          {/* <Accordion type="single" collapsible className="w-full mt-6"> ... </Accordion> */}
+
         </CardContent>
       </Card>
       <div className="flex justify-between mt-6">
@@ -596,3 +469,4 @@ export default function CampaignPage() {
         </Suspense>
     )
 }
+
