@@ -1,79 +1,104 @@
+
 'use server';
 
 import SarvamAI from 'sarvamai'; // Assuming this is how the SDK is imported
 
 interface InitiateSarvamCallInput {
-  phoneNumber: string;
-  script: string;
-  // any other relevant parameters for Sarvam e.g. callerId
+  phoneNumber: string; // Target phone number
+  script: string;      // The call script
+  modelId?: string;     // Optional: Specific Sarvam voice model ID
+  callerId?: string;    // Optional: The phone number to display as caller ID
+  // any other relevant parameters for Sarvam e.g. custom metadata
+  customData?: Record<string, any>;
 }
 
 interface InitiateSarvamCallOutput {
-  callId: string;
-  status: 'initiated' | 'failed';
+  callId?: string;
+  status: 'initiated' | 'failed' | 'queued'; // Added 'queued' as a possible status
   message?: string;
+  details?: any; // For any additional details from Sarvam API
 }
 
 const SARVAM_API_KEY = process.env.SARVAM_API_KEY;
 
-if (!SARVAM_API_KEY) {
-  console.error("SARVAM_API_KEY is not set in environment variables.");
-}
-
 export async function initiateSarvamCall(input: InitiateSarvamCallInput): Promise<InitiateSarvamCallOutput> {
   if (!SARVAM_API_KEY) {
+    console.error("SARVAM_API_KEY is not set in environment variables.");
     return {
-      callId: '',
       status: 'failed',
-      message: 'Sarvam API Key not configured.',
+      message: 'Sarvam API Key not configured in the server environment.',
+    };
+  }
+  if (!input.phoneNumber || !input.script) {
+    return {
+        status: 'failed',
+        message: 'Missing required fields: phoneNumber and script are required for Sarvam call.',
     };
   }
 
-  // Initialize the client per call for serverless environments,
-  // or you might initialize it once globally if appropriate for your setup.
   const sarvamClient = new SarvamAI({ apiKey: SARVAM_API_KEY });
 
   try {
-    // This is a *hypothetical* SDK usage.
-    // You MUST consult the `sarvamai` SDK documentation for the correct methods and parameters.
-    const response = await sarvamClient.voice.calls.create({
+    // Consult the `sarvamai` SDK documentation for the correct methods and parameters.
+    // This is a hypothetical SDK usage structure.
+    const callParams: any = {
       to: input.phoneNumber,
-      // from: 'YOUR_SARVAM_CALLER_ID_OR_NUMBER', // This might be required by Sarvam
-      script_text: input.script, // Assuming Sarvam takes script text directly
-      // Alternatively, Sarvam might expect a URL to a script or a more structured script object.
-      // language: 'en-US', // Specify language if needed
-      // voice_id: 'sarvam-default-voice', // Specify voice if needed
-    });
+      script_text: input.script,
+      // model_id: input.modelId || 'sarvam-default-voice', // Example default, if Sarvam has one
+      // from: input.callerId || process.env.DEFAULT_SARVAM_CALLER_ID, // Your configured Sarvam caller ID
+      // custom_data: input.customData, // For passing along campaign_id, lead_id etc.
+    };
+    if (input.modelId) {
+        callParams.model_id = input.modelId;
+    }
+    if (input.callerId) {
+        callParams.from = input.callerId;
+    }
+     if (input.customData) {
+        callParams.custom_data = input.customData;
+    }
+
+
+    // Assuming the SDK method is something like this:
+    const response = await sarvamClient.voice.calls.create(callParams);
 
     // Adapt this based on the actual response structure from the Sarvam SDK
-    if (response && response.id && response.status === 'initiated') { // Example success condition
+    if (response && response.call_id && (response.status === 'initiated' || response.status === 'queued' || response.status === 'success')) {
       return {
-        callId: response.id,
-        status: 'initiated',
-        message: 'Call initiated successfully via Sarvam AI.',
+        callId: response.call_id,
+        status: response.status as 'initiated' | 'queued', // Cast to known success statuses
+        message: `Call ${response.status} successfully via Sarvam AI. Call ID: ${response.call_id}`,
+        details: response,
       };
-    } else if (response && response.error) { // Example error condition
+    } else if (response && response.error) {
        console.error('Sarvam AI API Error:', response.error);
        return {
-        callId: '',
         status: 'failed',
-        message: `Sarvam API Error: ${response.error.message || 'Unknown error'}`,
+        message: `Sarvam API Error: ${response.error.message || 'Unknown Sarvam API error'}`,
+        details: response.error,
       };
-    }
-    else {
-      console.error('Unexpected response from Sarvam AI:', response);
+    } else {
+      console.error('Unexpected or failed response from Sarvam AI:', response);
       return {
-        callId: '',
         status: 'failed',
         message: 'Failed to initiate call. Unexpected response from Sarvam AI.',
+        details: response,
       };
     }
   } catch (error: any) {
-    console.error('Error initiating Sarvam call:', error);
+    console.error('Error initiating Sarvam call with SDK:', error);
+    let errorMessage = 'An unknown error occurred while initiating the call via Sarvam SDK.';
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = `Sarvam SDK Error: ${error.response.data.message}`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
     return {
-      callId: '',
       status: 'failed',
-      message: error.message || 'An unknown error occurred while initiating the call.',
+      message: errorMessage,
+      details: error,
     };
   }
 }
+
+    

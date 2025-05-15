@@ -21,7 +21,7 @@ export interface LinkedInProfile {
   profilePictureUrl?: string | null;
 }
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 
 /**
@@ -38,22 +38,23 @@ export interface OAuthConfiguration {
  * Client ID and Redirect URI are public, Client Secret is server-side only.
  */
 export async function getLinkedInOAuthConfig(): Promise<OAuthConfiguration> {
-  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || '78390mtb4x6bnd';
-  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || 'WPL_AP1.oLC30bEBnic3YUVE.1vCHkQ==';
-  const redirectUri = process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI || 
-                      (typeof window !== 'undefined' ? `${window.location.origin}/auth/linkedin/callback` : 'https://outreachai-7bkh0.web.app/auth/linkedin/callback');
+  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID;
+  const clientSecret = process.env.LINKEDIN_CLIENT_SECRET;
+  const redirectUri = process.env.NEXT_PUBLIC_LINKEDIN_REDIRECT_URI;
 
   if (!clientId || !redirectUri) {
-    console.error('LinkedIn OAuth configuration is incomplete (Client ID or Redirect URI missing). Check environment variables: NEXT_PUBLIC_LINKEDIN_CLIENT_ID, NEXT_PUBLIC_LINKEDIN_REDIRECT_URI');
-    throw new Error('LinkedIn OAuth configuration is incomplete (Client ID or Redirect URI missing).');
+    const errorMsg = 'LinkedIn OAuth configuration is incomplete (Client ID or Redirect URI missing). Check environment variables: NEXT_PUBLIC_LINKEDIN_CLIENT_ID, NEXT_PUBLIC_LINKEDIN_REDIRECT_URI';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
-   if (!clientSecret && typeof window === 'undefined') { 
+   if (!clientSecret && typeof window === 'undefined') {
     console.warn('LinkedIn Client Secret is missing. Ensure LINKEDIN_CLIENT_SECRET is set in server environment variables. This is required for token exchange.');
+    // Not throwing error here as clientSecret might not be needed client-side for initial redirect
   }
 
   return {
     clientId,
-    clientSecret: clientSecret || '', 
+    clientSecret: clientSecret || '',
     redirectUri,
   };
 }
@@ -73,11 +74,11 @@ interface LinkedInProfileAPIResponse {
     'displayImage~': {
       elements: Array<{
         identifiers: Array<{identifier: string; mediaType: string;}>;
-        artifact?: string; 
+        artifact?: string;
       }>;
     };
   };
-  headline?: { 
+  headline?: {
     localized: {[key: string]: string};
     preferredLocale: {country: string; language: string};
   };
@@ -99,43 +100,57 @@ interface LinkedInEmailAPIResponse {
  * @returns A promise that resolves to LinkedInProfile data.
  */
 export async function getLinkedInProfileByToken(accessToken: string): Promise<LinkedInProfile> {
-  console.log("Attempting to fetch LinkedIn profile with token:", accessToken.substring(0,10) + "...");
-  
+  console.log("Attempting to fetch LinkedIn profile with token:", accessToken ? accessToken.substring(0,10) + "..." : "Token Undefined");
+  if (!accessToken) {
+    throw new Error("LinkedIn access token is missing.");
+  }
+
   try {
+    // Projection for basic profile info + headline and profile picture
     const profileApiUrl = 'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams),headline(localized,preferredLocale))';
     const profileResponse = await axios.get<LinkedInProfileAPIResponse>(profileApiUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'X-Restli-Protocol-Version': '2.0.0', 
-        'LinkedIn-Version': '202401', // Use a recent, stable API version
+        'X-Restli-Protocol-Version': '2.0.0',
+        'LinkedIn-Version': '202403', // Use a recent, stable API version
       },
     });
     const profileData = profileResponse.data;
 
     const emailApiUrl = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))';
-    const emailResponse = await axios.get<LinkedInEmailAPIResponse>(emailApiUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Restli-Protocol-Version': '2.0.0',
-        'LinkedIn-Version': '202401',
-      },
-    });
-    const email = emailResponse.data.elements?.[0]?.['handle~']?.emailAddress || null;
-    
-    const profileUrl = `https://www.linkedin.com/in/${profileData.id}`; 
-    
+    let email: string | null = null;
+    try {
+      const emailResponse = await axios.get<LinkedInEmailAPIResponse>(emailApiUrl, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Restli-Protocol-Version': '2.0.0',
+          'LinkedIn-Version': '202403',
+        },
+      });
+      email = emailResponse.data.elements?.[0]?.['handle~']?.emailAddress || null;
+    } catch (emailError: any) {
+        console.warn("Could not fetch LinkedIn email, or user hasn't granted permission. Error:", emailError.response?.data?.message || emailError.message);
+        // Proceed without email if it fails, as it's a common permission issue.
+    }
+
+    const profileUrl = `https://www.linkedin.com/in/${profileData.id}`;
+
     let profilePictureUrl: string | null = null;
     const pictureElements = profileData.profilePicture?.['displayImage~']?.elements;
     if (pictureElements && pictureElements.length > 0) {
-        const preferredIdentifier = pictureElements[0].identifiers?.find(id => id.mediaType === 'image/png') || pictureElements[0].identifiers?.[0];
+        // Prefer PNG, then highest resolution available (often the last element in identifiers)
+        const preferredIdentifier =
+            pictureElements[0].identifiers?.find(id => id.mediaType === 'image/png') ||
+            pictureElements[0].identifiers?.[pictureElements[0].identifiers.length - 1] ||
+            pictureElements[0].identifiers?.[0];
         profilePictureUrl = preferredIdentifier?.identifier || pictureElements[0].artifact || null;
     }
 
     return {
       id: profileData.id,
-      firstName: profileData.firstName?.localized?.[profileData.firstName?.preferredLocale?.language + '_' + profileData.firstName?.preferredLocale?.country || 'en_US'] || Object.values(profileData.firstName?.localized || {})[0] || '',
-      lastName: profileData.lastName?.localized?.[profileData.lastName?.preferredLocale?.language + '_' + profileData.lastName?.preferredLocale?.country || 'en_US'] || Object.values(profileData.lastName?.localized || {})[0] || '',
-      headline: profileData.headline?.localized?.[profileData.headline?.preferredLocale?.language + '_' + profileData.headline?.preferredLocale?.country || 'en_US'] || Object.values(profileData.headline?.localized || {})[0] || 'N/A',
+      firstName: profileData.firstName?.localized?.[`${profileData.firstName.preferredLocale.language}_${profileData.firstName.preferredLocale.country}`] || Object.values(profileData.firstName?.localized || {})[0] || '',
+      lastName: profileData.lastName?.localized?.[`${profileData.lastName.preferredLocale.language}_${profileData.lastName.preferredLocale.country}`] || Object.values(profileData.lastName?.localized || {})[0] || '',
+      headline: profileData.headline?.localized?.[`${profileData.headline.preferredLocale.language}_${profileData.headline.preferredLocale.country}`] || Object.values(profileData.headline?.localized || {})[0] || 'N/A',
       profileUrl: profileUrl,
       email: email,
       profilePictureUrl: profilePictureUrl,
@@ -144,7 +159,8 @@ export async function getLinkedInProfileByToken(accessToken: string): Promise<Li
   } catch (error: any) {
     console.error("Error fetching LinkedIn profile by token:", error.response?.data || error.message);
     if (axios.isAxiosError(error) && error.response) {
-        throw new Error(`LinkedIn API error (${error.response.status}): ${error.response.data?.message || error.message}`);
+        const err = error as AxiosError<any>;
+        throw new Error(`LinkedIn API error (${err.response?.status}): ${err.response?.data?.message || err.message}`);
     }
     throw new Error(`Failed to fetch LinkedIn profile: ${error.message}`);
   }
@@ -152,54 +168,75 @@ export async function getLinkedInProfileByToken(accessToken: string): Promise<Li
 
 /**
  * Sends a LinkedIn message using the UGS (Unified Messaging Service) API.
- * IMPORTANT: This is a complex API. This function provides a structured attempt
- * but WILL LIKELY REQUIRE ADJUSTMENTS based on specific LinkedIn partnership approvals
- * and the exact UGS API version and event types you are permitted to use.
+ * IMPORTANT: This is a complex API. Requires specific LinkedIn partnership approvals
+ * and adherence to the exact UGS API version and event types.
  * @param recipientUrn The URN of the recipient member (e.g., urn:li:person:xxxx).
  * @param messageText The text of the message to send.
  * @param accessToken The OAuth access token for authentication.
  * @returns A promise that resolves with the API response.
  */
 export async function sendLinkedInMessage(recipientUrn: string, messageText: string, accessToken: string): Promise<{success: boolean; data?: any; error?: string}> {
-  console.log(`Attempting to send LinkedIn message to ${recipientUrn} using token ${accessToken.substring(0,5)}...`);
-  
-  const sendMessageApiUrl = `https://api.linkedin.com/v2/messages`; // Common endpoint for UGS
+  console.log(`Attempting to send LinkedIn message to ${recipientUrn} using token ${accessToken ? accessToken.substring(0,5) : "UNDEFINED_TOKEN"}...`);
+  if (!accessToken) {
+    return { success: false, error: "LinkedIn access token is missing for sending message." };
+  }
+  if (!recipientUrn.startsWith("urn:li:person:")) {
+     return { success: false, error: "Invalid recipient URN format for LinkedIn message." };
+  }
+
+  const sendMessageApiUrl = `https://api.linkedin.com/rest/messages`; // Common UGS endpoint, but check specific API docs
 
   try {
-    // This request body structure is based on common UGS patterns but needs verification
-    // with LinkedIn's official documentation for the specific UGS event type you are using.
+    // This request body structure is based on common UGS patterns.
+    // You MUST verify this with LinkedIn's official documentation for the specific UGS event type.
+    // Common event type: com.linkedin.voyager.messaging.create.MessageCreate
     const requestBody = {
-      "recipients": [recipientUrn],
-      "message": {
-        "body": {
-          "text": messageText
+        "message": {
+            "body": {
+                "attributes": [],
+                "text": messageText
+            }
         },
-        // "renderContent": { // Optional: for rich content like cards
-        //   "com.linkedin.voyager.messaging.render.ነባርRenderableMessage": {
-        //     "renderableUrns": [] 
-        //   }
-        // }
-      },
-      // You might need to specify `origin` or other context fields
-      // "originToken": "YOUR_ORIGIN_TOKEN_IF_APPLICABLE" 
+        "recipients": [recipientUrn],
+        // "subtype": "MEMBER_TO_MEMBER" // May be required
+        // "originToken": "YOUR_ORIGIN_TOKEN_IF_APPLICABLE" // May be required for certain integrations
     };
+
+    // Alternative structure sometimes seen for older or different UGS endpoints:
+    // const requestBody = {
+    //   "recipients": [recipientUrn],
+    //   "eventCreate": {
+    //     "value": {
+    //       "com.linkedin.voyager.messaging.create.MessageCreate": {
+    //         "attributedBody": { "text": messageText, "attributes": [] },
+    //         // "trackingId": "YOUR_UNIQUE_TRACKING_ID" // Recommended for idempotency
+    //       }
+    //     }
+    //   }
+    // };
 
     const response = await axios.post(sendMessageApiUrl, requestBody, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'X-Restli-Protocol-Version': '2.0.0', 
-        'LinkedIn-Version': '202403', // Use a very recent API version for UGS
-        'Content-Type': 'application/json'
+        'X-Restli-Protocol-Version': '2.0.0', // Or other required version
+        'LinkedIn-Version': '202403', // Use a recent API version, subject to change
+        'Content-Type': 'application/json',
+        // 'X-RestLi-Method': 'action', // Sometimes needed for specific actions like 'create' or 'batch_create'
+        // 'action': 'create', // If using an action-based endpoint
       }
     });
-    console.log("LinkedIn message sent successfully via UGS:", response.data);
-    // The actual ID or confirmation might be in a different part of the response,
-    // e.g., a location header or a specific ID field.
-    return { success: true, data: response.data };
+
+    // Successful response from LinkedIn UGS typically returns a 201 Created
+    // and may include the message URN or conversation URN in headers or body.
+    const messageUrn = response.headers['x-restli-id'] || response.data?.id || response.data?.value?.message || `sim_msg_${Date.now()}`;
+    console.log("LinkedIn message sent successfully via UGS. Message URN/ID:", messageUrn);
+    return { success: true, data: { messageUrn, ...response.data } };
+
   } catch (error: any) {
     console.error("Error sending LinkedIn message via UGS:", error.response?.data || error.message);
      if (axios.isAxiosError(error) && error.response) {
-        return { success: false, error: `LinkedIn UGS API error (${error.response.status}): ${error.response.data?.message || error.message}` };
+        const err = error as AxiosError<any>;
+        return { success: false, error: `LinkedIn UGS API error (${err.response?.status}): ${err.response?.data?.message || err.message}` };
     }
     return { success: false, error: `Failed to send LinkedIn message via UGS: ${error.message}` };
   }
@@ -214,7 +251,7 @@ interface LinkedInMessageAPI {
   eventContent?: { // Another common UGS structure
     "com.linkedin.voyager.messaging.event.MessageEvent"?: {
       attributedBody?: { text?: string };
-      body?: string; 
+      body?: string;
       subject?: string;
     }
   };
@@ -244,16 +281,28 @@ interface LinkedInConversationEventAPI {
  * @returns A promise that resolves to an array of message objects.
  */
 export async function fetchLinkedInMessages(
-  conversationUrn: string, 
+  conversationUrn: string, // This should be the URN of the conversation, NOT the profile ID/URN
   accessToken: string,
   count: number = 20,
   createdBeforeTimestamp?: number
 ): Promise<{success: boolean; messages?: { id: string; senderUrn: string; text: string; timestamp: number; }[]; error?: string; rawData?: any}> {
-  console.log(`Attempting to fetch messages for LinkedIn conversation ${conversationUrn} using token ${accessToken.substring(0,5)}...`);
-  
-  // Common endpoint for fetching conversation events.
-  // Parameters might include `q=participants`, `types=MESSAGE`, etc.
-  let fetchMessagesApiUrl = `https://api.linkedin.com/v2/conversations/${conversationUrn}/events?count=${count}`;
+  console.log(`Attempting to fetch messages for LinkedIn conversation ${conversationUrn} using token ${accessToken ? accessToken.substring(0,5) : "UNDEFINED_TOKEN"}...`);
+  if (!accessToken) {
+    return { success: false, error: "LinkedIn access token is missing for fetching messages." };
+  }
+  if (!conversationUrn || !conversationUrn.startsWith("urn:li:fs_conversation:")) {
+    // This URN is usually obtained after sending/receiving the first message.
+    // Or by querying conversations: GET /rest/conversations?q=participants&participants={myUrn}&participants={otherMemberUrn}
+    console.warn(`Invalid conversationUrn: ${conversationUrn}. Fetching messages requires a valid conversation URN.`);
+    // For now, we'll return a simulated empty response or error
+    // In a real app, you'd need to first establish or find the conversation URN.
+    // This might involve a separate API call if you only have the member's URN.
+    // For this placeholder, we'll simulate not finding the conversation.
+    return { success: true, messages: [], rawData: { elements: []}, error: "Conversation URN not yet established or invalid." };
+  }
+
+
+  let fetchMessagesApiUrl = `https://api.linkedin.com/rest/conversations/${conversationUrn}/events?count=${count}`;
   if (createdBeforeTimestamp) {
     fetchMessagesApiUrl += `&createdBefore=${createdBeforeTimestamp}`;
   }
@@ -262,8 +311,8 @@ export async function fetchLinkedInMessages(
     const response = await axios.get<LinkedInConversationEventAPI>(fetchMessagesApiUrl, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'X-Restli-Protocol-Version': '2.0.0', 
-        'LinkedIn-Version': '202403', 
+        'X-Restli-Protocol-Version': '2.0.0',
+        'LinkedIn-Version': '202403',
         'Content-Type': 'application/json'
       }
     });
@@ -286,8 +335,11 @@ export async function fetchLinkedInMessages(
   } catch (error: any) {
     console.error("Error fetching LinkedIn messages:", error.response?.data || error.message);
     if (axios.isAxiosError(error) && error.response) {
-        return { success: false, error: `LinkedIn API error (${error.response.status}): ${error.response.data?.message || error.message}` };
+        const err = error as AxiosError<any>;
+        return { success: false, error: `LinkedIn API error (${err.response?.status}): ${err.response?.data?.message || err.message}` };
     }
     return { success: false, error: `Failed to fetch LinkedIn messages: ${error.message}` };
   }
 }
+
+    
