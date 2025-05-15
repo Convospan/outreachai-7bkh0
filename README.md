@@ -120,8 +120,8 @@ features = scaler.fit_transform(df)
 ```
 
 ```python
-from google.cloud import dialogflow_v2 as dialogflow
-from google.cloud import aiplatform
+from google.cloud import aiplatformfrom google.cloud import dialogflow_v2 as dialogflow
+
 # Assuming model, X_test, industry, connections are defined
 # prob = model.predict_proba(X_test)[0][1] # This line requires a trained model and test data
 # campaign_score = prob * 100
