@@ -2,91 +2,67 @@
 {
   "projectName": "outreachai-7bkh0",
   "deploymentTarget": "Firebase Hosting",
-  "overallReadiness": "Blocked - Critical Environment Variable Setup in CI/CD & API Implementations Pending",
+  "overallReadiness": "Blocked - Critical Environment Variable Configuration in CI/CD & Core API Implementations Pending",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "GitHub runtime integration has been removed. Firebase client/server environment variable definitions exist in the example .env, but their correct mapping and availability from GitHub Secrets to the CI/CD build environment is paramount and needs verification. Core API integrations for LinkedIn, SendPulse, and Sarvam remain placeholder logic or require full end-to-end testing and are critical for functionality. Firebase App Check is currently disabled.",
+  "summary": "The application's CI/CD workflow is configured to use GitHub Secrets for environment variables. However, the accuracy of these secret values in the GitHub repository is paramount and unverified. Core API integrations for LinkedIn (messaging), SendPulse (emailing), and Sarvam (calling) require full implementation and end-to-end testing. API route authentication is also pending. Google Calendar and direct GitHub runtime integrations have been removed.",
   "criticalBlockers": [
     {
       "id": "ciCdEnvironmentVariables",
-      "description": "Ensuring all necessary environment variables (NEXT_PUBLIC_FIREBASE_..., GOOGLE_GENAI_API_KEY, LINKEDIN_CLIENT_SECRET, SARVAM_API_KEY, SENDPULSE_CLIENT_ID, SENDPULSE_CLIENT_SECRET, FIREBASE_SERVICE_ACCOUNT_KEY_JSON etc.) are correctly passed from GitHub Secrets to the `env` section of the 'Build' step in `.github/workflows/firebase-deploy.yml`. If these are not available during `npm run build` or at runtime, the application will fail or features will be non-functional.",
-      "status": "Outstanding - Needs Verification of Secret Values in GitHub & CI/CD Propagation",
+      "description": "The entire deployment and runtime functionality hinges on all necessary environment variables (NEXT_PUBLIC_FIREBASE_..., GOOGLE_GENAI_API_KEY, LINKEDIN_CLIENT_SECRET, SARVAM_API_KEY, SENDPULSE_CLIENT_ID, SENDPULSE_CLIENT_SECRET, FIREBASE_SERVICE_ACCOUNT_KEY_JSON etc.) being correctly populated in GitHub Secrets and successfully passed to the `env` section of the 'Build' step in `.github/workflows/firebase-deploy.yml`. If these secrets are incorrect or missing in GitHub, the build will fail or the deployed application will be non-functional.",
+      "status": "Outstanding - CRITICAL: Verify ALL Secret Values in GitHub Repository Settings & CI/CD Propagation",
       "resolutionSteps": [
-        "Carefully review the `.github/workflows/firebase-deploy.yml` file's 'Build' step's `env` block to ensure all needed variables are mapped from `secrets.*`.",
-        "CRITICAL: Verify that the GitHub Secrets themselves (under repository Settings > Secrets > Actions) contain the correct and up-to-date values for all keys (e.g., NEXT_PUBLIC_FIREBASE_API_KEY, GOOGLE_GENAI_API_KEY, FIREBASE_SERVICE_ACCOUNT_KEY_JSON, etc.).",
-        "The secret for `FIREBASE_SERVICE_ACCOUNT_KEY_JSON` must contain the entire JSON content of the service account key.",
-        "Trigger a build and meticulously inspect the logs to confirm variables are being picked up and used by the build process. Look for any warnings or errors related to missing environment variables.",
-        "Test deployed application features that rely on these environment variables at runtime."
+        "MANUAL STEP (USER): Go to GitHub repository Settings > Secrets and variables > Actions.",
+        "MANUAL STEP (USER): For EACH secret listed in the `.github/workflows/firebase-deploy.yml` `env` block, ensure a corresponding secret exists in GitHub and its VALUE is 100% correct and up-to-date.",
+        "MANUAL STEP (USER): Pay special attention to `FIREBASE_SERVICE_ACCOUNT_KEY_JSON`; it must contain the entire valid JSON string.",
+        "Once secrets are confirmed in GitHub, trigger a new build/deployment to test if they are correctly picked up."
       ],
       "affectedFiles": [".github/workflows/firebase-deploy.yml", ".env", "README.md", "src/lib/firebase.ts", "src/lib/firebaseServer.ts", "src/ai/ai-instance.ts", "src/services/*"]
-    },
-    {
-      "id": "firebaseClientEnvVarRuntime",
-      "description": "Firebase client-side initialization relies on NEXT_PUBLIC_FIREBASE_... environment variables. Their correct propagation to the client bundle during build (via CI/CD env vars from GitHub Secrets) and availability at runtime on Firebase Hosting needs confirmation.",
-      "status": "Outstanding (Values in GitHub Secrets Need Verification, Needs Runtime Verification)",
-      "resolutionSteps": [
-        "Ensure GitHub Secrets for all NEXT_PUBLIC_FIREBASE_... variables are correct.",
-        "After a successful deployment via CI/CD, check the browser's console for any Firebase initialization errors on the deployed site.",
-        "Verify that Firebase features dependent on client-side SDK (like auth UI, Firestore listeners if any on client) work as expected."
-      ],
-      "affectedFiles": ["src/lib/firebase.ts", "src/app/layout.tsx", ".github/workflows/firebase-deploy.yml"]
-    },
-    {
-      "id": "firebaseServerEnvVarRuntime",
-      "description": "Firebase server-side operations (firebase-admin in API routes/Genkit flows) require FIREBASE_SERVICE_ACCOUNT_KEY_JSON. Its correct availability to the deployed server-side functions (API routes) needs runtime verification after deployment via CI/CD from the corresponding GitHub Secret.",
-      "status": "Outstanding (Value in GitHub Secret Needs Verification, Needs Runtime Verification)",
-      "resolutionSteps": [
-        "Ensure the GitHub secret mapped to FIREBASE_SERVICE_ACCOUNT_KEY_JSON in the CI/CD workflow contains the valid JSON string of the service account key.",
-        "After deployment, test API routes that use `firebase-admin` to ensure they can connect to Firestore.",
-        "Check Firebase Function logs (if API routes are deployed as functions) for any admin SDK initialization errors related to credentials."
-      ],
-      "affectedFiles": ["src/lib/firebaseServer.ts", "src/app/api/**/route.ts", ".github/workflows/firebase-deploy.yml"]
-    },
-    {
-      "id": "genkitApiKeyRuntime",
-      "description": "GOOGLE_GENAI_API_KEY is required for Genkit to interact with Google AI services. Its availability to Genkit flows at runtime on the server needs to be confirmed after deployment via CI/CD from the corresponding GitHub Secret.",
-      "status": "Outstanding (Value in GitHub Secret Needs Verification, Needs Runtime Verification)",
-      "resolutionSteps": [
-        "Ensure the GitHub Secret for GOOGLE_GENAI_API_KEY is correct.",
-        "Test Genkit flows that call Google AI models after deployment to ensure they don't fail due to API key issues.",
-        "Check server logs for any Genkit or Google AI related authentication errors."
-      ],
-      "affectedFiles": ["src/ai/ai-instance.ts", "src/ai/flows/**/*.ts", ".github/workflows/firebase-deploy.yml"]
     }
   ],
   "pendingImplementationForFullFunctionality": [
     {
       "id": "linkedInApiIntegration",
-      "description": "Full LinkedIn integration (fetching detailed profiles beyond OAuth, sending messages, retrieving conversation history) requires implementing actual API calls using the obtained access token. Current service logic in 'src/services/linkedin.ts' uses placeholders or basic calls. OAuth credentials are set up to be passed from GitHub Secrets.",
-      "status": "Partially Implemented (Core Profile Fetch Added, Messaging Needs Extensive Testing/Refinement)",
+      "description": "Full LinkedIn integration, especially sending messages and fetching conversation history, requires implementing actual API calls using the obtained access token. Current service logic in 'src/services/linkedin.ts' has improved profile fetching but messaging is still placeholder.",
+      "status": "Partially Implemented (Profile Fetch Improved, Messaging & History Placeholder - Needs Full Implementation & Testing)",
       "resolutionSteps": [
-        "Verify `NEXT_PUBLIC_LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, and `NEXT_PUBLIC_LINKEDIN_REDIRECT_URI` are correctly set as GitHub Secrets and accessible to the build/runtime environment.",
-        "Expand 'src/services/linkedin.ts' with `axios` or `fetch` calls to relevant LinkedIn API endpoints (e.g., UGS for messaging, full profile endpoints).",
+        "Verify `NEXT_PUBLIC_LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, and `NEXT_PUBLIC_LINKEDIN_REDIRECT_URI` are correctly set as GitHub Secrets.",
+        "Implement actual `axios` or `fetch` calls in `sendLinkedInMessage` and `fetchLinkedInMessages` in 'src/services/linkedin.ts' to interact with LinkedIn's UGS (Unified Messaging Service) or relevant messaging APIs.",
         "Implement robust error handling for LinkedIn API rate limits, permission issues, and error responses.",
-        "Thoroughly test the OAuth flow, profile data retrieval, message sending, and message fetching on a staging/test environment."
+        "Thoroughly test OAuth flow, profile data retrieval, message sending, and message fetching on a staging/test environment using valid credentials."
       ],
-      "affectedFiles": ["src/services/linkedin.ts", "src/app/api/linkedin/exchange-token/route.ts", "src/app/campaign/page.tsx", ".env", ".github/workflows/firebase-deploy.yml"]
+      "affectedFiles": ["src/services/linkedin.ts", "src/app/api/linkedin/exchange-token/route.ts", "src/app/campaign/page.tsx"]
     },
     {
       "id": "sendpulseApiIntegration",
-      "description": "Full SendPulse email sending functionality relies on correct API key setup (from GitHub Secrets) and the Genkit tool. API credentials are provided, but the actual sending logic within the 'sendEmail' Genkit tool needs to be robustly tested end-to-end.",
-      "status": "Pending Implementation (Needs End-to-End Testing)",
+      "description": "Full SendPulse email sending functionality relies on correct API key setup (from GitHub Secrets) and the Genkit tool. The tool's logic has been improved but requires end-to-end testing to confirm emails are sent.",
+      "status": "Pending Implementation (Logic Improved, Needs End-to-End Testing)",
       "resolutionSteps": [
-        "Verify `SENDPULSE_CLIENT_ID`, `SENDPULSE_CLIENT_SECRET`, and `SENDPULSE_API_BASE_URL` are correctly set as GitHub Secrets and accessible to the server-side environment where Genkit tools run.",
-        "Thoroughly test the 'sendEmailWithSendPulse' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with valid inputs to send actual emails via SendPulse.",
+        "Verify `SENDPULSE_CLIENT_ID`, `SENDPULSE_CLIENT_SECRET`, and `SENDPULSE_API_BASE_URL` are correctly set as GitHub Secrets.",
+        "Thoroughly test the 'sendEmail' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with valid inputs to send actual emails via SendPulse.",
         "Implement comprehensive error handling for SendPulse API responses (e.g., authentication failures, invalid recipient, API rate limits) within the tool and calling flows."
       ],
-      "affectedFiles": ["src/ai/tools/sendEmail.ts", "any flow using this tool", ".env", ".github/workflows/firebase-deploy.yml"]
+      "affectedFiles": ["src/ai/tools/sendEmail.ts", "any flow using this tool"]
     },
     {
       "id": "sarvamApiIntegration",
-      "description": "Sarvam AI calling agent integration requires the SARVAM_API_KEY (from GitHub Secrets) and correct implementation of the Sarvam SDK for call creation. API key is provided, but the call initiation logic in 'src/services/sarvam.ts' needs end-to-end testing and potentially more detailed error handling.",
-      "status": "Pending Implementation (Needs End-to-End Testing)",
+      "description": "Sarvam AI calling agent integration requires the SARVAM_API_KEY (from GitHub Secrets) and correct implementation of the Sarvam SDK. The service function has been improved but needs end-to-end testing.",
+      "status": "Pending Implementation (Logic Improved, Needs End-to-End Testing)",
       "resolutionSteps": [
-        "Ensure `SARVAM_API_KEY` is correctly set as a GitHub Secret and accessible to the server-side environment.",
+        "Ensure `SARVAM_API_KEY` is correctly set as a GitHub Secret.",
         "Verify the SarvamAI SDK usage in 'src/services/sarvam.ts' matches the official SDK documentation for call creation, including parameters for voice model selection if applicable.",
         "Implement proper error handling and status tracking for calls made via Sarvam (e.g., call failed, busy, no answer)."
       ],
-      "affectedFiles": ["src/services/sarvam.ts", "src/app/call/select-sarvam-model/page.tsx", ".env", ".github/workflows/firebase-deploy.yml"]
+      "affectedFiles": ["src/services/sarvam.ts", "src/app/call/select-sarvam-model/page.tsx"]
+    },
+    {
+      "id": "apiRouteAuthenticationAndAuthorization",
+      "description": "API routes require robust authentication (verifying the user is logged in) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder for Firebase Auth.",
+      "status": "Pending Implementation (CRITICAL SECURITY)",
+      "resolutionSteps": [
+        "Update `src/middleware.ts` to integrate with Firebase Authentication, verifying Firebase ID tokens for protected API routes.",
+        "Ensure API routes check that the authenticated user has the right to access/modify specific resources (e.g., a user can only manage their own campaigns and leads). This often involves checking `user_id` fields in Firestore documents against the authenticated user's UID."
+      ],
+      "affectedFiles": ["src/middleware.ts", "src/app/api/**/route.ts"]
     },
     {
       "id": "comprehensiveErrorHandling",
@@ -98,23 +74,13 @@
         "Implement centralized logging for server-side errors (e.g., using Firebase Functions logs, or a dedicated logging service) for easier debugging post-deployment."
       ],
       "affectedFiles": ["src/app/**", "src/ai/**", "src/components/**", "src/services/**"]
-    },
-    {
-      "id": "apiRouteAuthenticationAndAuthorization",
-      "description": "API routes require robust authentication (verifying the user is logged in) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder.",
-      "status": "Pending Implementation",
-      "resolutionSteps": [
-        "Update `src/middleware.ts` to integrate with Firebase Authentication, verifying Firebase ID tokens for protected API routes.",
-        "Ensure API routes check that the authenticated user has the right to access/modify specific resources (e.g., a user can only manage their own campaigns and leads). This often involves checking `user_id` fields in Firestore documents against the authenticated user's UID."
-      ],
-      "affectedFiles": ["src/middleware.ts", "src/app/api/**/route.ts"]
     }
   ],
   "completedOrRequiresVerification": [
     {
       "id": "firebaseAppCheck",
       "description": "Firebase App Check (reCAPTCHA) is currently disabled in 'src/lib/firebase.ts'. If re-enabled, it needs thorough verification with the provided `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (from GitHub Secret) and domain authorization in Google Cloud Console.",
-      "status": "Disabled (High Priority Post-Deployment Task to Re-enable and Verify if desired)",
+      "status": "Disabled (Verification Required if Re-enabled)",
       "resolutionSteps": [
         "To re-enable: Uncomment App Check initialization code in `src/lib/firebase.ts`.",
         "Verify `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (from GitHub Secret) is correct and the corresponding reCAPTCHA Enterprise key in Google Cloud Console is active for all deployment domains.",
@@ -125,19 +91,19 @@
     },
     {
       "id": "firebaseSecurityRules",
-      "description": "Firebase Security Rules have been implemented for collections like users, campaigns, leads, etc. These rules define access control to Firestore data.",
-      "status": "Implemented (Needs Thorough Testing)",
+      "description": "Firebase Security Rules have been implemented. These rules define access control to Firestore data and need thorough testing.",
+      "status": "Implemented (Needs Thorough Testing with live auth)",
       "resolutionSteps": [
         "Use the Firebase Emulator Suite locally to test security rules against various user authentication states and data access patterns (CRUD operations for each collection).",
         "Review rules for edge cases and potential vulnerabilities (e.g., ensuring users can only access their own data, write permissions are correctly restricted).",
-        "Perform manual tests on the deployed application (staging or production) to confirm rules are enforced as expected."
+        "Perform manual tests on the deployed application (staging or production) to confirm rules are enforced as expected once authentication is fully integrated."
       ],
       "affectedFiles": ["firestore.rules"]
     },
     {
       "id": "firebaseDatabaseOperations",
       "description": "Basic CRUD (Create, Read, Update, Delete) operations for Firestore collections have been implemented in `firebaseServer.ts` and are used in API routes.",
-      "status": "Implemented (Needs Thorough Testing with Security Rules)",
+      "status": "Implemented (Needs Thorough Testing with Security Rules & live auth)",
       "resolutionSteps": [
         "Test all API endpoints that interact with Firestore to ensure data is being created, read, updated, and deleted correctly.",
         "Verify data integrity and consistency after operations.",
@@ -147,7 +113,7 @@
     },
     {
       "id": "dependencyManagement",
-      "description": "Dependency versions in `package.json` have been updated to resolve previous `npm install` conflicts. Some webpack warnings related to `@opentelemetry/instrumentation` and `handlebars` in Genkit dependencies persist but are generally non-blocking for build.",
+      "description": "Dependency versions in `package.json` have been updated multiple times to resolve conflicts. Some webpack warnings related to `@opentelemetry/instrumentation` and `handlebars` in Genkit dependencies persist but are generally non-blocking for build.",
       "status": "Addressed (Ongoing Monitoring Recommended)",
       "resolutionSteps": [
         "Regularly run `npm outdated` to check for newer package versions.",
@@ -161,7 +127,7 @@
       "description": "Google Calendar integration and its associated environment variables/code have been removed from the project.",
       "status": "Completed",
       "resolutionSteps": [
-        "Verify no remaining references to Google Calendar services, API keys (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALENDAR_REDIRECT_URI), or UI elements exist."
+        "Verify no remaining references to Google Calendar services, API keys, or UI elements exist."
       ],
       "affectedFiles": ["src/services/google-calendar.ts", "src/app/campaign/page.tsx", ".env", ".github/workflows/firebase-deploy.yml"]
     },
@@ -176,8 +142,8 @@
     }
   ],
   "recommendations": [
-    "CRITICAL: Verify all GitHub Secrets are accurately populated with the correct values. This is the most common cause of deployment failures and runtime errors for external service integrations.",
-    "PRIORITY: Implement the actual API call logic for LinkedIn, SendPulse, and Sarvam. Without these, core features are non-operational.",
+    "CRITICAL: Verify ALL GitHub Secrets are accurately populated with the correct values. This is the most common cause of deployment failures and runtime errors for external service integrations.",
+    "PRIORITY: Implement the actual API call logic for LinkedIn (messaging), SendPulse, and Sarvam. Without these, core features are non-operational.",
     "SECURITY: Implement robust authentication and authorization for all API routes via `src/middleware.ts` and by checking user permissions within API route logic. Thoroughly test Firebase Security Rules.",
     "TESTING: Conduct comprehensive end-to-end testing of all user flows (signup, login, campaign creation, outreach, calling, etc.) once API integrations and environment variables are confirmed.",
     "APP CHECK (Post-Deployment): If Firebase App Check is to be used, re-enable and meticulously test its functionality post-deployment to secure backend resources."
