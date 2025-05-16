@@ -4,16 +4,16 @@
   "deploymentTarget": "Firebase Hosting",
   "overallReadiness": "Blocked - Critical Environment Variable Configuration in CI/CD & Core API Implementations Pending",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "The application's CI/CD workflow is configured to use GitHub Secrets for environment variables. However, the accuracy of these secret values in the GitHub repository is paramount and unverified. Core API integrations for LinkedIn (messaging), SendPulse (emailing), and Sarvam (calling) require full implementation and end-to-end testing. API route authentication is also pending. Google Calendar and direct GitHub runtime integrations have been removed.",
+  "summary": "The application's CI/CD workflow is configured to use GitHub Secrets for environment variables. However, the accuracy of these secret values in the GitHub repository is paramount and unverified by the AI. Core API integrations for LinkedIn (messaging), SendPulse (emailing), and Sarvam (calling) require full implementation and end-to-end testing. API route authentication is also pending. Google Calendar and direct GitHub runtime integrations have been removed.",
   "criticalBlockers": [
     {
       "id": "ciCdEnvironmentVariables",
       "description": "The entire deployment and runtime functionality hinges on all necessary environment variables (NEXT_PUBLIC_FIREBASE_..., GOOGLE_GENAI_API_KEY, LINKEDIN_CLIENT_SECRET, SARVAM_API_KEY, SENDPULSE_CLIENT_ID, SENDPULSE_CLIENT_SECRET, FIREBASE_SERVICE_ACCOUNT_KEY_JSON etc.) being correctly populated in GitHub Secrets and successfully passed to the `env` section of the 'Build' step in `.github/workflows/firebase-deploy.yml`. If these secrets are incorrect or missing in GitHub, the build will fail or the deployed application will be non-functional.",
-      "status": "Outstanding - CRITICAL: Verify ALL Secret Values in GitHub Repository Settings & CI/CD Propagation",
+      "status": "Outstanding - CRITICAL: User MUST Verify ALL Secret Values in GitHub Repository Settings & CI/CD Propagation",
       "resolutionSteps": [
-        "MANUAL STEP (USER): Go to GitHub repository Settings > Secrets and variables > Actions.",
+        "MANUAL STEP (USER): Go to GitHub repository `Convospan/outreachai-7bkh0` > Settings > Secrets and variables > Actions.",
         "MANUAL STEP (USER): For EACH secret listed in the `.github/workflows/firebase-deploy.yml` `env` block, ensure a corresponding secret exists in GitHub and its VALUE is 100% correct and up-to-date.",
-        "MANUAL STEP (USER): Pay special attention to `FIREBASE_SERVICE_ACCOUNT_KEY_JSON`; it must contain the entire valid JSON string.",
+        "MANUAL STEP (USER): Pay special attention to `FIREBASE_SERVICE_ACCOUNT_KEY_JSON`; it must contain the entire valid JSON string of the service account key.",
         "Once secrets are confirmed in GitHub, trigger a new build/deployment to test if they are correctly picked up."
       ],
       "affectedFiles": [".github/workflows/firebase-deploy.yml", ".env", "README.md", "src/lib/firebase.ts", "src/lib/firebaseServer.ts", "src/ai/ai-instance.ts", "src/services/*"]
