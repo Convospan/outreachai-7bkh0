@@ -1,18 +1,17 @@
 'use client';
 
-import type { Metadata } from 'next/metadata'; // Keep for potential future use
+import type { Metadata } from 'next/metadata';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { siteConfig } from "@/config/site";
-import { app } from '@/lib/firebase'; // Import the 'app' instance
+import { app as firebaseAppInstance } from '@/lib/firebase'; // Import the app instance directly
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-// Metadata for client components is typically handled via <Head> or next/head.
-// Static metadata export is best done from a Server Component or src/app/metadata.ts.
+// Metadata is defined in src/app/metadata.ts as this is a client component
 
 export default function RootLayout({ children }: { children: React.ReactNode; }) {
   const [firebaseInitStatus, setFirebaseInitStatus] = useState<'pending' | 'success' | 'failed'>('pending');
@@ -21,25 +20,25 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
 
   useEffect(() => {
     console.log("RootLayout: useEffect for Firebase auth state triggered.");
-    if (app) { // Firebase app is initialized when src/lib/firebase.ts is imported
-      console.log("RootLayout: Firebase app instance is available.");
+    if (firebaseAppInstance) {
+      console.log("RootLayout: Firebase app instance is available from import.");
       setFirebaseInitStatus('success');
-      const auth = getAuth(app);
+      const auth = getAuth(firebaseAppInstance);
       console.log("RootLayout: Setting up onAuthStateChanged listener.");
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         console.log("RootLayout: Auth state changed:", user ? `User UID: ${user.uid}` : "No user");
         setCurrentUser(user);
       }, (error) => {
         console.error("RootLayout: Error in onAuthStateChanged listener:", error);
-        setCurrentUser(null); 
-        setFirebaseInitStatus('failed'); // Potentially set to failed if auth listener setup fails
+        setCurrentUser(null);
+        setFirebaseInitStatus('failed');
       });
       return () => {
         console.log("RootLayout: Cleaning up auth listener.");
         unsubscribe();
       };
     } else {
-      console.error("RootLayout: Firebase app instance is NOT available. Firebase might not have initialized correctly in src/lib/firebase.ts.");
+      console.error("RootLayout: Firebase app instance is NOT available from import. Firebase might not have initialized correctly in src/lib/firebase.ts.");
       setFirebaseInitStatus('failed');
     }
   }, []); // Empty dependency array ensures this runs once on mount
@@ -47,9 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>{siteConfig.name}</title>
-        <meta name="description" content={siteConfig.description} />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Metadata is handled by Next.js through src/app/metadata.ts or page-level metadata */}
       </head>
       <body
         className="font-sans text-foreground antialiased bg-background min-h-screen flex flex-col"
