@@ -1,4 +1,5 @@
-'use client';
+
+"use client";
 
 import {
   Button
@@ -7,6 +8,7 @@ import {
   BrainCircuit,
   CheckCircle,
   CircleDollarSign,
+  GithubIcon,
   LineChart,
   PhoneCall,
   Rocket,
@@ -14,15 +16,14 @@ import {
   Target,
   TrendingUp,
   Workflow,
-  Bot,
-  GithubIcon
+  Bot
 } from "lucide-react";
 import Link from 'next/link';
 import {motion} from "framer-motion";
 import PaymentForm from '@/components/PaymentForm';
 import CampaignForm from '@/components/CampaignForm';
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { getFirebaseApp } from "@/lib/firebase"; // Ensure this path is correct
+import { app } from "@/lib/firebase"; // Changed import from getFirebaseApp to app
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
@@ -35,21 +36,21 @@ export default function Home() {
     setIsUpdatingFile(true);
     toast({ title: "Attempting to update file in GitHub...", description: "Please wait." });
 
-    const app = getFirebaseApp();
-    if (!app) {
+    // const appInstance = getFirebaseApp(); // OLD: No longer needed
+    if (!app) { // Use the directly imported app instance
       toast({ title: "Firebase Error", description: "Firebase app not initialized.", variant: "destructive" });
       setIsUpdatingFile(false);
       return;
     }
 
     try {
-      const functions = getFunctions(app);
+      const functions = getFunctions(app); // Use the directly imported app instance
       const updateFileInRepo = httpsCallable(functions, 'updateFileInRepo');
       const result = await updateFileInRepo({
-        filePath: 'test-from-convospan.txt', // Example file path
+        filePath: 'test-from-convospan.txt',
         content: `Hello from ConvoSpan AI! This file was updated at ${new Date().toISOString()}`,
         commitMessage: 'Automated update from ConvoSpan AI via Firebase Function',
-        branch: 'master' // or 'main' or your desired branch
+        branch: 'master'
       });
 
       const data = result.data as { success: boolean, message: string, commit?: string, url?: string };
@@ -75,20 +76,18 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background"> {/* Use bg-background for theme consistency */}
+    <div className="min-h-screen">
       {/* Hero Section */}
       <header className="grid grid-cols-[1fr_auto] items-center px-6 py-4 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <div>
           <div className="flex gap-x-1.5 text-sm/6 max-sm:flex-col">
             <h1 className="font-semibold">
-              <Link href="/" className="hover:text-primary transition-colors"> {/* Use theme primary color on hover */}
-                <span className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
-                  CONVOSPAN AI
-                </span>
+              <Link href="/" className="font-bold uppercase inline-block border-2 border-primary text-primary px-3 py-1 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors duration-300 text-lg tracking-wider">
+                CONVOSPAN AI
               </Link>
             </h1>
             <div className="max-sm:hidden" aria-hidden="true">·</div>
-            <p className="text-muted-foreground">AI Outreach Platform</p> {/* Use muted-foreground */}
+            <p className="text-muted-foreground">AI Outreach Platform</p>
           </div>
         </div>
         <div className="justify-self-end">
@@ -105,7 +104,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="relative z-10 text-center bg-accent p-8 rounded-xl text-accent-foreground shadow-2xl drop-shadow-lg" /* Use theme accent */
+            className="relative z-10 text-center bg-accent p-8 rounded-xl text-accent-foreground shadow-2xl drop-shadow-lg"
           >
             <h1 className="text-4xl sm:text-5xl font-semibold mb-6">Hey, Let’s Grow Together with <strong>ConvoSpan AI</strong>!</h1>
             <p className="text-lg mb-8 max-w-2xl mx-auto">
@@ -126,7 +125,7 @@ export default function Home() {
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="p-6 bg-card rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 drop-shadow-lg" /* Use theme card */
+            className="p-6 bg-card rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 drop-shadow-lg"
           >
             <PhoneCall className="h-12 w-12 text-primary mb-4 mx-auto" />
             <h2 className="text-3xl font-semibold mb-4">Let <strong>ConvoSpan AI</strong> Handle Your Prospecting—It&apos;s Super Easy!</h2>
@@ -137,7 +136,7 @@ export default function Home() {
         </section>
 
         {/* Multi-Channel Magic Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto bg-background rounded-xl shadow-xl drop-shadow-lg"> {/* Use theme background */}
+        <section className="py-12 px-4 max-w-6xl mx-auto bg-background rounded-xl shadow-xl drop-shadow-lg">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -190,8 +189,8 @@ export default function Home() {
               <div className="hidden lg:block absolute top-1/2 left-1/4 transform -translate-y-1/2 -translate-x-4 text-4xl text-muted-foreground opacity-50">&#8594;</div>
               <div className="hidden lg:block absolute top-1/2 right-1/4 transform -translate-y-1/2 translate-x-4 text-4xl text-muted-foreground opacity-50">&#8594;</div>
 
-              <div className="hidden md:block lg:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[calc(100%_+_1rem)] text-4xl text-muted-foreground opacity-50">&#8595;</div> {/* Arrow between row 1 and 2 for medium screen */}
-              <div className="hidden md:block lg:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[calc(100%_+_1rem)] text-4xl text-muted-foreground opacity-50">&#8595;</div> {/* Arrow between row 2 and 3 for medium screen */}
+              <div className="hidden md:block lg:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[calc(100%_+_1rem)] text-4xl text-muted-foreground opacity-50">&#8595;</div>
+              <div className="hidden md:block lg:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-[calc(100%_+_1rem)] text-4xl text-muted-foreground opacity-50">&#8595;</div>
 
 
                {/* Step 1 */}
@@ -278,12 +277,7 @@ export default function Home() {
                       <Button variant="link" size="sm" className="mt-4 text-primary">View Dashboard</Button>
                  </motion.div>
 
-                 {/* Arrow for medium screen between step 6 and 7 */}
-                <div className="hidden md:block lg:hidden md:col-span-2 h-8 items-center justify-center relative">
-                    <div className="absolute left-1/2 transform -translate-x-1/2 text-4xl text-muted-foreground opacity-50">&#8595;</div>
-                </div>
-
-                 {/* Step 7 - Centered on large screens */}
+                 {/* Step 7 */}
                 <motion.div
                    className="bg-card p-6 rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-1 flex flex-col items-center md:col-span-2 lg:col-span-3 drop-shadow-lg"
                     whileHover={{ scale: 1.03 }}
@@ -298,7 +292,6 @@ export default function Home() {
            </div>
         </section>
 
-
         {/* Lead Management Section */}
         <section className="py-12 px-4 max-w-6xl mx-auto text-center">
           <motion.div
@@ -306,7 +299,7 @@ export default function Home() {
             whileInView={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-             className="p-6 bg-card rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 drop-shadow-lg"
+             className="p-6 bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 drop-shadow-lg"
           >
              <TrendingUp className="h-12 w-12 text-primary mb-4 mx-auto" />
             <h2 className="text-3xl font-semibold mb-4">Keep Track of Leads with <strong>ConvoSpan AI</strong>—Simple and Fun!</h2>
@@ -317,7 +310,7 @@ export default function Home() {
         </section>
 
         {/* Payment Plan Section */}
-        <section className="py-12 px-4 max-w-6xl mx-auto bg-secondary/10 rounded-xl shadow-xl drop-shadow-lg"> {/* Use theme secondary (or a light variant) */}
+        <section className="py-12 px-4 max-w-6xl mx-auto bg-secondary/10 rounded-xl shadow-xl drop-shadow-lg">
            <motion.div
             initial={{ y: 50, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
@@ -328,7 +321,7 @@ export default function Home() {
              <CircleDollarSign className="h-12 w-12 text-primary mb-4 mx-auto" />
             <h2 className="text-3xl font-semibold mb-6">Choose a <strong>ConvoSpan AI</strong> Plan That Fits Us!</h2>
             <p className="text-lg mb-8 max-w-3xl mx-auto text-muted-foreground">
-              Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together!
+              Basic ₹999, Pro ₹2,999, Enterprise ₹9,999+—let’s grow together with <strong>ConvoSpan AI</strong>!
             </p>
             <PaymentForm />
             <CampaignForm />
@@ -344,7 +337,7 @@ export default function Home() {
                 className="mb-4"
             >
                 <GithubIcon className="mr-2 h-5 w-5" />
-                {isUpdatingFile ? "Updating GitHub File..." : "Test Update GitHub File"}
+                {isUpdatingFile ? "Updating GitHub File..." : "Test Update GitHub File (Dev Only)"}
             </Button>
             <Link href="/pricing" passHref>
               <Button variant="default" size="lg">
@@ -352,7 +345,7 @@ export default function Home() {
               </Button>
             </Link>
           <p className="mt-2 text-sm text-muted-foreground">
-            No credit card needed—try me for 7 days!
+            No credit card needed—try <strong>ConvoSpan AI</strong> for 7 days!
           </p>
         </div>
       </main>
