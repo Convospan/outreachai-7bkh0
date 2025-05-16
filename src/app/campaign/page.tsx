@@ -150,6 +150,7 @@ function CampaignPageContent() {
           setLinkedInProfile(finalProfile);
           setIsLinkedInOutreachActive(true);
           setCurrentProspectJourneyStage('LinkedInConnected');
+          // Added handleSendLinkedInMessage, isLoadingLinkedInData, and linkedinProfile to dependencies
           await handleSendLinkedInMessage(true, finalProfile); 
 
         } catch (error: any) {
@@ -166,7 +167,7 @@ function CampaignPageContent() {
     };
 
     fetchAndEnrichLinkedInProfile();
-  }, [platform, linkedInAccessToken, companyName, additionalContext, toast]);
+  }, [platform, linkedInAccessToken, companyName, additionalContext, toast, handleSendLinkedInMessage, isLoadingLinkedInData, linkedinProfile]); // Added dependencies
 
 
  const handleSendLinkedInMessage = async (isIntroductory = false, currentProfileParam?: LinkedInProfile | null) => {
@@ -285,10 +286,10 @@ function CampaignPageContent() {
               }} defaultValue="linkedin">
                 <SelectTrigger id="platform"><SelectValue placeholder="Select a platform" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                  <SelectItem value="twitter">Twitter/X (Manual Script Gen)</SelectItem>
-                  <SelectItem value="email">Email Drip (Direct)</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp (Manual Script Gen)</SelectItem>
+                            <SelectItem value="linkedin">LinkedIn</SelectItem>
+                            <SelectItem value="twitter">Twitter/X (Manual Script Gen)</SelectItem>
+                            <SelectItem value="email">Email Drip (Direct)</SelectItem>
+                            <SelectItem value="whatsapp">WhatsApp (Manual Script Gen)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

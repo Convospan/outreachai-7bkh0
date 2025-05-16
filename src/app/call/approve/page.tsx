@@ -77,6 +77,7 @@ export default function CallScriptApprovalPage() {
       subscriptionTier,
       usedCallCount,
       leadId,
+      preferredTone: 'professional', // Added missing property with a default value
     };
 
     try {

@@ -1,7 +1,6 @@
-// src/app/layout.tsx
 'use client';
 
-import type { Metadata } from 'next/metadata'; // Keep for potential future use if some metadata is static
+import type { Metadata } from 'next/metadata'; // Keep for potential future use
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
@@ -17,50 +16,37 @@ import { usePathname } from 'next/navigation';
 // We'll keep siteConfig for dynamic title/description in <head> below.
 
 export default function RootLayout({ children }: { children: React.ReactNode; }) {
-  const [isFirebaseInitialized, setIsFirebaseInitialized] = useState(false);
+  const [firebaseInitStatus, setFirebaseInitStatus] = useState<'pending' | 'success' | 'failed'>('pending');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (!isFirebaseInitialized) {
-        console.log("Attempting Firebase initialization in RootLayout...");
-        const app = initializeFirebase(); // This function now handles missing env vars gracefully
-        if (app) {
-          console.log("Firebase initialized successfully in RootLayout.");
-          setIsFirebaseInitialized(true);
-          const auth = getAuth(app);
-          const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("Auth state changed:", user ? `User UID: ${user.uid}` : "No user");
-            setCurrentUser(user);
-            setIsLoadingAuth(false);
-          });
-          return () => {
-            console.log("Cleaning up auth listener.");
-            unsubscribe();
-          };
-        } else {
-          console.error("🔴 Firebase initialization FAILED in RootLayout. App features relying on Firebase may not work.");
-          setIsLoadingAuth(false); // Stop loading even if init fails
-        }
-      } else if (isFirebaseInitialized && isLoadingAuth) {
-        const app = getFirebaseApp();
-        if (app) {
-            const auth = getAuth(app);
-            const unsubscribe = onAuthStateChanged(auth, (user) => {
-                setCurrentUser(user);
-                setIsLoadingAuth(false);
-            });
-            return () => unsubscribe();
-        } else {
-            console.error("🔴 Firebase was marked as initialized, but getFirebaseApp() returned null.");
-            setIsLoadingAuth(false);
-        }
+    console.log("RootLayout: useEffect for Firebase initialization triggered.");
+    if (typeof window !== 'undefined' && firebaseInitStatus === 'pending') {
+      console.log("RootLayout: Attempting Firebase initialization...");
+      const app = initializeFirebase();
+      if (app) {
+        console.log("RootLayout: Firebase initialized successfully.");
+        setFirebaseInitStatus('success');
+        const auth = getAuth(app);
+        console.log("RootLayout: Setting up onAuthStateChanged listener.");
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          console.log("RootLayout: Auth state changed:", user ? `User UID: ${user.uid}` : "No user");
+          setCurrentUser(user);
+        }, (error) => {
+          console.error("RootLayout: Error in onAuthStateChanged listener:", error);
+          setCurrentUser(null); // Ensure user is null on auth error
+        });
+        return () => {
+          console.log("RootLayout: Cleaning up auth listener.");
+          unsubscribe();
+        };
+      } else {
+        console.error("RootLayout: Firebase initialization FAILED. App features relying on Firebase may not work.");
+        setFirebaseInitStatus('failed');
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFirebaseInitialized]);
+  }, [firebaseInitStatus]); // Rerun if status changes, e.g., to retry if needed, or just on mount
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -72,11 +58,21 @@ export default function RootLayout({ children }: { children: React.ReactNode; })
       <body
         className="font-sans text-foreground antialiased bg-background min-h-screen flex flex-col"
       >
-        {isLoadingAuth || !isFirebaseInitialized ? (
+        {firebaseInitStatus === 'pending' && (
           <div className="flex-grow flex justify-center items-center min-h-screen bg-background text-foreground">
-            Initializing Application...
+            Initializing Application... (Firebase Pending)
           </div>
-        ) : (
+        )}
+        {firebaseInitStatus === 'failed' && (
+          <div className="flex-grow flex justify-center items-center min-h-screen bg-destructive text-destructive-foreground p-4">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-2">Application Initialization Failed</h2>
+              <p>Could not connect to Firebase. Please ensure your environment variables (NEXT_PUBLIC_FIREBASE_...) are correctly set and try again.</p>
+              <p className="mt-2 text-sm">Check the browser console for more details.</p>
+            </div>
+          </div>
+        )}
+        {firebaseInitStatus === 'success' && (
           <>
             <Navbar />
             <main className="flex-grow">{children}</main>
