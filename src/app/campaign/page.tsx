@@ -27,7 +27,7 @@ import {getLinkedInProfileByToken, sendLinkedInMessage, fetchLinkedInMessages } 
 import type {TwitterProfile} from '@/services/twitter';
 // import type {Auth} from 'googleapis'; // Removed GCal
 import Link from 'next/link';
-import {useEffect, useState, Suspense} from 'react';
+import {useEffect, useState, Suspense, useCallback} from 'react'; // Added useCallback
 import { BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle, ArrowLeft, HomeIcon, ChevronRight, Loader2 } from 'lucide-react';
 import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -50,11 +50,11 @@ const prospectJourneyStages: ProspectStage[] = [
   { id: 'LinkedInIntroSent', name: 'Intro Message Sent', icon: <Send className="h-4 w-4" /> },
   { id: 'LinkedInFollowUp1', name: 'Follow-up 1 Sent', icon: <MessageSquare className="h-4 w-4" /> },
   { id: 'LinkedInFollowUp2', name: 'Follow-up 2 Sent', icon: <MessageSquare className="h-4 w-4" /> },
-  { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> },
-  { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> },
+  // { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> }, // Removed Email
+  // { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> }, // Removed Email
   { id: 'ComplianceChecked', name: 'Compliance Checked', icon: <ShieldCheck className="h-4 w-4" /> },
-  { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> },
-  { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> },
+  // { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> }, // Removed AI Calls
+  // { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> }, // Removed AI Calls
   // { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> }, // Removed GCal
   { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
   { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
@@ -125,52 +125,7 @@ function CampaignPageContent() {
   // Google Calendar Schedule Event function REMOVED
   // const handleScheduleGoogleCalendarEvent = async () => { ... };
 
-
-  useEffect(() => {
-    const fetchAndEnrichLinkedInProfile = async () => {
-      if (platform === 'linkedin' && linkedInAccessToken && !linkedinProfile) { 
-        setIsLoadingLinkedInData(true);
-        setCurrentProspectJourneyStage('Identified');
-        try {
-          const profile = await getLinkedInProfileByToken(linkedInAccessToken);
-          setLeadId(profile.id); 
-
-          const enrichInput: EnrichLinkedInProfileInput = {
-            name: profile.firstName || profile.lastName || 'LinkedIn User', 
-            company: companyName, 
-            linkedinProfile: profile,
-            additionalContext: additionalContext,
-          };
-          const enriched = await enrichLinkedInProfile(enrichInput);
-          
-          const finalProfile = {
-            ...profile,
-            headline: enriched.enrichedProfile || profile.headline, 
-          };
-          setLinkedInProfile(finalProfile);
-          setIsLinkedInOutreachActive(true);
-          setCurrentProspectJourneyStage('LinkedInConnected');
-          // Added handleSendLinkedInMessage, isLoadingLinkedInData, and linkedinProfile to dependencies
-          await handleSendLinkedInMessage(true, finalProfile); 
-
-        } catch (error: any) {
-          console.error('Failed to fetch/enrich LinkedIn profile:', error);
-          toast({ title: 'LinkedIn Profile Error', description: error.message || 'Failed to fetch LinkedIn profile.', variant: 'destructive' });
-          setLinkedInAccessToken(null); 
-          localStorage.removeItem('linkedInAccessToken');
-        } finally {
-          setIsLoadingLinkedInData(false);
-        }
-      } else if (platform === 'linkedin' && !linkedInAccessToken && !isLoadingLinkedInData) {
-        // User will be redirected via UI button if not connected
-      }
-    };
-
-    fetchAndEnrichLinkedInProfile();
-  }, [platform, linkedInAccessToken, companyName, additionalContext, toast, handleSendLinkedInMessage, isLoadingLinkedInData, linkedinProfile]); // Added dependencies
-
-
- const handleSendLinkedInMessage = async (isIntroductory = false, currentProfileParam?: LinkedInProfile | null) => {
+  const handleSendLinkedInMessage = useCallback(async (isIntroductory = false, currentProfileParam?: LinkedInProfile | null) => {
     const profileToUse = currentProfileParam || linkedinProfile;
     if (!profileToUse) {
       toast({ title: "LinkedIn Profile Needed", description: "LinkedIn profile data is not available.", variant: "destructive" });
@@ -243,7 +198,52 @@ function CampaignPageContent() {
       console.error('Failed to generate/send LinkedIn message:', error);
       toast({ title: 'Error', description: error.message || 'Failed to process LinkedIn message.', variant: 'destructive' });
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedinProfile, linkedInAccessToken, additionalContext, includeCallToAction, linkedinConversation, currentObjective, toast]);
+
+  useEffect(() => {
+    const fetchAndEnrichLinkedInProfile = async () => {
+      if (platform === 'linkedin' && linkedInAccessToken && !linkedinProfile) { 
+        setIsLoadingLinkedInData(true);
+        setCurrentProspectJourneyStage('Identified');
+        try {
+          const profile = await getLinkedInProfileByToken(linkedInAccessToken);
+          setLeadId(profile.id); 
+
+          const enrichInput: EnrichLinkedInProfileInput = {
+            name: profile.firstName || profile.lastName || 'LinkedIn User', 
+            company: companyName, 
+            linkedinProfile: profile,
+            additionalContext: additionalContext,
+          };
+          const enriched = await enrichLinkedInProfile(enrichInput);
+          
+          const finalProfile = {
+            ...profile,
+            headline: enriched.enrichedProfile || profile.headline, 
+          };
+          setLinkedInProfile(finalProfile);
+          setIsLinkedInOutreachActive(true);
+          setCurrentProspectJourneyStage('LinkedInConnected');
+          await handleSendLinkedInMessage(true, finalProfile); 
+
+        } catch (error: any) {
+          console.error('Failed to fetch/enrich LinkedIn profile:', error);
+          toast({ title: 'LinkedIn Profile Error', description: error.message || 'Failed to fetch LinkedIn profile.', variant: 'destructive' });
+          setLinkedInAccessToken(null); 
+          localStorage.removeItem('linkedInAccessToken');
+        } finally {
+          setIsLoadingLinkedInData(false);
+        }
+      } else if (platform === 'linkedin' && !linkedInAccessToken && !isLoadingLinkedInData) {
+        // User will be redirected via UI button if not connected
+      }
+    };
+
+    fetchAndEnrichLinkedInProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform, linkedInAccessToken, companyName, additionalContext, toast, handleSendLinkedInMessage, isLoadingLinkedInData, linkedinProfile]);
+
 
   const handleTransitionToEmail = () => {
     if (!prospectEmailForDrip) {
@@ -287,9 +287,9 @@ function CampaignPageContent() {
                 <SelectTrigger id="platform"><SelectValue placeholder="Select a platform" /></SelectTrigger>
                 <SelectContent>
                             <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="twitter">Twitter/X (Manual Script Gen)</SelectItem>
-                            <SelectItem value="email">Email Drip (Direct)</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp (Manual Script Gen)</SelectItem>
+                           // <SelectItem value="twitter">Twitter/X (Manual Script Gen)</SelectItem>
+                           // <SelectItem value="email">Email Drip (Direct)</SelectItem>
+                           // <SelectItem value="whatsapp">WhatsApp (Manual Script Gen)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -309,7 +309,7 @@ function CampaignPageContent() {
                 </div>
               </>
             )}
-            {platform === 'email' && (
+           {/* Remove platform-specific content here */} /*{/* platform === 'email' && (
               <div>
                 <Label htmlFor="directEmailAddress">Target Email Address</Label>
                 <Input id="directEmailAddress" type="email" value={emailAddress} onChange={e => {setEmailAddress(e.target.value); if(e.target.value) setCurrentProspectJourneyStage('EmailAddressCaptured');}} placeholder="prospect@example.com" />
@@ -326,7 +326,7 @@ function CampaignPageContent() {
                     <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
                     <Input id="whatsappNumber" type="tel" placeholder="+12345678900" />
                 </div>
-            )}
+            )} */}
           </div>
 
           <div>
@@ -338,11 +338,11 @@ function CampaignPageContent() {
             <Label htmlFor="includeCallToAction">Attempt to include a Call to Action (e.g., request email, schedule call)</Label>
           </div>
 
-          {platform === 'email' && emailAddress && !prospectEmailForDrip && (
+          {/* Remove transition to email button*/} {/*{platform === 'email' && emailAddress && !prospectEmailForDrip && (
              <Button onClick={() => router.push(`/campaign/email-drip?emails=${encodeURIComponent(emailAddress)}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername)}`)} className="w-full bg-green-500 hover:bg-green-600">
                 <Mail className="mr-2 h-4 w-4"/> Configure Email Drip for {emailAddress}
              </Button>
-          )}
+          )} */}
 
 
           {platform === 'linkedin' && linkedinProfile && isLinkedInOutreachActive && (
@@ -379,11 +379,12 @@ function CampaignPageContent() {
                         <Send className="mr-2 h-4 w-4" /> Generate & Send Next LinkedIn Message
                     </Button>
                 </div>
-                {suggestedNextObjective === 'transition_to_email' && prospectEmailForDrip && (
+                {/* remove transition to email code*/}
+                 {/* {suggestedNextObjective === 'transition_to_email' && prospectEmailForDrip && (
                     <Button onClick={handleTransitionToEmail} className="mt-3 w-full bg-green-600 hover:bg-green-700">
                         <Mail className="mr-2 h-4 w-4"/> Configure Email Drip for {prospectEmailForDrip}
                     </Button>
-                )}
+                )}*/}
                  {platform === 'linkedin' && (suggestedNextObjective === 'schedule_call' || currentObjective === 'schedule_call') && (
                     <p className="mt-3 text-sm text-green-600">Prospect seems interested in a call! Use the call approval module to proceed.</p> 
                 )}
@@ -391,49 +392,9 @@ function CampaignPageContent() {
             </Card>
           )}
           
-          {platform !== 'linkedin' && platform !== 'email' && (
-             <Card className="mt-4">
-                <CardHeader>
-                    <CardTitle>Generate Script for {platform.charAt(0).toUpperCase() + platform.slice(1)}</CardTitle>
-                     <CardDescription>For Twitter/X or WhatsApp, generate a script and then manually send it.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button onClick={async () => {
-                       const input: GenerateOutreachScriptInput = {
-                            platform: platform,
-                            additionalContext: additionalContext,
-                            ...(platform === 'twitter' && twitterProfile ? { twitterProfile: { id: twitterProfile.id, username: twitterProfile.username, name: twitterProfile.name } } : {}),
-                            objective: 'general_follow_up', 
-                        };
-                        try {
-                            const result = await generateOutreachScript(input);
-                            setCurrentMessage(result.script); 
-                            setSuggestedNextObjective(result.suggestedNextObjective);
-                             toast({ title: `${platform.charAt(0).toUpperCase() + platform.slice(1)} Script Generated` });
-                        } catch (error) {
-                             console.error(`Failed to generate ${platform} script:`, error);
-                             toast({ title: 'Error', description: `Failed to generate ${platform} script.`, variant: 'destructive' });
-                        }
-                    }} className="w-full">
-                       <BotMessageSquare className="mr-2 h-4 w-4" /> Generate {platform.charAt(0).toUpperCase() + platform.slice(1)} Script
-                    </Button>
-                    {currentMessage && (
-                        <div className="mt-4">
-                             <Label htmlFor="manualMessage">Generated Script:</Label>
-                             <Textarea id="manualMessage" value={currentMessage} readOnly rows={5}/>
-                        </div>
-                    )}
-                     {currentMessage && (suggestedNextObjective === 'schedule_call' || currentObjective === 'schedule_call') && (
-                        <p className="mt-3 text-sm text-green-600">Script suggests a call. Proceed to the call approval module.</p>
-                    )}
-                </CardContent>
-             </Card>
-          )}
-
-
-          {/* Google Calendar Accordion REMOVED */}
+           {/*platform !== 'linkedin' && platform !== 'email' && (*/}
+          {/*{/* Google Calendar Accordion REMOVED */}
           {/* <Accordion type="single" collapsible className="w-full mt-6"> ... </Accordion> */}
-
         </CardContent>
       </Card>
       <div className="flex justify-between mt-6">
