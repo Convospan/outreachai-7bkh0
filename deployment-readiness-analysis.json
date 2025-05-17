@@ -2,9 +2,9 @@
 {
   "projectName": "outreachai-7bkh0",
   "deploymentTarget": "Firebase Hosting",
-  "overallReadiness": "Blocked - Critical Environment Variable Configuration in CI/CD & Core API Implementations Pending",
+  "overallReadiness": "Blocked - User MUST Verify ALL GitHub Secrets for Environment Variables",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "The application's CI/CD workflow is configured to use GitHub Secrets for environment variables. However, the accuracy of these secret values in the GitHub repository is paramount and unverified by the AI. Core API integrations for LinkedIn (messaging), SendPulse (emailing), and Sarvam (calling) require full implementation and end-to-end testing. API route authentication is also pending. Google Calendar and direct GitHub runtime integrations have been removed.",
+  "summary": "The application's codebase has been prepared for deployment. The CI/CD workflow in '.github/workflows/firebase-deploy.yml' is configured to use GitHub Secrets for all necessary environment variables. The success of the build and the runtime functionality of the deployed application now critically depend on these secrets being correctly populated in the GitHub repository settings. Core API integrations for LinkedIn, SendPulse, and Sarvam have improved logic but require end-to-end testing with live credentials (supplied via these secrets).",
   "criticalBlockers": [
     {
       "id": "ciCdEnvironmentVariables",
@@ -12,9 +12,9 @@
       "status": "Outstanding - CRITICAL: User MUST Verify ALL Secret Values in GitHub Repository Settings & CI/CD Propagation",
       "resolutionSteps": [
         "MANUAL STEP (USER): Go to GitHub repository `Convospan/outreachai-7bkh0` > Settings > Secrets and variables > Actions.",
-        "MANUAL STEP (USER): For EACH secret listed in the `.github/workflows/firebase-deploy.yml` `env` block, ensure a corresponding secret exists in GitHub and its VALUE is 100% correct and up-to-date.",
+        "MANUAL STEP (USER): For EACH secret listed in the `.github/workflows/firebase-deploy.yml` `env` block (e.g., NEXT_PUBLIC_FIREBASE_API_KEY, GOOGLE_GENAI_API_KEY, LINKEDIN_CLIENT_SECRET, SENDPULSE_CLIENT_ID, FIREBASE_SERVICE_ACCOUNT_KEY_JSON), ensure a corresponding secret exists in GitHub and its VALUE is 100% correct and up-to-date.",
         "MANUAL STEP (USER): Pay special attention to `FIREBASE_SERVICE_ACCOUNT_KEY_JSON`; it must contain the entire valid JSON string of the service account key.",
-        "Once secrets are confirmed in GitHub, trigger a new build/deployment to test if they are correctly picked up."
+        "Once secrets are confirmed in GitHub, trigger a new build/deployment by pushing to the designated branch (e.g., master/main) to test if they are correctly picked up by the workflow."
       ],
       "affectedFiles": [".github/workflows/firebase-deploy.yml", ".env", "README.md", "src/lib/firebase.ts", "src/lib/firebaseServer.ts", "src/ai/ai-instance.ts", "src/services/*"]
     }
@@ -22,13 +22,13 @@
   "pendingImplementationForFullFunctionality": [
     {
       "id": "linkedInApiIntegration",
-      "description": "Full LinkedIn integration, especially sending messages and fetching conversation history, requires implementing actual API calls using the obtained access token. Current service logic in 'src/services/linkedin.ts' has improved profile fetching but messaging is still placeholder.",
-      "status": "Partially Implemented (Profile Fetch Improved, Messaging & History Placeholder - Needs Full Implementation & Testing)",
+      "description": "Full LinkedIn integration, especially sending messages and fetching conversation history, requires implementing and testing actual API calls using the obtained access token. Current service logic in 'src/services/linkedin.ts' has improved profile fetching but messaging is still placeholder/simulated.",
+      "status": "Partially Implemented (Profile Fetch Improved, Messaging & History Need Full API Implementation & Testing)",
       "resolutionSteps": [
         "Verify `NEXT_PUBLIC_LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, and `NEXT_PUBLIC_LINKEDIN_REDIRECT_URI` are correctly set as GitHub Secrets.",
-        "Implement actual `axios` or `fetch` calls in `sendLinkedInMessage` and `fetchLinkedInMessages` in 'src/services/linkedin.ts' to interact with LinkedIn's UGS (Unified Messaging Service) or relevant messaging APIs.",
+        "Implement actual `axios` or `fetch` calls in `sendLinkedInMessage` and `fetchLinkedInMessages` in 'src/services/linkedin.ts' to interact with LinkedIn's UGS or relevant messaging APIs.",
         "Implement robust error handling for LinkedIn API rate limits, permission issues, and error responses.",
-        "Thoroughly test OAuth flow, profile data retrieval, message sending, and message fetching on a staging/test environment using valid credentials."
+        "Thoroughly test OAuth flow, profile data retrieval, message sending, and message fetching on a staging/test environment using valid credentials (sourced from GitHub Secrets at build/runtime)."
       ],
       "affectedFiles": ["src/services/linkedin.ts", "src/app/api/linkedin/exchange-token/route.ts", "src/app/campaign/page.tsx"]
     },
@@ -38,7 +38,7 @@
       "status": "Pending Implementation (Logic Improved, Needs End-to-End Testing)",
       "resolutionSteps": [
         "Verify `SENDPULSE_CLIENT_ID`, `SENDPULSE_CLIENT_SECRET`, and `SENDPULSE_API_BASE_URL` are correctly set as GitHub Secrets.",
-        "Thoroughly test the 'sendEmail' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with valid inputs to send actual emails via SendPulse.",
+        "Thoroughly test the 'sendEmail' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with valid inputs to send actual emails via SendPulse, using credentials sourced from GitHub Secrets.",
         "Implement comprehensive error handling for SendPulse API responses (e.g., authentication failures, invalid recipient, API rate limits) within the tool and calling flows."
       ],
       "affectedFiles": ["src/ai/tools/sendEmail.ts", "any flow using this tool"]
@@ -49,14 +49,14 @@
       "status": "Pending Implementation (Logic Improved, Needs End-to-End Testing)",
       "resolutionSteps": [
         "Ensure `SARVAM_API_KEY` is correctly set as a GitHub Secret.",
-        "Verify the SarvamAI SDK usage in 'src/services/sarvam.ts' matches the official SDK documentation for call creation, including parameters for voice model selection if applicable.",
-        "Implement proper error handling and status tracking for calls made via Sarvam (e.g., call failed, busy, no answer)."
+        "Verify the SarvamAI SDK usage in 'src/services/sarvam.ts' matches the official SDK documentation for call creation, including parameters for voice model selection if applicable, using the key sourced from GitHub Secrets.",
+        "Implement proper error handling and status tracking for calls made via Sarvam."
       ],
       "affectedFiles": ["src/services/sarvam.ts", "src/app/call/select-sarvam-model/page.tsx"]
     },
     {
       "id": "apiRouteAuthenticationAndAuthorization",
-      "description": "API routes require robust authentication (verifying the user is logged in) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder for Firebase Auth.",
+      "description": "API routes require robust authentication (verifying the user is logged in) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder.",
       "status": "Pending Implementation (CRITICAL SECURITY)",
       "resolutionSteps": [
         "Update `src/middleware.ts` to integrate with Firebase Authentication, verifying Firebase ID tokens for protected API routes.",
@@ -142,10 +142,10 @@
     }
   ],
   "recommendations": [
-    "CRITICAL: Verify ALL GitHub Secrets are accurately populated with the correct values. This is the most common cause of deployment failures and runtime errors for external service integrations.",
+    "CRITICAL: User MUST Verify ALL GitHub Secrets are accurately populated with the correct values. This is the most common cause of deployment failures and runtime errors for external service integrations.",
     "PRIORITY: Implement the actual API call logic for LinkedIn (messaging), SendPulse, and Sarvam. Without these, core features are non-operational.",
     "SECURITY: Implement robust authentication and authorization for all API routes via `src/middleware.ts` and by checking user permissions within API route logic. Thoroughly test Firebase Security Rules.",
-    "TESTING: Conduct comprehensive end-to-end testing of all user flows (signup, login, campaign creation, outreach, calling, etc.) once API integrations and environment variables are confirmed.",
+    "TESTING: Conduct comprehensive end-to-end testing of all user flows (signup, login, campaign creation, outreach, calling, etc.) once API integrations and GitHub Secrets are confirmed.",
     "APP CHECK (Post-Deployment): If Firebase App Check is to be used, re-enable and meticulously test its functionality post-deployment to secure backend resources."
   ]
 }
