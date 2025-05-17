@@ -1,6 +1,15 @@
+
 {
   "extends": ["next/core-web-vitals"],
   "rules": {
     "@next/next/no-sync-dynamic-api": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["functions/**/*"],
+      "rules": {
+        "@next/next/no-sync-dynamic-api": "off"
+      }
+    }
+  ]
 }
