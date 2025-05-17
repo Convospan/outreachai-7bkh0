@@ -2,18 +2,19 @@
 {
   "projectName": "outreachai-7bkh0",
   "deploymentTarget": "Firebase Hosting",
-  "overallReadiness": "Conditionally Ready for Deployment Test - Pending API Implementation & Testing",
+  "overallReadiness": "Conditionally Ready for Deployment Test - Pending API Implementation & Testing after CI/CD Secret Verification",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "User has confirmed GitHub Secrets are correctly populated. The application is now conditionally ready for a deployment test. Success will depend on the CI/CD pipeline correctly injecting these secrets and the partial/placeholder API integrations for LinkedIn, SendPulse, and Sarvam not causing immediate build failures. Full functionality still requires completing and thoroughly testing these API service implementations. Firebase App Check remains disabled and API route authentication is pending.",
+  "summary": "GitHub Secrets have been confirmed by the user. A CI/CD workflow step has been added to verify secret injection. The application is now conditionally ready for a deployment test. Success will depend on the CI/CD pipeline correctly injecting these secrets and the partial/placeholder API integrations for LinkedIn, SendPulse, and Sarvam not causing immediate build failures. Full functionality still requires completing and thoroughly testing these API service implementations. Firebase App Check remains disabled and API route authentication is pending.",
   "criticalBlockers": [
     {
       "id": "ciCdEnvironmentVariables",
-      "description": "The CI/CD workflow in '.github/workflows/firebase-deploy.yml' is configured to use GitHub Secrets for all necessary environment variables. The success of the build and the runtime functionality of the deployed application now critically depend on these secrets being correctly injected and utilized by the build process and runtime environment.",
-      "status": "User Confirmed GitHub Secrets - CI/CD Run Will Verify Injection & Utilization",
+      "description": "The CI/CD workflow in '.github/workflows/firebase-deploy.yml' is configured to use GitHub Secrets for all necessary environment variables. A new step has been added to verify the availability of key secrets. The success of the build and the runtime functionality of the deployed application now critically depend on these secrets being correctly injected and utilized by the build process and runtime environment.",
+      "status": "Test Step Added - CI/CD Run Will Verify Injection & Utilization",
       "resolutionSteps": [
         "User has confirmed that all necessary secrets (e.g., NEXT_PUBLIC_FIREBASE_API_KEY, GOOGLE_GENAI_API_KEY, LINKEDIN_CLIENT_SECRET, FIREBASE_SERVICE_ACCOUNT_KEY_JSON) have been correctly populated in GitHub Repository Settings.",
-        "The upcoming deployment (triggered by a push to the designated branch) will be the first major test of these secrets being correctly picked up by the GitHub Actions workflow and passed to the Next.js build process and Firebase Hosting environment.",
-        "Monitor the GitHub Actions build logs for any errors related to environment variable access or authentication failures with Firebase/other services during build or deployment.",
+        "A test step in the CI/CD workflow will now explicitly check if key secrets are set. If this step fails, it indicates an issue with secret configuration in GitHub or the workflow's access to them.",
+        "The upcoming deployment (triggered by a push to the designated branch) will test these secrets being correctly picked up by the GitHub Actions workflow and passed to the Next.js build process and Firebase Hosting environment.",
+        "Monitor the GitHub Actions build logs for the 'Verify Key Secrets Availability' step and for any errors related to environment variable access or authentication failures with Firebase/other services during build or deployment.",
         "After deployment, check browser console and server-side logs (Firebase Functions logs if applicable) for runtime errors related to missing or incorrect environment variables."
       ],
       "affectedFiles": [".github/workflows/firebase-deploy.yml", ".env", "README.md", "src/lib/firebase.ts", "src/lib/firebaseServer.ts", "src/ai/ai-instance.ts", "src/services/*"]
@@ -139,8 +140,9 @@
     }
   ],
   "recommendations": [
-    "ACTION: Trigger a deployment by pushing changes to the designated branch (e.g., master/main).",
-    "MONITOR: Closely monitor the GitHub Actions build logs for any errors, especially those related to environment variable access or authentication during build/deployment.",
+    "ACTION: Trigger a deployment by pushing changes to the designated branch (e.g., main).",
+    "MONITOR: Closely monitor the 'Verify Key Secrets Availability' step in the GitHub Actions build logs. If it fails, re-verify GitHub Secrets.",
+    "MONITOR: If the secrets verification passes, monitor the rest of the build logs for any errors, especially those related to environment variable access or authentication during build or deployment.",
     "TEST: After deployment, thoroughly test all application functionalities on the live environment, paying close attention to interactions with Firebase, Genkit AI, LinkedIn, SendPulse, and Sarvam.",
     "PRIORITY (Post-Initial Deployment): Implement the actual API call logic for LinkedIn (messaging), SendPulse, and Sarvam. Without these, core features are non-operational.",
     "SECURITY (Post-Initial Deployment): Implement robust authentication and authorization for all API routes via `src/middleware.ts` and by checking user permissions within API route logic. Thoroughly test Firebase Security Rules."
