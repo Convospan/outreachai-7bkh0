@@ -11,7 +11,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"; // Added import
+import { Checkbox } from "@/components/ui/checkbox";
 import { ComplianceStatus, checkCompliance } from '@/services/compliance';
 import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -64,7 +64,7 @@ export default function ComplianceCheckPage() {
       toast({
         title: 'Compliance Check Warning',
         description: status.message,
-        variant: 'warning',
+        // variant: 'warning', // Corrected: Removed invalid variant
       });
     } else { // status.status === 'ok'
       toast({

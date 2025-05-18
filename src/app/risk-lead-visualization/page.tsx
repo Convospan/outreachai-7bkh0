@@ -11,13 +11,14 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { useState, useEffect, Suspense } from 'react';
 import {summarizeOutreachPerformance, SummarizeOutreachPerformanceOutput} from '@/ai/flows/summarize-outreach-performance';
-import {generateCallScript as generateAICallScript} from '@/ai/flows/generate-call-script'; 
+// Corrected import path
+import {generateCallScript as generateAICallScript, GenerateCallScriptInput} from '@/server/generate-call-script'; 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line } from 'recharts';
-import {useSearchParams, useRouter}from 'next/navigation';
+import {useSearchParams, useRouter }from 'next/navigation';
 import { HomeIcon, Loader2, AlertTriangle, BotMessageSquare, MessageSquare, Send, Mail, CalendarPlus, LinkedinIcon, UserCheck, PhoneOutgoing, CheckCircle, ShieldCheck, Edit, PlayCircle } from "lucide-react";
 import ProspectJourneyVisualizer, { type ProspectStage } from '@/components/ProspectJourneyVisualizer';
 
@@ -152,7 +153,8 @@ function RiskLeadVisualizationContent() {
     const generateCallScriptPlaceholder = async () => {
         setIsLoadingScript(true);
         try {
-            const scriptInput = {
+            // Use the imported server action type for input
+            const scriptInput: GenerateCallScriptInput = {
                 campaignName: "Dynamic Campaign X",
                 productName: "Our Innovative Solution",
                 targetAudience: `Professionals in ${industry}`,
@@ -163,7 +165,11 @@ function RiskLeadVisualizationContent() {
                 subscriptionTier: tier,
                 usedCallCount: 0, 
                 leadId: "lead-placeholder-id",
+                preferredTone: "professional", // Added default preferredTone
             };
+            // This still calls a placeholder, but uses the correct input type
+            // const result = await generateAICallScript(scriptInput); 
+            // setCallScript(result.script); 
             await new Promise(resolve => setTimeout(resolve, 700)); 
             setCallScript(`AI Script: Hello, this is a generated script for ${industry} leads with ~${connections} connections. We'd love to discuss our solution.`);
         } catch (error: any) {

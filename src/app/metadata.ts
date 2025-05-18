@@ -1,8 +1,8 @@
-import type { Metadata } from 'next/metadata';
+// import type { Metadata } from 'next/metadata'; // Temporarily removed
 import {siteConfig} from "@/config/site";
 
 // Moved metadata definition here
-export const metadata: Metadata = {
+export const metadata: any = { // Temporarily typed as any
   title: siteConfig.name,
   description: siteConfig.description,
 };

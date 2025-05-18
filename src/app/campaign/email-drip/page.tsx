@@ -1,3 +1,4 @@
+// src/app/campaign/email-drip/page.tsx
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -20,14 +21,10 @@ const prospectJourneyStages: ProspectStage[] = [
   { id: 'LinkedInFollowUp1', name: 'Follow-up 1 Sent', icon: <MessageSquare className="h-4 w-4" /> },
   { id: 'LinkedInFollowUp2', name: 'Follow-up 2 Sent', icon: <MessageSquare className="h-4 w-4" /> },
   { id: 'EmailAddressCaptured', name: 'Email Captured', icon: <Mail className="h-4 w-4" /> },
-  { id: 'EmailDripInitiated', name: 'Email Drip Started', icon: <BotMessageSquare className="h-4 w-4" /> },
-  { id: 'EmailStep1Sent', name: 'Email 1 Sent', icon: <Send className="h-4 w-4" /> },
-  { id: 'EmailStep2Sent', name: 'Email 2 Sent', icon: <Send className="h-4 w-4" /> },
-  { id: 'EmailStep3Sent', name: 'Email 3 Sent', icon: <Send className="h-4 w-4" /> },
-  // Add more email steps as needed
+  { id: 'EmailDripInitiated', name: 'Email Drip Setup (Coming Soon)', icon: <BotMessageSquare className="h-4 w-4" /> },
   { id: 'ComplianceChecked', name: 'Compliance Checked', icon: <ShieldCheck className="h-4 w-4" /> },
   { id: 'CallScriptReady', name: 'Call Script Ready', icon: <Edit className="h-4 w-4" /> },
-  { id: 'AICallInProgress', name: 'AI Call In Progress', icon: <PlayCircle className="h-4 w-4" /> },
+  { id: 'AICallInProgress', name: 'AI Call (Coming Soon)', icon: <PlayCircle className="h-4 w-4" /> },
   { id: 'CallScheduled', name: 'Call Scheduled (GCal)', icon: <CalendarPlus className="h-4 w-4" /> },
   { id: 'CallCompleted', name: 'Call Completed', icon: <PhoneOutgoing className="h-4 w-4" /> },
   { id: 'LeadQualified', name: 'Lead Qualified', icon: <CheckCircle className="h-4 w-4" /> },
@@ -45,7 +42,7 @@ function EmailDripCampaignPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentProspectJourneyStage, setCurrentProspectJourneyStage] = useState<ProspectStage['id']>('EmailAddressCaptured');
   const [leadId, setLeadId] = useState<string | null>(null);
-  const [campaignName, setCampaignName] = useState<string>(''); // Added campaign name state
+  const [campaignName, setCampaignName] = useState<string>('');
 
   useEffect(() => {
     const emailsParam = searchParams.get('emails');
@@ -61,65 +58,22 @@ function EmailDripCampaignPageContent() {
     if(campaignNameParam){
       setCampaignName(decodeURIComponent(campaignNameParam));
     }
-     // Determine initial stage based on whether emails are pre-filled
      if (emailsParam && emailsParam.split(',').map(e => e.trim()).filter(e => e).length > 0) {
         setCurrentProspectJourneyStage('EmailAddressCaptured');
     } else {
-        setCurrentProspectJourneyStage('Identified'); // Or some other initial stage
+        setCurrentProspectJourneyStage('Identified');
     }
 
   }, [searchParams]);
 
   const handleGenerateSequence = async () => {
-    if (targetEmails.length === 0) {
-      toast({ title: "No Target Emails", description: "Please ensure target email addresses are provided.", variant: "destructive" });
-      return;
-    }
-    setIsLoading(true);
-    setCurrentProspectJourneyStage('EmailDripInitiated');
-    try {
-      const response = await fetch('/api/sequence/select', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          platform: 'email',
-          prompt: emailDripPrompt,
-          numSteps: numEmailDripSteps,
-          // Potentially pass prospect info if available from leadId or previous context
-          targetProspectInfo: { name: 'Valued Prospect', company: 'Their Company' }, 
-          previousConversationSummary: `Initiating email drip for campaign: ${campaignName || 'General Outreach'}`,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-      const data: GenerateOutreachSequenceOutput = await response.json();
-      setGeneratedSequence(data);
-      toast({ title: 'Email Drip Sequence Generated', description: 'Review and prepare to launch your email drip.' });
-    } catch (error: any) {
-      console.error('Failed to generate email drip sequence:', error);
-      toast({ title: 'Error Generating Sequence', description: error.message || 'Failed to generate email drip sequence.', variant: 'destructive' });
-      setCurrentProspectJourneyStage('EmailAddressCaptured'); // Revert stage
-    } finally {
-      setIsLoading(false);
-    }
+    toast({ title: "Feature Coming Soon", description: "Automated email sequence generation will be available soon.", variant: "default" });
+    setCurrentProspectJourneyStage('EmailDripInitiated'); // Update stage even if it's a placeholder action
   };
 
   const handleLaunchDrip = () => {
-    // This would typically trigger a backend process to schedule and send emails via SendPulse
-    if (!generatedSequence || generatedSequence.sequence.length === 0) {
-      toast({ title: "No Sequence", description: "Please generate a sequence first.", variant: "destructive"});
-      return;
-    }
-    toast({ title: "Email Drip Launched (Simulated)", description: `Simulated launching ${generatedSequence.sequence.length}-step email drip to ${targetEmails.join(', ')}.`});
-    // Update journey stage, e.g., to the first email sent stage
-    if (generatedSequence.sequence.length > 0) {
-        setCurrentProspectJourneyStage('EmailStep1Sent');
-    }
-    // In a real app, you'd navigate to a campaign monitoring page or dashboard
-    router.push(`/compliance/check?stage=EmailStep1Sent&leadId=${leadId || ''}&campaignName=${encodeURIComponent(campaignName)}`);
+    toast({ title: "Feature Coming Soon", description: "Launching email drip campaigns will be available soon.", variant: "default"});
+    // router.push(`/compliance/check?stage=EmailDripInitiated&leadId=${leadId || ''}&campaignName=${encodeURIComponent(campaignName)}`);
   };
 
   return (
@@ -183,14 +137,14 @@ function EmailDripCampaignPageContent() {
               max="7" 
             />
           </div>
-          <Button onClick={handleGenerateSequence} disabled={isLoading || targetEmails.length === 0} className="w-full md:w-auto">
-            {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <BotMessageSquare className="mr-2 h-5 w-5" />}
-            Generate Email Sequence
+          <Button onClick={handleGenerateSequence} disabled={targetEmails.length === 0} className="w-full md:w-auto">
+            <BotMessageSquare className="mr-2 h-5 w-5" />
+            Generate Email Sequence (Coming Soon)
           </Button>
 
           {generatedSequence && generatedSequence.sequence.length > 0 && (
             <div className="mt-6 space-y-3">
-              <h3 className="text-xl font-semibold text-primary">Generated Email Sequence:</h3>
+              <h3 className="text-xl font-semibold text-primary">Generated Email Sequence (Preview):</h3>
               <div className="border rounded-md max-h-96 overflow-y-auto">
                 <Table>
                   <TableHeader>
@@ -209,16 +163,23 @@ function EmailDripCampaignPageContent() {
                   </TableBody>
                 </Table>
               </div>
-              <Button onClick={handleLaunchDrip} className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white" size="lg">
-                <Send className="mr-2 h-5 w-5" /> Launch Email Drip (Simulated)
+              <Button onClick={handleLaunchDrip} className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white" size="lg" disabled>
+                <Send className="mr-2 h-5 w-5" /> Launch Email Drip (Coming Soon)
               </Button>
             </div>
+          )}
+           {currentProspectJourneyStage === 'EmailDripInitiated' && (!generatedSequence || generatedSequence.sequence.length === 0) && (
+            <p className="text-muted-foreground mt-4">Configure your drip campaign details above. Sequence generation and launching are coming soon!</p>
           )}
         </CardContent>
       </Card>
       <div className="mt-8 flex justify-between">
         <Button variant="outline" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+        {/* Navigation to next step (e.g., compliance) can be conditional based on actual drip launch */}
+        <Button variant="outline" onClick={() => router.push(`/compliance/check?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(campaignName)}`)}>
+            Next: Compliance Check <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
         <Button variant="outline" onClick={() => router.push('/')}>
           <HomeIcon className="mr-2 h-4 w-4" /> Dashboard

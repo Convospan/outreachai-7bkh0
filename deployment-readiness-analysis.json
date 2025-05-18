@@ -4,7 +4,7 @@
   "deploymentTarget": "Firebase Hosting",
   "overallReadiness": "Conditionally Ready for Deployment Test - Pending API Implementation & Testing after CI/CD Secret Verification",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "GitHub Secrets have been confirmed by the user. A CI/CD workflow step has been added to verify secret injection. The application is now conditionally ready for a deployment test. Success will depend on the CI/CD pipeline correctly injecting these secrets and the partial/placeholder API integrations for LinkedIn, SendPulse, and Sarvam not causing immediate build failures. Full functionality still requires completing and thoroughly testing these API service implementations. Firebase App Check remains disabled and API route authentication is pending.",
+  "summary": "GitHub Secrets have been confirmed by the user. A CI/CD workflow step has been added to verify secret injection. The application is now conditionally ready for a deployment test. Emailing and AI Calling features are temporarily disabled ('Coming Soon'). Success will depend on the CI/CD pipeline correctly injecting secrets for remaining services (Firebase, Genkit, LinkedIn) and the partial/placeholder API integrations for LinkedIn not causing immediate build failures. Full functionality for LinkedIn still requires completing and thoroughly testing its service implementations. Firebase App Check remains disabled and API route authentication is pending.",
   "criticalBlockers": [
     {
       "id": "ciCdEnvironmentVariables",
@@ -33,26 +33,6 @@
       "affectedFiles": ["src/services/linkedin.ts", "src/app/api/linkedin/exchange-token/route.ts", "src/app/campaign/page.tsx"]
     },
     {
-      "id": "sendpulseApiIntegration",
-      "description": "Full SendPulse email sending functionality relies on correct API key setup (from GitHub Secrets) and the Genkit tool. The tool's logic has been improved but requires end-to-end testing to confirm emails are sent.",
-      "status": "Pending Implementation (Logic Improved, Needs End-to-End Testing)",
-      "resolutionSteps": [
-        "Thoroughly test the 'sendEmail' Genkit tool ('src/ai/tools/sendEmail.ts') by triggering it from a flow with valid inputs to send actual emails via SendPulse, using credentials sourced from GitHub Secrets.",
-        "Implement comprehensive error handling for SendPulse API responses (e.g., authentication failures, invalid recipient, API rate limits) within the tool and calling flows."
-      ],
-      "affectedFiles": ["src/ai/tools/sendEmail.ts", "any flow using this tool"]
-    },
-    {
-      "id": "sarvamApiIntegration",
-      "description": "Sarvam AI calling agent integration requires the SARVAM_API_KEY (from GitHub Secrets) and correct implementation of the Sarvam SDK. The service function has been improved but needs end-to-end testing.",
-      "status": "Pending Implementation (Logic Improved, Needs End-to-End Testing)",
-      "resolutionSteps": [
-        "Verify the SarvamAI SDK usage in 'src/services/sarvam.ts' matches the official SDK documentation for call creation, including parameters for voice model selection if applicable, using the key sourced from GitHub Secrets.",
-        "Implement proper error handling and status tracking for calls made via Sarvam."
-      ],
-      "affectedFiles": ["src/services/sarvam.ts", "src/app/call/select-sarvam-model/page.tsx"]
-    },
-    {
       "id": "apiRouteAuthenticationAndAuthorization",
       "description": "API routes require robust authentication (verifying the user is logged in) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder.",
       "status": "Pending Implementation (CRITICAL SECURITY)",
@@ -72,6 +52,28 @@
         "Implement centralized logging for server-side errors (e.g., using Firebase Functions logs, or a dedicated logging service) for easier debugging post-deployment."
       ],
       "affectedFiles": ["src/app/**", "src/ai/**", "src/components/**", "src/services/**"]
+    }
+  ],
+  "featuresTemporarilyDisabled": [
+    {
+      "id": "sendpulseApiIntegration",
+      "description": "SendPulse email sending functionality is temporarily disabled and marked as 'Coming Soon'. The Genkit tool 'src/ai/tools/sendEmail.ts' has been updated to a placeholder.",
+      "status": "Temporarily Disabled (Coming Soon)",
+      "resolutionSteps": [
+        "When re-enabling, uncomment and complete the SendPulse API call logic in 'src/ai/tools/sendEmail.ts'.",
+        "Thoroughly test email sending via SendPulse with valid credentials."
+      ],
+      "affectedFiles": ["src/ai/tools/sendEmail.ts", "src/app/campaign/email-drip/page.tsx"]
+    },
+    {
+      "id": "sarvamApiIntegration",
+      "description": "Sarvam AI calling agent integration is temporarily disabled and marked as 'Coming Soon'. The service function in 'src/services/sarvam.ts' and related UI pages have been updated to placeholders.",
+      "status": "Temporarily Disabled (Coming Soon)",
+      "resolutionSteps": [
+        "When re-enabling, uncomment and complete the SarvamAI SDK usage in 'src/services/sarvam.ts'.",
+        "Thoroughly test call initiation via Sarvam with a valid API key."
+      ],
+      "affectedFiles": ["src/services/sarvam.ts", "src/app/call/approve/page.tsx", "src/app/call/select-sarvam-model/page.tsx"]
     }
   ],
   "completedOrRequiresVerification": [
@@ -143,10 +145,8 @@
     "ACTION: Trigger a deployment by pushing changes to the designated branch (e.g., main).",
     "MONITOR: Closely monitor the 'Verify Key Secrets Availability' step in the GitHub Actions build logs. If it fails, re-verify GitHub Secrets.",
     "MONITOR: If the secrets verification passes, monitor the rest of the build logs for any errors, especially those related to environment variable access or authentication during build or deployment.",
-    "TEST: After deployment, thoroughly test all application functionalities on the live environment, paying close attention to interactions with Firebase, Genkit AI, LinkedIn, SendPulse, and Sarvam.",
-    "PRIORITY (Post-Initial Deployment): Implement the actual API call logic for LinkedIn (messaging), SendPulse, and Sarvam. Without these, core features are non-operational.",
+    "TEST: After deployment, thoroughly test all application functionalities on the live environment, paying close attention to interactions with Firebase, Genkit AI, and LinkedIn.",
+    "PRIORITY (Post-Initial Deployment): Implement the actual API call logic for LinkedIn (messaging). Without this, core LinkedIn features are non-operational.",
     "SECURITY (Post-Initial Deployment): Implement robust authentication and authorization for all API routes via `src/middleware.ts` and by checking user permissions within API route logic. Thoroughly test Firebase Security Rules."
   ]
 }
-
-    

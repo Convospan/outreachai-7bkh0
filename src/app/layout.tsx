@@ -1,6 +1,6 @@
 'use client';
 
-import type { Metadata } from 'next/metadata';
+// import type { Metadata } from 'next/metadata'; // Removed incorrect import
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/app/components/Navbar';
@@ -10,8 +10,6 @@ import { app as firebaseAppInstance } from '@/lib/firebase'; // Import the app i
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-
-// Metadata is defined in src/app/metadata.ts as this is a client component
 
 export default function RootLayout({ children }: { children: React.ReactNode; }) {
   const [firebaseInitStatus, setFirebaseInitStatus] = useState<'pending' | 'success' | 'failed'>('pending');
