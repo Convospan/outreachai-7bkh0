@@ -1,0 +1,12 @@
+
+{
+  "extends": ["next/core-web-vitals"],
+  "overrides": [
+    {
+      "files": ["functions/**/*"], // Target all files within the functions directory
+      "rules": {
+        "@next/next/no-sync-dynamic-api": "off" // Disable this rule for Firebase Functions
+      }
+    }
+  ]
+}
