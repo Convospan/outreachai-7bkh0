@@ -8,7 +8,7 @@ export default function CampaignForm() {
   const [message, setMessage] = useState('');
     const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await axios.post('/api/campaigns', { name, user_id: 'user123', platforms: ['linkedin'] });
@@ -24,7 +24,7 @@ export default function CampaignForm() {
         <input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
           className="w-full p-2 mb-4 border border-border rounded"
           placeholder="Campaign Name"
         />

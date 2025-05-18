@@ -107,7 +107,7 @@ const generateOutreachSequenceFlow = ai.defineFlow<
   typeof GenerateOutreachSequenceOutputSchema
 >(
   {
-    name: 'generateEmailDripSequenceFlow', // Renamed for clarity
+    name: 'generateEmailDripSequenceFlow',
     inputSchema: GenerateOutreachSequenceInputSchema,
     outputSchema: GenerateOutreachSequenceOutputSchema,
   },
@@ -118,13 +118,13 @@ const generateOutreachSequenceFlow = ai.defineFlow<
 
     if (!output || !Array.isArray(output.sequence)) {
         // Fallback or error handling if the LLM output isn't structured as expected.
-        // This might involve parsing the raw text output if the LLM doesn't directly return structured JSON.
+        // This might involve parsing the raw text based on "--- Email X ---" delimiters
         console.error("Invalid or unstructured output from LLM:", output);
         const rawText = (output as any)?.text || (output as any)?.toString() || "";
         // Attempt to parse emails from the raw text based on "--- Email X ---" delimiters
         const emails = rawText.split(/---Email \d+:?---/i)
-                              .map(email => email.trim())
-                              .filter(email => email.length > 10); // Basic filter for empty/delimiter parts
+                              .map((email: string | undefined) => email.trim())
+                              .filter((email: string | undefined) => email?.length > 10); // Basic filter for empty/delimiter parts
         if (emails.length > 0) {
             return { sequence: emails.slice(0, input.numSteps) }; // Take the first non-empty parts
         }

@@ -13,7 +13,7 @@ export default function PaymentForm() {
     setIsClient(true);
   }, []);
 
-  const handleSubscribe = async (e) => {
+  const handleSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
       // Placeholder: Replace with actual API endpoint if needed
@@ -37,7 +37,7 @@ export default function PaymentForm() {
       <h3 className="text-xl font-semibold mb-4 text-center text-foreground">Select Your Plan</h3>
       <select
         value={tier}
-        onChange={(e) => setTier(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTier(e.target.value)}
         className="w-full p-3 mb-6 border border-input bg-background rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <option value="basic">Basic - ₹999/month (100 calls)</option>

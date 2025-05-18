@@ -1,14 +1,5 @@
-'use server';
-/**
- * @fileOverview A LinkedIn profile enricher with Google Search.
- *
- * - enrichLinkedInProfile - A function that handles the profile enrichment process.
- * - EnrichLinkedInProfileInput - The input type for the enrichLinkedInProfile function.
- * - EnrichLinkedInProfileOutput - The return type for the enrichLinkedInProfile function.
- */
-
-import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
+import { ai } from '@/ai/ai-instance';
+import { z } from 'genkit';
 import { searchGoogle } from '@/ai/tools/search-google';
 
 const EnrichLinkedInProfileInputSchema = z.object({
@@ -28,10 +19,6 @@ const EnrichLinkedInProfileOutputSchema = z.object({
 });
 export type EnrichLinkedInProfileOutput = z.infer<typeof EnrichLinkedInProfileOutputSchema>;
 
-export async function enrichLinkedInProfile(input: EnrichLinkedInProfileInput): Promise<EnrichLinkedInProfileOutput> {
-  return enrichLinkedInProfileFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'enrichLinkedInProfilePrompt',
   input: {
@@ -50,42 +37,46 @@ const prompt = ai.definePrompt({
   },
   prompt: `You are an AI assistant specializing in enriching LinkedIn profiles with additional information from Google search results.
   You are given the name of the person, the company they work for, their LinkedIn profile data (if available), additional context, and Google search results.
-  Your task is to summarize the search results and combine it with the LinkedIn profile data (if available) and additional context to create an enriched profile.
 
   Name: {{{name}}}
-  Company: {{{company}}}
-  LinkedIn Profile: {{{linkedinProfile}}}
-  Additional Context: {{{additionalContext}}}
-  Search Results: {{{searchResults}}}
+    Company: {{{company}}}
+    LinkedIn Profile: {{{linkedinProfile}}}
+    Additional Context: {{{additionalContext}}}
+    Search Results: {{{searchResults}}}
 
-  Enriched Profile:`,
-});
-
-const enrichLinkedInProfileFlow = ai.defineFlow<
-  typeof EnrichLinkedInProfileInputSchema,
-  typeof EnrichLinkedInProfileOutputSchema
->(
-  {
-    name: 'enrichLinkedInProfileFlow',
-    inputSchema: EnrichLinkedInProfileInputSchema,
-    outputSchema: EnrichLinkedInProfileOutputSchema,
-  },
-  async input => {
-    let searchResults = '';
-    try {
-      const googleSearchInput = {
-        query: `site:linkedin.com inurl:in ${input.name} ${input.company}`,
-      };
-      const searchResultsTool = await searchGoogle(googleSearchInput);
-      searchResults = searchResultsTool;
-    } catch (error) {
-      console.error('Failed to get google search results:', error);
+    Enriched Profile:`,
+  });
+  
+  const enrichLinkedInProfileFlow = ai.defineFlow<
+    typeof EnrichLinkedInProfileInputSchema,
+    typeof EnrichLinkedInProfileOutputSchema
+  >(
+    {
+      name: 'enrichLinkedInProfileFlow',
+      inputSchema: EnrichLinkedInProfileInputSchema,
+      outputSchema: EnrichLinkedInProfileOutputSchema,
+    },
+    async input => {
+      let searchResults = '';
+      try {
+        const googleSearchInput = {
+          query: `site:linkedin.com inurl:in ${input.name} ${input.company}`,
+        };
+        const searchResultsTool = await searchGoogle(googleSearchInput);
+        searchResults = searchResultsTool;
+      } catch (error) {
+        console.error('Failed to get google search results:', error);
+      }
+  
+      const {output} = await prompt({
+        ...input,
+        searchResults: searchResults,
+        linkedinProfile: input.linkedinProfile ? JSON.stringify(input.linkedinProfile) : undefined,
+      });
+      return output!;
     }
+  );
 
-    const {output} = await prompt({
-      ...input,
-      searchResults: searchResults,
-    });
-    return output!;
+  export async function enrichLinkedInProfile(input: EnrichLinkedInProfileInput): Promise<EnrichLinkedInProfileOutput> {
+    return enrichLinkedInProfileFlow(input);
   }
-);
