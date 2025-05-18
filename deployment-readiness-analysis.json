@@ -23,11 +23,12 @@
   "pendingImplementationForFullFunctionality": [
     {
       "id": "linkedInApiIntegration",
-      "description": "Full LinkedIn integration, especially sending messages and fetching conversation history, requires implementing and testing actual API calls using the obtained access token. Current service logic in 'src/services/linkedin.ts' has improved profile fetching but messaging is still placeholder/simulated.",
-      "status": "Partially Implemented (Profile Fetch Improved, Messaging & History Need Full API Implementation & Testing)",
+      "description": "Full LinkedIn integration, especially sending messages and fetching conversation history, requires implementing and thoroughly testing actual API calls using the obtained access token. Current service logic in 'src/services/linkedin.ts' has improved profile fetching and structured placeholders for messaging, but UGS API interactions are complex and need live validation.",
+      "status": "Partially Implemented (Profile Fetch Improved, Messaging & History Need Full API Implementation & Rigorous Live Testing)",
       "resolutionSteps": [
-        "Implement actual `axios` or `fetch` calls in `sendLinkedInMessage` and `fetchLinkedInMessages` in 'src/services/linkedin.ts' to interact with LinkedIn's UGS or relevant messaging APIs.",
-        "Implement robust error handling for LinkedIn API rate limits, permission issues, and error responses.",
+        "Implement actual `axios` or `fetch` calls in `sendLinkedInMessage` and `fetchLinkedInMessages` in 'src/services/linkedin.ts' to interact with LinkedIn's UGS or relevant messaging APIs, adapting based on live API responses.",
+        "Obtain conversation URNs effectively, potentially from initial message send responses or by listing conversations.",
+        "Implement robust error handling for LinkedIn API rate limits, permission issues, and varying UGS error responses.",
         "Thoroughly test OAuth flow, profile data retrieval, message sending, and message fetching on a staging/test environment using valid credentials (sourced from GitHub Secrets at build/runtime)."
       ],
       "affectedFiles": ["src/services/linkedin.ts", "src/app/api/linkedin/exchange-token/route.ts", "src/app/campaign/page.tsx"]
@@ -145,8 +146,11 @@
     "ACTION: Trigger a deployment by pushing changes to the designated branch (e.g., main).",
     "MONITOR: Closely monitor the 'Verify Key Secrets Availability' step in the GitHub Actions build logs. If it fails, re-verify GitHub Secrets.",
     "MONITOR: If the secrets verification passes, monitor the rest of the build logs for any errors, especially those related to environment variable access or authentication during build or deployment.",
-    "TEST: After deployment, thoroughly test all application functionalities on the live environment, paying close attention to interactions with Firebase, Genkit AI, and LinkedIn.",
-    "PRIORITY (Post-Initial Deployment): Implement the actual API call logic for LinkedIn (messaging). Without this, core LinkedIn features are non-operational.",
+    "TEST: After deployment, thoroughly test all application functionalities on the live environment, paying close attention to interactions with Firebase, Genkit AI, and LinkedIn (especially profile fetching).",
+    "PRIORITY (Post-Initial Deployment): Implement and rigorously test the actual API call logic for LinkedIn (messaging and conversation history). Without this, core LinkedIn features are non-operational.",
     "SECURITY (Post-Initial Deployment): Implement robust authentication and authorization for all API routes via `src/middleware.ts` and by checking user permissions within API route logic. Thoroughly test Firebase Security Rules."
   ]
 }
+
+
+    
