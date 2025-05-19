@@ -1,14 +1,13 @@
-
 {
   "projectName": "outreachai-7bkh0",
   "deploymentTarget": "Firebase Hosting",
-  "overallReadiness": "Blocked - Critical GitHub Secret Configuration & Core API Implementations Pending",
+  "overallReadiness": "Conditionally Ready for Test Deployment - Blocked for Full Production by API Implementations & GitHub Secret Verification",
   "lastChecked": "LATEST_TIMESTAMP",
-  "summary": "The application has shifted to a Chrome extension-based model for LinkedIn interactions, removing direct LinkedIn API calls for OAuth and messaging from the Next.js app. This simplifies backend LinkedIn logic but makes the Chrome extension's functionality critical. Core API integrations for SendPulse (email) and Sarvam (AI calling) remain placeholders ('Coming Soon'). The most significant blocker is ensuring all necessary environment variables (API keys, Firebase config) are correctly set as GitHub Secrets and successfully injected by the CI/CD pipeline. Firebase Admin SDK initialization needs runtime verification.",
+  "summary": "The application has undergone significant dependency and ESLint configuration fixes, making it more likely to pass the build stage. The most critical immediate factor is the user's verification and correct population of all GitHub Secrets, which the CI/CD pipeline relies on. Core API integrations for LinkedIn (messaging), SendPulse (emailing), and Sarvam (calling) are still placeholders or partially implemented and require full development and testing for the application to be feature-complete. API route security also needs to be implemented.",
   "criticalBlockers": [
     {
       "id": "ciCdEnvironmentVariables",
-      "description": "Ensuring all necessary environment variables (NEXT_PUBLIC_FIREBASE_..., GOOGLE_GENAI_API_KEY, FIREBASE_SERVICE_ACCOUNT_KEY_JSON, LINKEDIN_CLIENT_SECRET for extension backend, SARVAM_API_KEY, SENDPULSE_CLIENT_ID/SECRET) are correctly set as GitHub Secrets and injected by the CI/CD pipeline into the build and runtime environment. If these are not available, the application will fail or features will be non-functional. The CI/CD workflow now includes a verification step for key secrets.",
+      "description": "Ensuring all necessary environment variables (NEXT_PUBLIC_FIREBASE_..., GOOGLE_GENAI_API_KEY, FIREBASE_SERVICE_ACCOUNT_KEY_JSON, LINKEDIN_CLIENT_SECRET, SARVAM_API_KEY, SENDPULSE_CLIENT_ID/SECRET etc.) are correctly set as GitHub Secrets and successfully injected by the CI/CD pipeline into the build and runtime environment. The CI/CD workflow now includes a verification step for key secrets.",
       "status": "User Confirmed Secrets - CI/CD Run Will Verify Injection & Utilization",
       "resolutionSteps": [
         "User has confirmed all necessary secrets are populated in GitHub Repository Settings.",
@@ -21,17 +20,16 @@
   ],
   "pendingImplementationForFullFunctionality": [
     {
-      "id": "chromeExtensionDevelopmentAndIntegration",
-      "description": "The core LinkedIn functionality (profile scraping, message sending, connection requests) now depends entirely on a Chrome extension. This extension needs to be fully developed, tested, and its communication with the Next.js backend (for storing data and getting custom auth tokens) must be robust and secure.",
-      "status": "Pending Implementation (CRITICAL FOR LINKEDIN FEATURES)",
+      "id": "linkedInApiMessagingIntegration",
+      "description": "While OAuth and basic profile fetching for LinkedIn are improved, the actual sending of messages and fetching comprehensive conversation history via LinkedIn's UGS API in 'src/services/linkedin.ts' requires full implementation and rigorous testing with live, permissioned tokens.",
+      "status": "Partially Implemented (Messaging Core Logic Pending)",
       "resolutionSteps": [
-        "Develop the Chrome extension using the provided file structure (manifest.json, content.js, background.js, firebase.js, popup.js).",
-        "Implement secure handling of user authentication (UID) within the extension, likely by calling the `getCustomToken` Firebase Function.",
-        "Ensure the extension's `background.js` correctly calls the Next.js API endpoints (`/api/linkedin/store-profile`, `/api/linkedin/store-messages`) with the correct payload structure.",
-        "Thoroughly test scraping and action automation logic in the extension, keeping in mind LinkedIn's UI stability and ToS.",
-        "Secure the `getCustomToken` Firebase Function by verifying the identity of the requester (e.g., using a Firebase ID token from the main web app session if possible)."
+        "Implement actual API calls for `sendLinkedInMessage` and `fetchLinkedInMessages` in 'src/services/linkedin.ts' based on LinkedIn's UGS API documentation.",
+        "Handle complex UGS API request/response structures and event types.",
+        "Thoroughly test sending various message types and fetching conversation history.",
+        "Implement robust error handling for LinkedIn API rate limits, permission issues, and error responses."
       ],
-      "affectedFiles": ["chrome-extension/*", "functions/src/index.ts (getCustomToken)", "src/app/api/linkedin/store-profile/route.ts", "src/app/api/linkedin/store-messages/route.ts"]
+      "affectedFiles": ["src/services/linkedin.ts", "src/app/campaign/page.tsx"]
     },
     {
       "id": "sendpulseApiIntegration",
@@ -39,7 +37,7 @@
       "status": "Temporarily Disabled (Coming Soon)",
       "resolutionSteps": [
         "When re-enabling, uncomment and complete the SendPulse API call logic in 'src/ai/tools/sendEmail.ts'.",
-        "Thoroughly test email sending via SendPulse with valid credentials."
+        "Thoroughly test email sending via SendPulse with valid credentials and various email content."
       ],
       "affectedFiles": ["src/ai/tools/sendEmail.ts", "src/app/campaign/email-drip/page.tsx"]
     },
@@ -49,19 +47,32 @@
       "status": "Temporarily Disabled (Coming Soon)",
       "resolutionSteps": [
         "When re-enabling, uncomment and complete the SarvamAI SDK usage in 'src/services/sarvam.ts'.",
-        "Thoroughly test call initiation via Sarvam with a valid API key."
+        "Thoroughly test call initiation via Sarvam with a valid API key and various call scripts."
       ],
       "affectedFiles": ["src/services/sarvam.ts", "src/app/call/approve/page.tsx", "src/app/call/select-sarvam-model/page.tsx"]
     },
     {
       "id": "apiRouteAuthenticationAndAuthorization",
-      "description": "API routes require robust authentication (verifying the user is logged in) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder.",
+      "description": "API routes require robust authentication (verifying the user is logged in via Firebase Auth) and authorization (verifying the user has permission to perform the action or access the data). Current middleware is a placeholder.",
       "status": "Pending Implementation (CRITICAL SECURITY)",
       "resolutionSteps": [
         "Update `src/middleware.ts` to integrate with Firebase Authentication, verifying Firebase ID tokens for protected API routes.",
         "Ensure API routes check that the authenticated user has the right to access/modify specific resources (e.g., a user can only manage their own campaigns and leads). This often involves checking `user_id` fields in Firestore documents against the authenticated user's UID."
       ],
       "affectedFiles": ["src/middleware.ts", "src/app/api/**/route.ts"]
+    },
+    {
+      "id": "chromeExtensionDevelopmentAndIntegration",
+      "description": "The core LinkedIn functionality (profile scraping, message sending, connection requests) now depends entirely on a Chrome extension. This extension needs to be fully developed, tested, and its communication with the Next.js backend (for storing data and getting custom auth tokens) must be robust and secure. Backend API endpoints are ready to receive data but require security hardening.",
+      "status": "Pending Implementation (CRITICAL FOR LINKEDIN FEATURES)",
+      "resolutionSteps": [
+        "Finalize Chrome extension development using the provided file structure (manifest.json, content.js, background.js, firebase.js, popup.js).",
+        "Implement secure handling of user authentication (UID) within the extension, ensuring the `getCustomToken` Firebase Function is called with a verifiable user identity from the web app session.",
+        "Ensure the extension's `background.js` correctly calls the Next.js API endpoints (`/api/linkedin/store-profile`, `/api/linkedin/store-messages`) with the correct payload structure and current URLs.",
+        "Thoroughly test scraping and action automation logic in the extension, keeping in mind LinkedIn's UI stability and ToS.",
+        "Secure the `getCustomToken` Firebase Function by implementing server-side validation of the requester's identity before minting a custom token."
+      ],
+      "affectedFiles": ["chrome-extension/*", "functions/src/index.ts (getCustomToken)", "src/app/api/linkedin/store-profile/route.ts", "src/app/api/linkedin/store-messages/route.ts"]
     },
     {
       "id": "comprehensiveErrorHandling",
@@ -78,27 +89,16 @@
   "completedOrRequiresVerification": [
     {
       "id": "dependencyResolutionFailure",
-      "description": "Previously, 'npm ci' failed due to 'firebase' version conflicts. 'package.json' has been updated to specify 'firebase: \"^11.7.3\"' and align related '@genkit-ai/*' packages.",
-      "status": "Addressed (Code Fix Deployed - CI/CD Will Verify)",
+      "description": "Previously, 'npm ci' failed due to 'firebase' version conflicts and ESLint setup. 'package.json' and '.eslintrc.json' have been updated to resolve these.",
+      "status": "Addressed (Code Fix Deployed - CI/CD Will Verify Build)",
       "resolutionSteps": [
-        "The 'package.json' changes have been applied.",
-        "The next CI/CD build run will attempt to install dependencies using these updated versions.",
-        "Monitor the 'Install dependencies' step in GitHub Actions for successful resolution."
+        "The 'package.json' and '.eslintrc.json' changes have been applied.",
+        "The next CI/CD build run will attempt to install dependencies and build using these updated configurations.",
+        "Monitor the 'Install dependencies' and 'Build Next.js Application' steps in GitHub Actions for successful resolution."
       ],
-      "affectedFiles": ["package.json", "package-lock.json"]
+      "affectedFiles": ["package.json", ".eslintrc.json"]
     },
     {
-      "id": "eslintRuleNotFound",
-      "description": "Previously, ESLint errored on '@next/next/no-sync-dynamic-api' in 'functions/src/index.ts'. '.eslintrc.json' has been updated with an override to disable this rule for 'functions/**/*'.",
-      "status": "Addressed (Code Fix Deployed - CI/CD Will Verify)",
-      "resolutionSteps": [
-        "The '.eslintrc.json' change has been applied.",
-        "The next CI/CD build run will use this updated ESLint configuration during the linting phase of 'npm run build'.",
-        "Monitor the 'Build Next.js Application' step (specifically its linting phase) in GitHub Actions."
-      ],
-      "affectedFiles": [".eslintrc.json", "functions/src/index.ts"]
-    },
-     {
       "id": "firebaseAppCheck",
       "description": "Firebase App Check (reCAPTCHA) is currently disabled in 'src/lib/firebase.ts'. If re-enabled, it needs thorough verification with the provided `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (from GitHub Secret) and domain authorization in Google Cloud Console.",
       "status": "Disabled (Verification Required if Re-enabled)",
@@ -156,7 +156,9 @@
     "MONITOR: Closely monitor the 'Verify Key Secrets Availability' step in the GitHub Actions build logs. If it fails, **re-verify GitHub Secrets values meticulously**.",
     "MONITOR: If the build passes, monitor the 'Build Next.js Application' step (specifically its linting phase) for resolution of the ESLint error and successful compilation.",
     "TEST: If deployment succeeds, begin by testing basic Firebase client connectivity (e.g., can the app load without Firebase initialization errors in the console?).",
-    "PRIORITY (Post-Successful Basic Deployment): Begin development and rigorous testing of the Chrome extension and its interaction with the backend APIs (`/api/linkedin/store-profile`, `/api/linkedin/store-messages`, and `getCustomToken` function).",
+    "PRIORITY (Post-Successful Basic Deployment): Begin development and rigorous testing of the Chrome extension and its interaction with the backend APIs, AND implement the actual API call logic for LinkedIn messaging, SendPulse, and Sarvam.",
     "SECURITY (Post-Successful Basic Deployment): Implement robust authentication and authorization for all API routes via `src/middleware.ts` and by checking user permissions within API route logic. Thoroughly test Firebase Security Rules."
   ]
 }
+
+    
