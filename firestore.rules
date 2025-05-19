@@ -1,17 +1,41 @@
-
+// The version of the Firebase Rules language.
 rules_version = '2';
+
+// Defines the services and resources available in Firestore.
 service cloud.firestore {
+  // Match all databases within your project.
   match /databases/{database}/documents {
+
+    // Rule for the 'users' collection.
+    // Allows a user to read and write their own user document (identified by their userId matching their authenticated UID).
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Rule for the 'campaigns' collection.
+    // Allows a user to read, create, update, and delete only campaigns they own.
     match /campaigns/{campaignId} {
-      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.uid == resource.data.user_id;
+      // Allow read access if the user is authenticated AND their UID matches the 'user_id' field on the document.
+      allow read: if request.auth != null && request.auth.uid == resource.data.user_id;
+
+      // Allow write access (create, update, delete):
+      // 1. The user must be authenticated.
+      // 2. For 'create' operations, the 'user_id' field in the incoming data (request.resource.data)
+      //    MUST match the authenticated user's UID. This prevents users from creating campaigns for others.
+      // 3. For 'update' or 'delete' operations, the 'user_id' field in the existing document (resource.data)
+      //    MUST match the authenticated user's UID. This ensures only owners can modify/delete their campaigns.
+      allow write: if request.auth != null
+                   && (request.method == 'create' ? request.resource.data.user_id == request.auth.uid : resource.data.user_id == request.auth.uid);
     }
 
+    // Rule for the 'leads' subcollection under each 'campaign'.
+    // Allows a user to read and write leads only if they own the parent campaign.
+    // This implicitly covers scraped profile data, AI-generated messages, and email outreach data
+    // as long as they are stored within these 'lead' documents.
     match /campaigns/{campaignId}/leads/{leadId} {
-      allow read, write: if request.auth != null && get(/databases/$(database)/documents/campaigns/$(campaignId)).data.user_id == request.auth.uid;
+      allow read, write: if request.auth != null
+                         // Check if the authenticated user's UID matches the 'user_id' of the parent campaign.
+                         && get(/databases/$(database)/documents/campaigns/$(campaignId)).data.user_id == request.auth.uid;
     }
   }
 }
