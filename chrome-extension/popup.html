@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ConvoSpan AI Helper</title>
+  <style>
+    body { font-family: sans-serif; width: 250px; padding: 10px; background-color: #f0f2f5; color: #333; }
+    h3 { color: #1E3A8A; text-align: center; margin-top: 0; }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #10B981;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0d8a62;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .status { margin-top: 10px; font-size: 12px; text-align: center; color: #555; }
+    .auth-status { font-weight: bold; }
+    #authSection button { background-color: #F59E0B;}
+    #authSection button:hover { background-color: #d48c0a;}
+  </style>
+</head>
+<body>
+  <h3>ConvoSpan AI</h3>
+
+  <div id="authSection">
+    <p class="auth-status" id="authStatus">Status: Not Authenticated</p>
+    <button id="authenticateButton">Authenticate with ConvoSpan</button>
+  </div>
+  <hr style="margin: 10px 0; border-color: #ccc;"/>
+  <button id="scrapeProfileButton">Scrape LinkedIn Profile</button>
+  <button id="scrapeMessagesButton">Scrape LinkedIn Messages</button>
+  <button id="sendTestMessageButton">Queue Test LinkedIn Message</button>
+  <!-- Add more controls as needed -->
+  <div class="status" id="statusMessage"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
