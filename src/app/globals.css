@@ -23,7 +23,7 @@
     --border: 240 5% 59%; /* Soft Gray */
     --input: 240 5% 59%;
     --ring: 180 40% 30%; /* Teal */
-    --radius: 0.75rem; /* Custom radius from previous config */
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -43,38 +43,18 @@
     --accent-foreground: 50 90% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 240 5% 59%; /* Soft Gray - Might need dark mode adjustment */
-    --input: 240 5% 59%; /* Might need dark mode adjustment */
-    --ring: 180 40% 30%; /* Teal */
+    --border: 240 5% 59%; 
+    --input: 240 5% 59%; 
+    --ring: 180 40% 30%; 
   }
 }
 
 @layer base {
   * {
-    /* Explicitly apply border color using the CSS variable */
     border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground font-sans; /* Use theme variables */
-  }
-
-  @font-face {
-    font-family: 'Inter';
-    src: url('/fonts/inter-regular.woff2') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Inter';
-    src: url('/fonts/inter-semibold.woff2') format('woff2');
-    font-weight: 600;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Inter';
-    src: url('/fonts/inter-bold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
+    @apply bg-background text-foreground font-sans; /* font-sans should pick up Inter from tailwind.config */
   }
 }
 
@@ -89,6 +69,6 @@
     @apply fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50;
   }
   .modal-content {
-    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md; /* Use popover for modal */
+    @apply bg-popover bg-opacity-80 backdrop-blur-sm rounded-lg p-6 border border-[#6EBF8B] w-3/4 max-w-md;
   }
 }
