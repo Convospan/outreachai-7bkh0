@@ -1,20 +1,26 @@
 // src/services/ai.ts
-'use server';
+'use server'; // Ensure this can run server-side
 
-// Placeholder for your actual GeminiClient implementation
-// It's recommended to use your existing Genkit setup (e.g., ai.generate() with a defined prompt)
-// instead of a custom client if possible, for better integration with your project.
-import { GeminiClient } from "./geminiClient"; 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+if (!GEMINI_API_KEY) {
+  console.error("🔴 GEMINI_API_KEY is not set in environment variables. AI message generation will fail.");
+  // Potentially throw an error here or handle it depending on desired behavior
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || "fallback_key_if_not_set_but_will_fail");
 
 interface ProfileData {
   name?: string;
   headline?: string;
   company?: string;
-  // Add any other relevant fields from profileData
+  // Add any other relevant fields from profileData that the prompt might use
 }
 
 export async function generatePersonalizedMessage(profileData: ProfileData): Promise<string> {
-  const promptParts = [];
+  const promptParts: string[] = [];
   if (profileData.name) promptParts.push(`Name: ${profileData.name}`);
   if (profileData.headline) promptParts.push(`Headline: ${profileData.headline}`);
   if (profileData.company) promptParts.push(`Company: ${profileData.company}`);
@@ -26,20 +32,20 @@ export async function generatePersonalizedMessage(profileData: ProfileData): Pro
     Make it engaging and suggest a clear next step if appropriate (e.g., a brief chat, sharing a resource).
   `;
 
+  if (!GEMINI_API_KEY) {
+    console.error("generatePersonalizedMessage: GEMINI_API_KEY is not available.");
+    return `Hello ${profileData.name || 'there'}, I came across your profile and was impressed by your work at ${profileData.company || 'your company'}. I'd love to connect. (Error: API Key Missing)`;
+  }
+
   try {
-    // This assumes GeminiClient is correctly implemented and configured
-    // with API keys and makes the actual call to the Gemini API.
-    const gemini = new GeminiClient(); 
-    const responseText = await gemini.generateText(prompt);
-    
-    if (!responseText) {
-      console.error("Gemini client returned an empty response.");
-      return "I'd be interested in learning more about your work."; // Fallback message
-    }
-    return responseText;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+    return text;
   } catch (error: any) {
-    console.error('Error generating personalized message:', error.message);
+    console.error('Error generating personalized message with Gemini API:', error.message);
     // Fallback message in case of error
-    return `Hello ${profileData.name || 'there'}, I came across your profile and was impressed by your work at ${profileData.company || 'your company'}. I'd love to connect.`;
+    return `Hello ${profileData.name || 'there'}, I came across your profile and was impressed by your work at ${profileData.company || 'your company'}. I'd love to connect. (Error: AI Generation Failed)`;
   }
 }
