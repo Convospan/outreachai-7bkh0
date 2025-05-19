@@ -1,11 +1,8 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
-// App Check is currently disabled based on previous interactions.
-// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+import { getFirestore, type Firestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 // Firebase project configuration
-// These values MUST be present in your .env.local or .env file
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -19,8 +16,11 @@ const firebaseConfig = {
 let app: FirebaseApp | undefined;
 let db: Firestore | undefined;
 
+console.log("Attempting Firebase initialization...");
+
+// --- Firebase Client-Side Env Check ---
 console.log("--- Firebase Client-Side Env Check (src/lib/firebase.ts) ---");
-const requiredClientEnvVars: (keyof typeof firebaseConfig)[] = [
+const requiredClientEnvVarKeys: (keyof typeof firebaseConfig)[] = [
   'apiKey',
   'authDomain',
   'projectId',
@@ -29,69 +29,94 @@ const requiredClientEnvVars: (keyof typeof firebaseConfig)[] = [
   'appId',
 ];
 let allClientVarsPresent = true;
-requiredClientEnvVars.forEach(key => {
+const missingKeys: string[] = [];
+
+requiredClientEnvVarKeys.forEach(key => {
+  const envVarName = `NEXT_PUBLIC_FIREBASE_${key.toUpperCase()}`;
   if (!firebaseConfig[key]) {
-    console.error(`🔴 Missing NEXT_PUBLIC_FIREBASE_${key.toUpperCase()}`);
+    console.error(`🔴 ${envVarName}: NOT SET`);
+    missingKeys.push(envVarName);
     allClientVarsPresent = false;
   } else {
-    // Mask sensitive parts of keys if you want, for now just showing presence
     const value = firebaseConfig[key];
-    console.log(`🟢 Found NEXT_PUBLIC_FIREBASE_${key.toUpperCase()}: ${typeof value === 'string' && key === 'apiKey' ? value.substring(0,6) + '...' : value}`);
+     // Mask sensitive parts for logging if it's the API key
+    const displayValue = typeof value === 'string' && key === 'apiKey' ? `${value.substring(0, 6)}... (masked)` : value;
+    console.log(`🟢 ${envVarName}: SET (Value: ${displayValue})`);
   }
 });
+
 if (!firebaseConfig.measurementId) {
     console.warn("🟠 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID is not set (Optional, for Analytics).");
 }
 
 
-// Check if Firebase has already been initialized (client-side check)
-if (typeof window !== 'undefined') {
+// Initialize Firebase App
+if (typeof window !== 'undefined') { // Ensure this runs only on the client
   if (!getApps().length) {
-    console.log("Attempting Firebase client-side initialization...");
     if (allClientVarsPresent) {
       try {
         app = initializeApp(firebaseConfig);
-        console.log('🟢 Firebase core initialized successfully on client. Project ID:', firebaseConfig.projectId);
+        console.log(`🟢 Firebase core initialized successfully. Project ID: ${firebaseConfig.projectId} App instance:`, app);
         db = getFirestore(app);
-        console.log('🟢 Firestore initialized successfully on client.');
+        console.log('🟢 Firestore initialized successfully for app:', (app?.options as any)?.projectId);
 
-        // App Check initialization (currently disabled)
-        // const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-        // if (recaptchaSiteKey) {
-        //   console.log(`🟠 Attempting to initialize App Check with reCAPTCHA site key.`);
-        //   try {
-        //     initializeAppCheck(app, {
-        //       provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
-        //       isTokenAutoRefreshEnabled: true,
-        //     });
-        //     console.log("🟢 Firebase App Check initialized with reCAPTCHA Enterprise.");
-        //   } catch (appCheckError: any) {
-        //     console.error("🔴 Firebase App Check initialization FAILED:", appCheckError.message || appCheckError);
-        //   }
-        // } else {
-        //   console.warn("🟠 NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not set. Firebase App Check (reCAPTCHA) will not be initialized.");
-        // }
-
+        // Connect to Firestore Emulator in development
+        if (process.env.NODE_ENV === 'development') {
+          if (db) {
+            try {
+              connectFirestoreEmulator(db, 'localhost', 8080);
+              console.log("🔥 Firestore emulator connected at localhost:8080");
+            } catch (error: any) {
+              // It's common for connectFirestoreEmulator to throw if already connected or if db is not ready.
+              // This might happen due to HMR. Check if it's the specific "already connected" error.
+              if (error.message && error.message.includes("already connected")) {
+                console.warn("⚠️ Firestore emulator was already connected or an attempt was made to connect multiple times.");
+              } else {
+                console.error("🔴 Error connecting to Firestore emulator:", error.message || error);
+              }
+            }
+          } else {
+            console.warn("⚠️ Firestore db instance was not available when attempting to connect to emulator.");
+          }
+        }
       } catch (initError: any) {
         console.error("🔴 Firebase core client-side initialization FAILED:", initError.message || initError);
-        app = undefined; 
+        app = undefined;
         db = undefined;
       }
     } else {
       console.error(
-        `🔴 Critical Error: Missing one or more Firebase client environment variables. ` +
+        `🔴 Critical Error: Missing Firebase client environment variables: ${missingKeys.join(', ')}. ` +
         `Please ensure all NEXT_PUBLIC_FIREBASE_... variables are correctly set in your .env file or environment configuration. Firebase will NOT be initialized.`
       );
       app = undefined;
       db = undefined;
     }
   } else {
-    app = getApp();
+    app = getApp(); // Get the default app if already initialized
     if (app && !db) { // Ensure db is also initialized if app already exists
         db = getFirestore(app);
     }
     console.log('Firebase app already initialized on client. Project ID:', (app?.options as any)?.projectId);
+
+    // Connect to Firestore Emulator in development if app was already initialized elsewhere
+    if (process.env.NODE_ENV === 'development' && db) {
+        try {
+            // Check if already connected might be tricky without internal state access
+            // For simplicity, we might attempt connection, catching common errors
+            connectFirestoreEmulator(db, 'localhost', 8080);
+            console.log("🔥 Firestore emulator (re-check) connected at localhost:8080");
+        } catch (error:any) {
+            if (error.message && error.message.includes("already connected")) {
+              // This is expected if HMR re-runs this block
+            } else {
+              console.warn("⚠️ Error during emulator re-check/connect:", error.message || error);
+            }
+        }
+    }
   }
+} else {
+  console.log("Firebase client-side initialization skipped (not in browser environment).");
 }
 
 export { app, db };
