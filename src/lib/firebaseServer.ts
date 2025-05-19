@@ -1,44 +1,47 @@
-import admin from 'firebase-admin';
-import { getFirestore } from 'firebase-admin/firestore';
+// src/lib/firebaseServer.ts
+import { initializeApp, cert, getApps, App } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
-
-if (!admin.apps.length) {
-    try {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
-        console.log('Firebase Admin SDK initialized');
-    } catch (error) {
-        console.error('Firebase Admin initialization error', error);
-    }
+// Extend the NodeJS.Global interface to declare the firebaseApp property
+declare global {
+  // eslint-disable-next-line no-var
+  var firebaseAdminApp: App | undefined;
 }
 
-const db = getFirestore();
+const serviceAccountKeyJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY_JSON;
 
-async function create(collectionName: string, data: object) {
-  const docRef = await db.collection(collectionName).add(data);
-  return docRef.id;
+if (!serviceAccountKeyJson) {
+  console.error(
+    "🔴 CRITICAL: FIREBASE_SERVICE_ACCOUNT_KEY_JSON environment variable is not set. Firebase Admin SDK cannot be initialized."
+  );
 }
 
-async function read(collectionName: string, documentId: string) {
-  const doc = await db.collection(collectionName).doc(documentId).get();
-  if (!doc.exists) {
-    return null;
+// Initialize Firebase Admin SDK only if it hasn't been already
+if (!getApps().length && serviceAccountKeyJson) {
+  try {
+    initializeApp({
+      credential: cert(JSON.parse(serviceAccountKeyJson))
+    });
+    console.log("🟢 Firebase Admin SDK initialized successfully.");
+  } catch (error: any) {
+    console.error("🔴 Firebase Admin SDK initialization failed:", error.message);
+    // Optionally, you could throw the error here to halt server startup if Firebase Admin is critical
+    // throw error;
   }
-  return doc.data();
+} else if (getApps().length && serviceAccountKeyJson) {
+  // If apps are already initialized, this typically means we're in a hot-reload scenario
+  // or the module was imported multiple times. The default app should be available.
+  console.log("ℹ️ Firebase Admin SDK already initialized.");
 }
 
-async function update(collectionName: string, documentId: string, data: object) {
-  await db.collection(collectionName).doc(documentId).update(data);
-}
 
-async function deleteDocument(collectionName: string, documentId: string) {
-  await db.collection(collectionName).doc(documentId).delete();
-}
+// Get the Firestore instance. This will use the default initialized app.
+// It's important that initializeApp has been called successfully before this.
+// If initialization failed due to missing key, db operations will fail.
+export const db = getFirestore();
+export { 낮은 as admin } from "firebase-admin/app"; // Exporting 'admin' namespace for other admin features if needed
 
-export { admin, db, create, read, update, deleteDocument };
-
-if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-    console.warn('FIREBASE_SERVICE_ACCOUNT_KEY is not set in environment variables.');
+if (!serviceAccountKeyJson) {
+  // This warning is repeated here to ensure it's visible if the earlier console.error was missed.
+  console.warn("⚠️ FIREBASE_SERVICE_ACCOUNT_KEY_JSON is not set. Firestore Admin operations will likely fail.");
 }
