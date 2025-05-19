@@ -12,22 +12,18 @@ import {
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Menu, X, UserCircle } from 'lucide-react'; // Added UserCircle for placeholder
+import { Menu, X, UserCircle, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
-// import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs"; // Removed Clerk imports
+import { usePathname } from 'next/navigation'; // Corrected import
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<any | null>(null); // Placeholder for Firebase user state
+  const pathname = usePathname();
 
   // Placeholder for Firebase auth state listener
   useEffect(() => {
-    // const auth = getAuth(getFirebaseApp()); // Assuming getAuth and getFirebaseApp are set up
-    // const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    //   setUser(currentUser);
-    // });
-    // return () => unsubscribe();
-    // For now, simulate a logged-in user for testing UI
+    // Simulate a logged-in user for UI testing if needed
     // setUser({ email: "test@example.com" });
   }, []);
 
@@ -37,18 +33,22 @@ const Navbar = () => {
   };
 
   const handleSignOut = async () => {
-    // const auth = getAuth(getFirebaseApp());
-    // await signOut(auth);
-    // setUser(null);
-    alert("Sign out placeholder");
+    alert("Sign out placeholder: Implement Firebase sign out");
+    setUser(null);
   };
 
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/about", label: "About Us" },
     { href: "/pricing", label: "Pricing" },
-    { href: "/linkedin-search", label: "LinkedIn Search" },
+    // { href: "/linkedin-search", label: "LinkedIn Search" }, // LinkedIn Search might be part of extension or specific flow now
   ];
+
+  const isAuthPage = pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up');
+
+  if (isAuthPage) {
+    return null; // Don't render Navbar on auth pages
+  }
 
   return (
     <nav className="bg-background border-b shadow-sm sticky top-0 z-50">
@@ -60,7 +60,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-2">
+        <div className="hidden md:flex items-center space-x-1">
           {navLinks.map((link, index) => (
             <React.Fragment key={link.href}>
               <Link href={link.href} passHref>
@@ -68,11 +68,11 @@ const Navbar = () => {
                   {link.label}
                 </Button>
               </Link>
-              {index < navLinks.length -1 && <div className="h-5 w-[1px] bg-border"></div>}
+              {index < navLinks.length -1 && <div className="h-5 w-px bg-border mx-1"></div>}
             </React.Fragment>
           ))}
           
-          <div className="h-5 w-[1px] bg-border"></div>
+          <div className="h-5 w-px bg-border mx-1"></div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -86,10 +86,10 @@ const Navbar = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
                <DropdownMenuItem asChild>
-                <Link href="/campaign/create/linkedin-auth" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Import from LinkedIn</Link>
+                <Link href="/campaign/create/linkedin-auth" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Use LinkedIn (Info)</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
-                <Link href="/campaign/create/upload-csv" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Upload CSV</Link>
+                <Link href="/campaign/create/upload-csv" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Upload CSV (Coming Soon)</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
                <DropdownMenuItem asChild>
@@ -97,36 +97,48 @@ const Navbar = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
-                  <Link href="/campaign" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Campaign Automation</Link>
+                  <Link href="/campaign" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Campaign Automation Hub</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/campaign/email-drip" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Email Drip Campaigns</Link>
+                <Link href="/campaign/email-drip" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Email Drip (Coming Soon)</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
                   <Link href="/compliance/check" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Compliance Check</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
-                 <Link href="/call/approve" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Call Script Approval</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                 <Link href="/call/select-sarvam-model" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Select Sarvam AI Model</Link>
+                 <Link href="/call/approve" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">AI Call Agent (Coming Soon)</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/risk-lead-visualization" className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Risk & Lead Visualization</Link>
               </DropdownMenuItem>
+               <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem onClick={() => alert("Chrome extension download link coming soon!")} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm cursor-pointer">
+                    <Download className="h-4 w-4 mr-2"/> Get Chrome Extension
+                </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="h-5 w-[1px] bg-border"></div>
-          {/* Firebase Auth Placeholder */}
+          <div className="h-5 w-px bg-border mx-1"></div>
           {user ? (
-            <div className="flex items-center space-x-2">
-              <UserCircle className="h-6 w-6 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground hidden lg:inline">{user.email}</span>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign Out</Button>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="px-2">
+                        <UserCircle className="h-6 w-6 text-muted-foreground" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-[#a9cad4]" sideOffset={5}>
+                    <DropdownMenuLabel>My Account ({user.email?.substring(0, user.email.indexOf('@'))})</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild><Link href="/settings">Settings</Link></DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                        Sign Out
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Link href="/sign-in" passHref>
-              <Button variant="ghost" className="text-foreground hover:bg-accent hover:text-accent-foreground px-3 py-2 text-sm font-medium">
+              <Button variant="outline" className="text-sm font-medium">
                 Sign In
               </Button>
             </Link>
@@ -135,7 +147,6 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-2">
-           {/* Firebase Auth Placeholder - Mobile */}
            {user ? (
              <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sign Out">
                <UserCircle className="h-6 w-6" />
@@ -161,12 +172,15 @@ const Navbar = () => {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={toggleMobileMenu}
+                onClick={() => {
+                  toggleMobileMenu();
+                }}
                 className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
               >
                 {link.label}
               </Link>
             ))}
+            {/* Simplified Mobile Modules Dropdown for Brevity, could be more detailed */}
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start px-3 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground">
@@ -179,10 +193,10 @@ const Navbar = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
-                <Link href="/campaign/create/linkedin-auth" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Import from LinkedIn</Link>
+                <Link href="/campaign/create/linkedin-auth" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Use LinkedIn (Info)</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
-                <Link href="/campaign/create/upload-csv" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Upload CSV</Link>
+                <Link href="/campaign/create/upload-csv" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Upload CSV (Coming Soon)</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
                 <DropdownMenuItem asChild>
@@ -190,23 +204,24 @@ const Navbar = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50" />
               <DropdownMenuItem asChild>
-                  <Link href="/campaign" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Campaign Automation</Link>
+                  <Link href="/campaign" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Campaign Automation Hub</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/campaign/email-drip" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Email Drip Campaigns</Link>
+                <Link href="/campaign/email-drip" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Email Drip (Coming Soon)</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
                   <Link href="/compliance/check" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Compliance Check</Link>
               </DropdownMenuItem>
                <DropdownMenuItem asChild>
-                 <Link href="/call/approve" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Call Script Approval</Link>
-              </DropdownMenuItem>
-               <DropdownMenuItem asChild>
-                 <Link href="/call/select-sarvam-model" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Select Sarvam AI Model</Link>
+                 <Link href="/call/approve" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">AI Call Agent (Coming Soon)</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/risk-lead-visualization" onClick={toggleMobileMenu} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm">Risk & Lead Visualization</Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem onClick={() => {alert("Chrome extension download link coming soon!"); toggleMobileMenu();}} className="flex items-center px-3 py-2 text-sm hover:bg-accent/80 rounded-sm cursor-pointer">
+                    <Download className="h-4 w-4 mr-2"/> Get Chrome Extension
+                </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           </div>
@@ -217,4 +232,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
