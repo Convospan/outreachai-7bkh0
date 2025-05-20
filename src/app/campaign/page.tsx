@@ -171,7 +171,20 @@ function CampaignPageContent() {
     try {
       const result = await generateOutreachScript(input);
       const aiMessage = result.script;
-      setSuggestedNextObjective(result.suggestedNextObjective);
+
+      if (result.suggestedNextObjective) {
+        setSuggestedNextObjective(result.suggestedNextObjective); // Set for UI feedback
+
+        // Only update currentObjective if the suggestion is a valid INPUT objective for the next message
+        const validMessageObjectives: Array<GenerateOutreachScriptInput['objective']> = [
+          'build_rapport', 'gather_information', 'request_email', 'schedule_call', 'general_follow_up'
+        ];
+
+        if (validMessageObjectives.includes(result.suggestedNextObjective as any)) { // Type assertion needed as types differ
+          setCurrentObjective(result.suggestedNextObjective as GenerateOutreachScriptInput['objective']);
+        }
+      }
+
 
       // TODO: Instead of direct API call, this message needs to be queued
       // for the Chrome extension or a backend automation (like the Puppeteer function) to send.
@@ -188,7 +201,7 @@ function CampaignPageContent() {
           const simulatedReply = `Sure, my email is test.prospect@example.com.`;
           setLinkedinConversation(prev => [...prev, { sender: 'prospect', message: simulatedReply, timestamp: new Date() }]);
           setProspectEmailForDrip('test.prospect@example.com');
-          setSuggestedNextObjective('transition_to_email');
+          setSuggestedNextObjective('transition_to_email'); // Update this state for UI
           setCurrentProspectJourneyStage('EmailAddressCaptured');
           toast({title: "Email Captured!", description: `Prospect's email test.prospect@example.com captured from simulated reply.`});
         }, 3000);
@@ -199,7 +212,7 @@ function CampaignPageContent() {
       console.error(`Failed to generate ${platform} message:`, error);
       toast({ title: 'Error', description: error.message || `Failed to process ${platform} message.`, variant: 'destructive' });
     }
-  }, [platform, linkedinProfile, linkedinUsername, additionalContext, includeCallToAction, linkedinConversation, currentObjective, toast, leadId]);
+  }, [platform, linkedinProfile, linkedinUsername, additionalContext, includeCallToAction, linkedinConversation, currentObjective, toast, leadId, currentProspectJourneyStage]);
 
 
   const handleTransitionToEmail = () => {
@@ -208,6 +221,8 @@ function CampaignPageContent() {
         return;
     }
     // Navigate to email drip page, passing necessary info
+    setCurrentProspectJourneyStage('EmailAddressCaptured'); // Explicitly set before navigating
+    toast({title: "Transition to Email", description: `Preparing email drip for ${prospectEmailForDrip}. Please configure and generate sequence.`});
     router.push(`/campaign/email-drip?emails=${encodeURIComponent(prospectEmailForDrip)}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}&stage=EmailAddressCaptured`);
   };
 
@@ -245,7 +260,10 @@ function CampaignPageContent() {
                 <SelectTrigger id="platform"><SelectValue placeholder="Select a platform" /></SelectTrigger>
                 <SelectContent>
                             <SelectItem value="linkedin">LinkedIn (via Extension)</SelectItem>
-                            <SelectItem value="email" disabled>Email Drip (Coming Soon)</SelectItem>
+                            <SelectItem value="email" onClick={() => {
+                                setCurrentProspectJourneyStage('EmailAddressCaptured');
+                                router.push(`/campaign/email-drip?leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}&stage=EmailAddressCaptured`);
+                            }}>Email Drip (Coming Soon)</SelectItem>
                             <SelectItem value="whatsapp" disabled>WhatsApp (Coming Soon)</SelectItem>
                             <SelectItem value="twitter" disabled>Twitter/X (Coming Soon)</SelectItem>
                 </SelectContent>
@@ -336,19 +354,22 @@ function CampaignPageContent() {
         <Button variant="outline" onClick={() => router.push('/')}> <HomeIcon className="mr-2 h-4 w-4" /> Dashboard</Button>
         <div className="flex gap-2">
             {currentProspectJourneyStage !== 'Identified' && currentProspectJourneyStage !== 'LinkedInDataFetched' && (
-                <Link href={`/compliance/check?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`} passHref>
-                    <Button variant="outline">Next: Compliance Check <ChevronRight className="ml-2 h-4 w-4" /></Button>
-                </Link>
+                 <Button variant="outline" onClick={() => {
+                        setCurrentProspectJourneyStage('ComplianceChecked');
+                        router.push(`/compliance/check?stage=ComplianceChecked&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`);
+                    }}>Next: Compliance Check <ChevronRight className="ml-2 h-4 w-4" /></Button>
             )}
-            {(currentProspectJourneyStage === 'ComplianceChecked' || currentProspectJourneyStage === 'AICallInProgress') && ( // Simplified for placeholder
-                <Link href={`/call/approve?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`} passHref>
-                    <Button>Next: AI Call Agent (Coming Soon) <ChevronRight className="ml-2 h-4 w-4" /></Button>
-                </Link>
+            {currentProspectJourneyStage === 'ComplianceChecked' && (
+                <Button onClick={() => {
+                        setCurrentProspectJourneyStage('AICallInProgress');
+                        router.push(`/call/approve?stage=AICallInProgress&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`);
+                    }}>Next: AI Call Agent (Coming Soon) <ChevronRight className="ml-2 h-4 w-4" /></Button>
             )}
-             {currentProspectJourneyStage === 'CallCompleted' && (
-                 <Link href={`/risk-lead-visualization?stage=${currentProspectJourneyStage}&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`} passHref>
-                     <Button variant="default">View Risk & Lead Visualization <ChevronRight className="ml-2 h-4 w-4" /></Button>
-                 </Link>
+             {currentProspectJourneyStage === 'CallCompleted' && ( // Or AICallInProgress if that's the final step before this
+                 <Button variant="default" onClick={() => {
+                        setCurrentProspectJourneyStage('LeadQualified'); // Or a specific visualization stage
+                        router.push(`/risk-lead-visualization?stage=LeadQualified&leadId=${leadId || ''}&campaignName=${encodeURIComponent(linkedinProfile?.firstName || linkedinUsername || 'Campaign')}`);
+                    }}>View Risk & Lead Visualization <ChevronRight className="ml-2 h-4 w-4" /></Button>
              )}
         </div>
       </div>
@@ -368,3 +389,4 @@ export default function CampaignPage() {
         </Suspense>
     )
 }
+
