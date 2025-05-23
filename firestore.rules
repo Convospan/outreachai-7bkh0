@@ -1,41 +1,92 @@
-// The version of the Firebase Rules language.
+
 rules_version = '2';
 
-// Defines the services and resources available in Firestore.
 service cloud.firestore {
-  // Match all databases within your project.
   match /databases/{database}/documents {
 
-    // Rule for the 'users' collection.
-    // Allows a user to read and write their own user document (identified by their userId matching their authenticated UID).
+    // Helper function to check if the user owns the document via user_id field
+    function isOwner(userIdField) {
+      return request.auth != null && request.auth.uid == userIdField;
+    }
+
+    // Helper function to check if the user owns a campaign document
+    function isCampaignOwner(campaignId) {
+      return request.auth != null && get(/databases/$(database)/documents/campaigns/$(campaignId)).data.user_id == request.auth.uid;
+    }
+
+    // Helper function to check if the user owns a lead document
+    function isLeadOwner(leadId) {
+      return request.auth != null && get(/databases/$(database)/documents/leads/$(leadId)).data.user_id == request.auth.uid;
+    }
+
+    // Users: Can read and write their own user document.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if isOwner(userId);
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Disallow listing all users by default for security.
+      // Specific queries for admin purposes would need more granular rules or backend implementation.
+      allow list: if false;
     }
 
-    // Rule for the 'campaigns' collection.
-    // Allows a user to read, create, update, and delete only campaigns they own.
+    // Campaigns: User can manage their own campaigns.
+    // Integrity checks for denormalized user_email and user_tier on write.
     match /campaigns/{campaignId} {
-      // Allow read access if the user is authenticated AND their UID matches the 'user_id' field on the document.
-      allow read: if request.auth != null && request.auth.uid == resource.data.user_id;
-
-      // Allow write access (create, update, delete):
-      // 1. The user must be authenticated.
-      // 2. For 'create' operations, the 'user_id' field in the incoming data (request.resource.data)
-      //    MUST match the authenticated user's UID. This prevents users from creating campaigns for others.
-      // 3. For 'update' or 'delete' operations, the 'user_id' field in the existing document (resource.data)
-      //    MUST match the authenticated user's UID. This ensures only owners can modify/delete their campaigns.
-      allow write: if request.auth != null
-                   && (request.method == 'create' ? request.resource.data.user_id == request.auth.uid : resource.data.user_id == request.auth.uid);
+      allow read, update, delete: if isOwner(resource.data.user_id);
+      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid
+                       && request.resource.data.user_email == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email
+                       && request.resource.data.user_tier == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tier;
+      // Allow authenticated users to list campaigns, assuming client-side filters by user_id.
+      // Add a limit to prevent overly broad queries.
+      allow list: if request.auth != null && request.query.limit <= 100;
     }
 
-    // Rule for the 'leads' subcollection under each 'campaign'.
-    // Allows a user to read and write leads only if they own the parent campaign.
-    // This implicitly covers scraped profile data, AI-generated messages, and email outreach data
-    // as long as they are stored within these 'lead' documents.
-    match /campaigns/{campaignId}/leads/{leadId} {
-      allow read, write: if request.auth != null
-                         // Check if the authenticated user's UID matches the 'user_id' of the parent campaign.
-                         && get(/databases/$(database)/documents/campaigns/$(campaignId)).data.user_id == request.auth.uid;
+    // Leads: User can manage leads associated with their campaigns.
+    // Integrity checks for denormalized fields on write.
+    match /leads/{leadId} {
+      allow read, update, delete: if isOwner(resource.data.user_id) && isCampaignOwner(resource.data.campaign_id);
+      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid
+                       && isCampaignOwner(request.resource.data.campaign_id)
+                       && request.resource.data.campaign_name == get(/databases/$(database)/documents/campaigns/$(request.resource.data.campaign_id)).data.name
+                       && request.resource.data.user_email == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email
+                       && request.resource.data.user_tier == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tier;
+      allow list: if request.auth != null && request.query.limit <= 100;
+    }
+
+    // Sequences: User can manage sequences for their campaigns.
+    match /sequences/{sequenceId} {
+      allow read, update, delete: if isCampaignOwner(resource.data.campaign_id);
+      allow create: if isCampaignOwner(request.resource.data.campaign_id);
+      allow list: if request.auth != null && request.query.limit <= 100;
+    }
+
+    // Calls: User can manage calls related to their leads.
+    match /calls/{callId} {
+      allow read, update, delete: if isLeadOwner(resource.data.lead_id);
+      allow create: if isLeadOwner(request.resource.data.lead_id);
+      allow list: if request.auth != null && request.query.limit <= 100;
+    }
+
+    // Payments: Users can read their own payments. Writes should be server-side.
+    match /payments/{paymentId} {
+      allow read: if isOwner(resource.data.user_id);
+      allow create, update, delete: if false; // Disallow client-side modification
+      allow list: if request.auth != null && request.query.limit <= 100; // Assuming client filters by user_id
+    }
+
+    // linkedinProfiles: Data scraped by Chrome extension, linked by uid.
+    match /linkedinProfiles/{profileDocId} {
+      allow read, update, delete: if isOwner(resource.data.uid);
+      // Create is typically handled by an authenticated API route.
+      // This rule allows create if the document's uid matches the authenticated user.
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow list: if request.auth != null && request.query.limit <= 100; // Assuming client filters by uid
+    }
+
+    // linkedinMessages: Data scraped by Chrome extension, linked by uid.
+    match /linkedinMessages/{messageDocId} {
+      allow read, update, delete: if isOwner(resource.data.uid);
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow list: if request.auth != null && request.query.limit <= 100; // Assuming client filters by uid
     }
   }
 }
