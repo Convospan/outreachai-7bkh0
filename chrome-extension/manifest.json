@@ -12,8 +12,11 @@
   ],
   "host_permissions": [
     "https://*.linkedin.com/*",
-    "https://YOUR_FIREBASE_FUNCTION_URL/*"
+    "https://convospan.com/*"
   ],
+  "externally_connectable": {
+    "matches": ["https://convospan.com/*"]
+  },
   "background": {
     "service_worker": "background.js",
     "type": "module"

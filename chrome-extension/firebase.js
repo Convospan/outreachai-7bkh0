@@ -5,13 +5,13 @@ import { getFunctions } from "firebase/functions";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDgTlRUlQcCAESgxHUSkyHE17O3OrEk_N0",
-  authDomain: "outreachai-7bkh0.firebaseapp.com",
-  projectId: "outreachai-7bkh0",
-  storageBucket: "outreachai-7bkh0.firebasestorage.app",
-  messagingSenderId: "533689904717",
-  appId: "1:533689904717:web:68bf5ec9f1d8e406bcf604",
-  measurementId: "G-9BLQ365PGE"
+  apiKey: "YOUR_NEXT_PUBLIC_FIREBASE_API_KEY",
+  authDomain: "YOUR_NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+  projectId: "YOUR_NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+  storageBucket: "YOUR_NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+  appId: "YOUR_NEXT_PUBLIC_FIREBASE_APP_ID",
+  measurementId: "YOUR_NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID" // Or leave as undefined if truly optional
 };
 
 const app = initializeApp(firebaseConfig);

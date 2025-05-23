@@ -1,19 +1,13 @@
 
 // chrome-extension/background.js
-import { initializeApp } from './firebase-app.js'; // For Firebase App
-import { getAuth, signInWithCustomToken } from './firebase-auth.js'; // For Firebase Auth
+// Removed initializeApp and getAuth from local/relative paths
+import { auth } from './firebase.js'; // Import the initialized auth instance from firebase.js
+import { signInWithCustomToken } from 'firebase/auth'; // Import signInWithCustomToken from the Firebase SDK
 
-// Initialize Firebase
-const firebaseApp = initializeApp({
-    // IMPORTANT: REPLACE with your actual Firebase config
-    apiKey: "YOUR_NEXT_PUBLIC_FIREBASE_API_KEY",
-    authDomain: "YOUR_NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
-    projectId: "YOUR_NEXT_PUBLIC_FIREBASE_PROJECT_ID",
-    storageBucket: "YOUR_NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
-    appId: "YOUR_NEXT_PUBLIC_FIREBASE_APP_ID"
-});
-const auth = getAuth(firebaseApp);
+// The Firebase app is initialized in firebase.js and auth is imported from there.
+// So, the direct initialization block below has been removed.
+// const firebaseApp = initializeApp({ ... });
+// const auth = getAuth(firebaseApp);
 
 const MAX_DAILY_ACTIONS = 100; // Example limit
 let actionQueue = [];

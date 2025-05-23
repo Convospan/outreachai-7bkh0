@@ -3,18 +3,57 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { auth } from '@/lib/firebase'; // Import client-side auth
 
 export default function CampaignForm() {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
+  // const [error, setError] = useState(''); // Optional: for more specific error UI
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setMessage(''); // Clear previous messages
+    // setError(''); // Clear previous errors if using a separate error state
+
+    if (!auth.currentUser) {
+      setMessage('Error: You must be logged in to create a campaign.');
+      // Or use a toast notification:
+      // toast({ title: "Authentication Error", description: "You must be logged in.", variant: "destructive" });
+      return;
+    }
+
+    const userId = auth.currentUser.uid;
+    let token;
     try {
-      const response = await axios.post('/api/campaigns', { name, user_id: 'user123', platforms: ['linkedin'] });
+      token = await auth.currentUser.getIdToken();
+    } catch (error) {
+      console.error("Error getting ID token:", error);
+      setMessage('Error: Could not authenticate your session. Please try logging in again.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        '/api/campaigns',
+        {
+          name,
+          user_id: userId, // Use the actual user ID
+          platforms: ['linkedin'] // Example platform
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       setMessage(`Campaign created with ID: ${response.data.id}`);
     } catch (error) {
-      setMessage('Error creating campaign');
+      console.error("Error creating campaign:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        setMessage(`Error creating campaign: ${error.response.data.error || error.message}. Ensure you are logged in and try again.`);
+      } else {
+        setMessage('Error creating campaign. Ensure you are logged in and try again.');
+      }
     }
   };
 
