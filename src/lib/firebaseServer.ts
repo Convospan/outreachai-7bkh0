@@ -1,8 +1,7 @@
-// src/lib/firebaseServer.ts
 import { initializeApp, cert, getApps, App } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-// Extend the NodeJS.Global interface to declare the firebaseApp property
+// Extend the NodeJS.Global interface to declare the firebaseAdminApp property
 declare global {
   // eslint-disable-next-line no-var
   var firebaseAdminApp: App | undefined;
@@ -17,9 +16,9 @@ if (!serviceAccountKeyJson) {
 }
 
 // Initialize Firebase Admin SDK only if it hasn't been already
-if (!getApps().length && serviceAccountKeyJson) {
+if (!globalThis.firebaseAdminApp && serviceAccountKeyJson) {
   try {
-    initializeApp({
+    globalThis.firebaseAdminApp = initializeApp({
       credential: cert(JSON.parse(serviceAccountKeyJson))
     });
     console.log("🟢 Firebase Admin SDK initialized successfully.");
@@ -28,18 +27,17 @@ if (!getApps().length && serviceAccountKeyJson) {
     // Optionally, you could throw the error here to halt server startup if Firebase Admin is critical
     // throw error;
   }
-} else if (getApps().length && serviceAccountKeyJson) {
-  // If apps are already initialized, this typically means we're in a hot-reload scenario
-  // or the module was imported multiple times. The default app should be available.
+} else if (globalThis.firebaseAdminApp && serviceAccountKeyJson) {
+  // If already initialized, this typically means we're in a hot-reload scenario or the module was imported multiple times.
   console.log("ℹ️ Firebase Admin SDK already initialized.");
 }
 
-
 // Get the Firestore instance. This will use the default initialized app.
-// It's important that initializeApp has been called successfully before this.
-// If initialization failed due to missing key, db operations will fail.
-export const db = getFirestore();
-export { 낮은 as admin } from "firebase-admin/app"; // Exporting 'admin' namespace for other admin features if needed
+export const db = getFirestore(globalThis.firebaseAdminApp);
+
+// Exporting the firebase-admin/app namespace for other admin features if needed
+import * as admin from "firebase-admin/app";
+export { admin };
 
 if (!serviceAccountKeyJson) {
   // This warning is repeated here to ensure it's visible if the earlier console.error was missed.
